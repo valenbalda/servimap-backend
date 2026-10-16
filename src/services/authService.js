@@ -71,4 +71,20 @@ async function iniciarSesion({ email, password }) {
   };
 }
 
-module.exports = { registrarUsuario, iniciarSesion };
+async function obtenerPerfil(usuarioId) {
+  const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
+
+  if (!usuario || !usuario.activo) {
+    throw crearError('Usuario no encontrado', 404);
+  }
+
+  return {
+    id: usuario.id,
+    nombre: usuario.nombre,
+    email: usuario.email,
+    rol: usuario.rol,
+    fechaRegistro: usuario.fechaRegistro,
+  };
+}
+
+module.exports = { registrarUsuario, iniciarSesion, obtenerPerfil };
