@@ -23,6 +23,14 @@ const parametroId = {
   description: 'Identificador del oficio',
 };
 
+const parametroPrestadorId = {
+  name: 'prestadorId',
+  in: 'path',
+  required: true,
+  schema: { type: 'string' },
+  description: 'Identificador del prestador',
+};
+
 const swaggerSpec = {
   openapi: '3.0.3',
   info: {
@@ -37,7 +45,7 @@ const swaggerSpec = {
     { name: 'Sistema' },
     { name: 'Auth', description: 'Registro, inicio de sesión y perfil' },
     { name: 'Oficios', description: 'Catálogo de oficios' },
-    { name: 'Calificaciones', description: 'Calificaciones de servicios finalizados' },
+    { name: 'Calificaciones', description: 'Calificaciones y reputación de los prestadores' },
   ],
   components: {
     securitySchemes: {
@@ -80,6 +88,24 @@ const swaggerSpec = {
           solicitudId: { type: 'string' },
           clienteId: { type: 'string' },
           prestadorId: { type: 'string' },
+        },
+      },
+      CalificacionPublica: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          puntaje: { type: 'integer', minimum: 1, maximum: 5 },
+          comentario: { type: 'string', nullable: true },
+          fechaPublicacion: { type: 'string', format: 'date-time' },
+        },
+      },
+      Reputacion: {
+        type: 'object',
+        properties: {
+          prestadorId: { type: 'string' },
+          promedio: { type: 'number', nullable: true, example: 4.5 },
+          totalCalificaciones: { type: 'integer', example: 12 },
+          serviciosFinalizados: { type: 'integer', example: 15 },
         },
       },
     },
@@ -260,6 +286,31 @@ const swaggerSpec = {
           403: respuestaError('La solicitud no es del cliente o el rol no tiene permisos'),
           404: respuestaError('Solicitud no encontrada'),
           409: respuestaError('La solicitud no está finalizada o ya fue calificada'),
+        },
+      },
+    },
+    '/api/calificaciones/prestador/{prestadorId}/reputacion': {
+      get: {
+        tags: ['Calificaciones'],
+        summary: 'Obtener la reputación de un prestador: promedio y servicios finalizados',
+        parameters: [parametroPrestadorId],
+        responses: {
+          200: respuestaJson('Reputación del prestador', { $ref: '#/components/schemas/Reputacion' }),
+          404: respuestaError('Prestador no encontrado'),
+        },
+      },
+    },
+    '/api/calificaciones/prestador/{prestadorId}': {
+      get: {
+        tags: ['Calificaciones'],
+        summary: 'Listar las calificaciones y comentarios de un prestador (sin los moderados)',
+        parameters: [parametroPrestadorId],
+        responses: {
+          200: respuestaJson('Calificaciones del prestador', {
+            type: 'array',
+            items: { $ref: '#/components/schemas/CalificacionPublica' },
+          }),
+          404: respuestaError('Prestador no encontrado'),
         },
       },
     },
