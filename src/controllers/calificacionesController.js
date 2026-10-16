@@ -38,4 +38,26 @@ async function crear(req, res, next) {
   }
 }
 
-module.exports = { crear };
+async function reputacion(req, res, next) {
+  try {
+    const resultado = await calificacionesService.obtenerReputacion(
+      req.params.prestadorId
+    );
+    res.json(resultado);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function listarPorPrestador(req, res, next) {
+  try {
+    const calificaciones = await calificacionesService.listarCalificacionesPrestador(
+      req.params.prestadorId
+    );
+    res.json(calificaciones);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { crear, reputacion, listarPorPrestador };
