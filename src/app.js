@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 
 const env = require('./config/env');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
+const authRouter = require('./routes/authRouter');
 
 // Crea la aplicación Express.
 const app = express();
@@ -36,6 +37,9 @@ app.use(
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// Rutas de autenticación (registro, login).
+app.use('/api/auth', authRouter);
 
 // Estos dos van siempre al final:
 // primero, el 404 si ninguna ruta respondió; después, el manejador de errores.
