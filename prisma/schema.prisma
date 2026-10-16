@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  CLIENTE
+  PRESTADOR
+  ADMINISTRADOR
+}
+
+enum EstadoSolicitud {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+  CANCELADA
+  FINALIZADA
+}
+
+model Usuario {
+  id                  String   @id @default(uuid())
+  nombre              String
+  email               String   @unique
+  passwordHash        String
+  rol                 Rol
+  activo              Boolean  @default(true)
+  fechaRegistro       DateTime @default(now())
+  latitudReferencia   Decimal? @db.Decimal(9, 6)
+  longitudReferencia  Decimal? @db.Decimal(9, 6)
+
+  prestador           Prestador?
+  solicitudes         Solicitud[]    @relation("SolicitudesDelCliente")
+  calificaciones      Calificacion[]
+}
+
+model Prestador {
+  id                      String   @id @default(uuid())
+  usuarioId               String   @unique
+  descripcionProfesional  String?
+  fotoPerfil              String?
+  zonaCobertura           String?
+  latitud                 Decimal? @db.Decimal(9, 6)
+  longitud                Decimal? @db.Decimal(9, 6)
+  precioMin               Decimal? @db.Decimal(10, 2)
+  precioMax               Decimal? @db.Decimal(10, 2)
+  telefono                String?
+  whatsapp                String?
+  emailContacto           String?
+  disponible              Boolean  @default(true)
+  activo                  Boolean  @default(true)
+
+  usuario                 Usuario  @relation(fields: [usuarioId], references: [id])
+  oficios                 PrestadorOficio[]
+  solicitudes             Solicitud[]
+  calificaciones          Calificacion[]
+}
+
+model Oficio {
+  id         String  @id @default(uuid())
+  nombre     String  @unique
+  categoria  String?
+  activo     Boolean @default(true)
+
+  prestadores PrestadorOficio[]
+  solicitudes Solicitud[]
+}
+
+model PrestadorOficio {
+  prestadorId String
+  oficioId    String
+
+  prestador   Prestador @relation(fields: [prestadorId], references: [id])
+  oficio      Oficio    @relation(fields: [oficioId], references: [id])
+
+  @@id([prestadorId, oficioId])
+}
+
+model Solicitud {
+  id                  String          @id @default(uuid())
+  descripcion         String
+  direccion           String?
+  contactoPreferido   String?
+  estado              EstadoSolicitud @default(PENDIENTE)
+  fechaCreacion       DateTime        @default(now())
+  fechaActualizacion  DateTime        @updatedAt
+
+  clienteId           String
+  prestadorId         String
+  oficioId            String
+
+  cliente             Usuario         @relation("SolicitudesDelCliente", fields: [clienteId], references: [id])
+  prestador           Prestador       @relation(fields: [prestadorId], references: [id])
+  oficio              Oficio          @relation(fields: [oficioId], references: [id])
+  calificacion        Calificacion?
+}
+
+model Calificacion {
+  id                String    @id @default(uuid())
+  puntaje           Int
+  comentario        String?
+  fechaPublicacion  DateTime  @default(now())
+  moderada          Boolean   @default(false)
+  fechaModeracion   DateTime?
+  motivoModeracion  String?
+
+  solicitudId       String    @unique
+  clienteId         String
+  prestadorId       String
+
+  solicitud         Solicitud @relation(fields: [solicitudId], references: [id])
+  cliente           Usuario   @relation(fields: [clienteId], references: [id])
+  prestador         Prestador @relation(fields: [prestadorId], references: [id])
+}
