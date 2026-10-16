@@ -12,4 +12,13 @@ router.post(
   calificacionesController.crear
 );
 
+router.get(
+  '/prestador/:prestadorId/reputacion',
+  calificacionesController.reputacion
+);
+router.get(
+  '/prestador/:prestadorId',
+  calificacionesController.listarPorPrestador
+);
+
 module.exports = router;

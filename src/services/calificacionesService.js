@@ -39,4 +39,56 @@ async function crearCalificacion({ clienteId, solicitudId, puntaje, comentario }
   });
 }
 
-module.exports = { crearCalificacion };
+async function verificarPrestador(prestadorId) {
+  const prestador = await prisma.prestador.findUnique({
+    where: { id: prestadorId },
+  });
+  if (!prestador) {
+    throw crearError('Prestador no encontrado', 404);
+  }
+}
+
+async function obtenerReputacion(prestadorId) {
+  await verificarPrestador(prestadorId);
+
+  const [calificaciones, serviciosFinalizados] = await Promise.all([
+    prisma.calificacion.aggregate({
+      where: { prestadorId },
+      _avg: { puntaje: true },
+      _count: { puntaje: true },
+    }),
+    prisma.solicitud.count({
+      where: { prestadorId, estado: 'FINALIZADA' },
+    }),
+  ]);
+
+  const promedio = calificaciones._avg.puntaje;
+
+  return {
+    prestadorId,
+    promedio: promedio === null ? null : Math.round(promedio * 10) / 10,
+    totalCalificaciones: calificaciones._count.puntaje,
+    serviciosFinalizados,
+  };
+}
+
+async function listarCalificacionesPrestador(prestadorId) {
+  await verificarPrestador(prestadorId);
+
+  return prisma.calificacion.findMany({
+    where: { prestadorId, moderada: false },
+    orderBy: { fechaPublicacion: 'desc' },
+    select: {
+      id: true,
+      puntaje: true,
+      comentario: true,
+      fechaPublicacion: true,
+    },
+  });
+}
+
+module.exports = {
+  crearCalificacion,
+  obtenerReputacion,
+  listarCalificacionesPrestador,
+};
