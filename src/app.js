@@ -6,8 +6,11 @@ const helmet = require('helmet');
 const cors = require('cors');
 // Rate limit frena a quien mande demasiados pedidos en poco tiempo.
 const rateLimit = require('express-rate-limit');
+// Swagger UI muestra la documentación de la API en el navegador.
+const swaggerUi = require('swagger-ui-express');
 
 const env = require('./config/env');
+const swaggerSpec = require('./config/swagger');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const authRouter = require('./routes/authRouter');
 const oficiosRouter = require('./routes/oficiosRouter');
@@ -38,6 +41,9 @@ app.use(
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// Documentación de la API (Swagger) en /api-docs.
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Rutas de autenticación (registro, login).
 app.use('/api/auth', authRouter);
