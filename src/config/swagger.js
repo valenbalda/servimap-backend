@@ -37,6 +37,7 @@ const swaggerSpec = {
     { name: 'Sistema' },
     { name: 'Auth', description: 'Registro, inicio de sesión y perfil' },
     { name: 'Oficios', description: 'Catálogo de oficios' },
+    { name: 'Calificaciones', description: 'Calificaciones de servicios finalizados' },
   ],
   components: {
     securitySchemes: {
@@ -64,6 +65,21 @@ const swaggerSpec = {
           nombre: { type: 'string' },
           categoria: { type: 'string', nullable: true },
           activo: { type: 'boolean' },
+        },
+      },
+      Calificacion: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          puntaje: { type: 'integer', minimum: 1, maximum: 5 },
+          comentario: { type: 'string', nullable: true },
+          fechaPublicacion: { type: 'string', format: 'date-time' },
+          moderada: { type: 'boolean' },
+          fechaModeracion: { type: 'string', format: 'date-time', nullable: true },
+          motivoModeracion: { type: 'string', nullable: true },
+          solicitudId: { type: 'string' },
+          clienteId: { type: 'string' },
+          prestadorId: { type: 'string' },
         },
       },
     },
@@ -220,6 +236,30 @@ const swaggerSpec = {
           401: respuestaError('No autenticado'),
           403: respuestaError('Sin permisos'),
           404: respuestaError('Oficio no encontrado'),
+        },
+      },
+    },
+    '/api/calificaciones': {
+      post: {
+        tags: ['Calificaciones'],
+        summary: 'Calificar una solicitud finalizada (cliente)',
+        security: [{ bearerAuth: [] }],
+        requestBody: cuerpoJson({
+          type: 'object',
+          required: ['solicitudId', 'puntaje'],
+          properties: {
+            solicitudId: { type: 'string' },
+            puntaje: { type: 'integer', minimum: 1, maximum: 5, example: 5 },
+            comentario: { type: 'string', maxLength: 500, example: 'Muy buen servicio' },
+          },
+        }),
+        responses: {
+          201: respuestaJson('Calificación creada', { $ref: '#/components/schemas/Calificacion' }),
+          400: respuestaError('Datos inválidos'),
+          401: respuestaError('No autenticado'),
+          403: respuestaError('La solicitud no es del cliente o el rol no tiene permisos'),
+          404: respuestaError('Solicitud no encontrada'),
+          409: respuestaError('La solicitud no está finalizada o ya fue calificada'),
         },
       },
     },

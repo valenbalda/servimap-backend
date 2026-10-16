@@ -14,6 +14,7 @@ const swaggerSpec = require('./config/swagger');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const authRouter = require('./routes/authRouter');
 const oficiosRouter = require('./routes/oficiosRouter');
+const calificacionesRouter = require('./routes/calificacionesRouter');
 
 // Crea la aplicación Express.
 const app = express();
@@ -50,6 +51,9 @@ app.use('/api/auth', authRouter);
 
 // Rutas de oficios (listado público, gestión del administrador).
 app.use('/api/oficios', oficiosRouter);
+
+// Rutas de calificaciones (los clientes califican servicios finalizados).
+app.use('/api/calificaciones', calificacionesRouter);
 
 // Estos dos van siempre al final:
 // primero, el 404 si ninguna ruta respondió; después, el manejador de errores.
