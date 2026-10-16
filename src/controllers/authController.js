@@ -32,4 +32,28 @@ async function register(req, res, next) {
   }
 }
 
-module.exports = { register };
+async function login(req, res, next) {
+  try {
+    const { email, password } = req.body;
+
+    if (
+      typeof email !== 'string' ||
+      typeof password !== 'string' ||
+      !email.trim() ||
+      !password
+    ) {
+      return res.status(400).json({ error: 'Faltan datos obligatorios' });
+    }
+
+    const resultado = await authService.iniciarSesion({
+      email: email.trim().toLowerCase(),
+      password,
+    });
+
+    res.json(resultado);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { register, login };
