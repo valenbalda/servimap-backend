@@ -31,6 +31,14 @@ const parametroPrestadorId = {
   description: 'Identificador del prestador',
 };
 
+const parametroCalificacionId = {
+  name: 'id',
+  in: 'path',
+  required: true,
+  schema: { type: 'string' },
+  description: 'Identificador de la calificación',
+};
+
 const swaggerSpec = {
   openapi: '3.0.3',
   info: {
@@ -45,7 +53,10 @@ const swaggerSpec = {
     { name: 'Sistema' },
     { name: 'Auth', description: 'Registro, inicio de sesión y perfil' },
     { name: 'Oficios', description: 'Catálogo de oficios' },
-    { name: 'Calificaciones', description: 'Calificaciones y reputación de los prestadores' },
+    {
+      name: 'Calificaciones',
+      description: 'Calificaciones, reputación de los prestadores y moderación',
+    },
   ],
   components: {
     securitySchemes: {
@@ -286,6 +297,42 @@ const swaggerSpec = {
           403: respuestaError('La solicitud no es del cliente o el rol no tiene permisos'),
           404: respuestaError('Solicitud no encontrada'),
           409: respuestaError('La solicitud no está finalizada o ya fue calificada'),
+        },
+      },
+      get: {
+        tags: ['Calificaciones'],
+        summary: 'Listar todas las calificaciones, incluidas las moderadas (administrador)',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: respuestaJson('Lista completa de calificaciones', {
+            type: 'array',
+            items: { $ref: '#/components/schemas/Calificacion' },
+          }),
+          401: respuestaError('No autenticado'),
+          403: respuestaError('Sin permisos'),
+        },
+      },
+    },
+    '/api/calificaciones/{id}/moderar': {
+      patch: {
+        tags: ['Calificaciones'],
+        summary: 'Moderar una calificación: se oculta al público y queda registrada (administrador)',
+        security: [{ bearerAuth: [] }],
+        parameters: [parametroCalificacionId],
+        requestBody: cuerpoJson({
+          type: 'object',
+          required: ['motivo'],
+          properties: {
+            motivo: { type: 'string', maxLength: 200, example: 'Lenguaje inapropiado' },
+          },
+        }),
+        responses: {
+          200: respuestaJson('Calificación moderada', { $ref: '#/components/schemas/Calificacion' }),
+          400: respuestaError('El motivo es obligatorio'),
+          401: respuestaError('No autenticado'),
+          403: respuestaError('Sin permisos'),
+          404: respuestaError('Calificación no encontrada'),
+          409: respuestaError('La calificación ya fue moderada'),
         },
       },
     },

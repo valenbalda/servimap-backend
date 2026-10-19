@@ -1,6 +1,7 @@
 const calificacionesService = require('../services/calificacionesService');
 
 const MAX_COMENTARIO_LENGTH = 500;
+const MAX_MOTIVO_LENGTH = 200;
 
 async function crear(req, res, next) {
   try {
@@ -60,4 +61,38 @@ async function listarPorPrestador(req, res, next) {
   }
 }
 
-module.exports = { crear, reputacion, listarPorPrestador };
+async function listarTodas(req, res, next) {
+  try {
+    const calificaciones = await calificacionesService.listarTodasLasCalificaciones();
+    res.json(calificaciones);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function moderar(req, res, next) {
+  try {
+    const { motivo } = req.body;
+
+    if (
+      typeof motivo !== 'string' ||
+      !motivo.trim() ||
+      motivo.length > MAX_MOTIVO_LENGTH
+    ) {
+      return res.status(400).json({
+        error: `El motivo es obligatorio y puede tener hasta ${MAX_MOTIVO_LENGTH} caracteres`,
+      });
+    }
+
+    const calificacion = await calificacionesService.moderarCalificacion(
+      req.params.id,
+      motivo.trim()
+    );
+
+    res.json(calificacion);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { crear, reputacion, listarPorPrestador, listarTodas, moderar };

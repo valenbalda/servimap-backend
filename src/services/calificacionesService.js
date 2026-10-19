@@ -87,8 +87,37 @@ async function listarCalificacionesPrestador(prestadorId) {
   });
 }
 
+async function listarTodasLasCalificaciones() {
+  return prisma.calificacion.findMany({
+    orderBy: { fechaPublicacion: 'desc' },
+  });
+}
+
+async function moderarCalificacion(id, motivo) {
+  const calificacion = await prisma.calificacion.findUnique({ where: { id } });
+
+  if (!calificacion) {
+    throw crearError('Calificación no encontrada', 404);
+  }
+
+  if (calificacion.moderada) {
+    throw crearError('La calificación ya fue moderada', 409);
+  }
+
+  return prisma.calificacion.update({
+    where: { id },
+    data: {
+      moderada: true,
+      fechaModeracion: new Date(),
+      motivoModeracion: motivo,
+    },
+  });
+}
+
 module.exports = {
   crearCalificacion,
   obtenerReputacion,
   listarCalificacionesPrestador,
+  listarTodasLasCalificaciones,
+  moderarCalificacion,
 };
