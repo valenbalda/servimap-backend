@@ -476,6 +476,54 @@ const swaggerSpec = {
 module.exports = swaggerSpec;
 
 
+// Solicitudes (se agrega al final para no tocar el resto del archivo).
+const solicitud = {
+  type: 'object',
+  properties: {
+    id: { type: 'string' },
+    descripcion: { type: 'string' },
+    direccion: { type: 'string', nullable: true },
+    contactoPreferido: { type: 'string', nullable: true },
+    estado: {
+      type: 'string',
+      enum: ['PENDIENTE', 'ACEPTADA', 'RECHAZADA', 'CANCELADA', 'FINALIZADA'],
+    },
+    fechaCreacion: { type: 'string', format: 'date-time' },
+    clienteId: { type: 'string' },
+    prestadorId: { type: 'string' },
+    oficioId: { type: 'string' },
+  },
+};
+
+swaggerSpec.tags.push({ name: 'Solicitudes', description: 'Solicitudes de servicio' });
+
+swaggerSpec.paths['/api/solicitudes'] = {
+  post: {
+    tags: ['Solicitudes'],
+    summary: 'Crear una solicitud de servicio a un prestador (cliente)',
+    security: [{ bearerAuth: [] }],
+    requestBody: cuerpoJson({
+      type: 'object',
+      required: ['prestadorId', 'oficioId', 'descripcion'],
+      properties: {
+        prestadorId: { type: 'string', description: 'Id del Prestador (no del Usuario)' },
+        oficioId: { type: 'string' },
+        descripcion: { type: 'string', maxLength: 1000, example: 'Se rompió una canilla' },
+        direccion: { type: 'string', example: 'Av. Siempreviva 742' },
+        contactoPreferido: { type: 'string', example: 'WhatsApp' },
+      },
+    }),
+    responses: {
+      201: respuestaJson('Solicitud creada en estado PENDIENTE', solicitud),
+      400: respuestaError('Datos inválidos, oficio inexistente o desactivado, o el prestador no ofrece ese oficio'),
+      401: respuestaError('No autenticado'),
+      403: respuestaError('Solo los clientes pueden crear solicitudes'),
+      404: respuestaError('Prestador no encontrado'),
+      409: respuestaError('El prestador no está disponible'),
+    },
+  },
+};
+
 // Oficios del prestador (se agrega al final para no tocar el resto del archivo).
 swaggerSpec.paths['/api/prestadores/me/oficios'] = {
   put: {
