@@ -79,4 +79,32 @@ async function actualizarMiPerfil(usuarioId, datos) {
   return formatearPerfil(actualizado);
 }
 
-module.exports = { obtenerMiPerfil, actualizarMiPerfil };
+// Reemplaza los oficios del prestador por la lista que manda.
+async function asignarMisOficios(usuarioId, oficioIds) {
+  const prestador = await buscarPrestador(usuarioId);
+
+  // Sin repetidos: si mandan el mismo id dos veces, cuenta una sola vez.
+  const ids = [...new Set(oficioIds)];
+
+  // Solo se aceptan oficios que existan y estén activos.
+  const oficios = await prisma.oficio.findMany({
+    where: { id: { in: ids }, activo: true },
+    select: { id: true },
+  });
+
+  if (oficios.length !== ids.length) {
+    throw crearError('Algún oficio no existe o está desactivado', 400);
+  }
+
+  // Se borran los oficios anteriores y se crean los nuevos, todo junto o nada.
+  await prisma.$transaction([
+    prisma.prestadorOficio.deleteMany({ where: { prestadorId: prestador.id } }),
+    prisma.prestadorOficio.createMany({
+      data: ids.map((oficioId) => ({ prestadorId: prestador.id, oficioId })),
+    }),
+  ]);
+
+  return obtenerMiPerfil(usuarioId);
+}
+
+module.exports = { obtenerMiPerfil, actualizarMiPerfil, asignarMisOficios };
