@@ -39,6 +39,32 @@ async function crear(req, res, next) {
   }
 }
 
+async function editarComentario(req, res, next) {
+  try {
+    const { comentario } = req.body;
+
+    if (
+      typeof comentario !== 'string' ||
+      !comentario.trim() ||
+      comentario.length > MAX_COMENTARIO_LENGTH
+    ) {
+      return res.status(400).json({
+        error: `El comentario es obligatorio y puede tener hasta ${MAX_COMENTARIO_LENGTH} caracteres`,
+      });
+    }
+
+    const calificacion = await calificacionesService.editarComentario({
+      clienteId: req.usuario.id,
+      calificacionId: req.params.id,
+      comentario: comentario.trim(),
+    });
+
+    res.json(calificacion);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function reputacion(req, res, next) {
   try {
     const resultado = await calificacionesService.obtenerReputacion(
@@ -95,4 +121,11 @@ async function moderar(req, res, next) {
   }
 }
 
-module.exports = { crear, reputacion, listarPorPrestador, listarTodas, moderar };
+module.exports = {
+  crear,
+  editarComentario,
+  reputacion,
+  listarPorPrestador,
+  listarTodas,
+  moderar,
+};
