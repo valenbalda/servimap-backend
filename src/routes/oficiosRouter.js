@@ -20,11 +20,11 @@ router.put(
   autorizar('ADMINISTRADOR'),
   oficiosController.actualizar
 );
-router.delete(
-  '/:id',
+router.patch(
+  '/:id/estado',
   autenticar,
   autorizar('ADMINISTRADOR'),
-  oficiosController.desactivar
+  oficiosController.cambiarEstado
 );
 
 module.exports = router;
