@@ -84,4 +84,28 @@ async function actualizarMiPerfil(req, res, next) {
   }
 }
 
-module.exports = { obtenerMiPerfil, actualizarMiPerfil };
+async function asignarMisOficios(req, res, next) {
+  try {
+    const { oficioIds } = req.body || {};
+
+    const listaValida =
+      Array.isArray(oficioIds) &&
+      oficioIds.every((id) => typeof id === 'string' && id.trim() !== '');
+
+    if (!listaValida) {
+      return res
+        .status(400)
+        .json({ error: 'oficioIds debe ser una lista de identificadores de oficios' });
+    }
+
+    const perfil = await prestadoresService.asignarMisOficios(
+      req.usuario.id,
+      oficioIds.map((id) => id.trim())
+    );
+    res.json(perfil);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { obtenerMiPerfil, actualizarMiPerfil, asignarMisOficios };

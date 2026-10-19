@@ -9,5 +9,6 @@ const router = Router();
 // si no, Express confunde "me" con un id.
 router.get('/me', autenticar, autorizar('PRESTADOR'), prestadoresController.obtenerMiPerfil);
 router.put('/me', autenticar, autorizar('PRESTADOR'), prestadoresController.actualizarMiPerfil);
+router.put('/me/oficios', autenticar, autorizar('PRESTADOR'), prestadoresController.asignarMisOficios);
 
 module.exports = router;
