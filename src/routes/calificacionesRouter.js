@@ -13,6 +13,20 @@ router.post(
 );
 
 router.get(
+  '/',
+  autenticar,
+  autorizar('ADMINISTRADOR'),
+  calificacionesController.listarTodas
+);
+
+router.patch(
+  '/:id/moderar',
+  autenticar,
+  autorizar('ADMINISTRADOR'),
+  calificacionesController.moderar
+);
+
+router.get(
   '/prestador/:prestadorId/reputacion',
   calificacionesController.reputacion
 );
