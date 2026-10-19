@@ -39,6 +39,29 @@ async function crearCalificacion({ clienteId, solicitudId, puntaje, comentario }
   });
 }
 
+async function editarComentario({ clienteId, calificacionId, comentario }) {
+  const calificacion = await prisma.calificacion.findUnique({
+    where: { id: calificacionId },
+  });
+
+  if (!calificacion) {
+    throw crearError('Calificación no encontrada', 404);
+  }
+
+  if (calificacion.clienteId !== clienteId) {
+    throw crearError('Solo podés editar tus propias calificaciones', 403);
+  }
+
+  if (calificacion.moderada) {
+    throw crearError('No se puede editar una calificación moderada', 409);
+  }
+
+  return prisma.calificacion.update({
+    where: { id: calificacionId },
+    data: { comentario },
+  });
+}
+
 async function verificarPrestador(prestadorId) {
   const prestador = await prisma.prestador.findUnique({
     where: { id: prestadorId },
@@ -116,6 +139,7 @@ async function moderarCalificacion(id, motivo) {
 
 module.exports = {
   crearCalificacion,
+  editarComentario,
   obtenerReputacion,
   listarCalificacionesPrestador,
   listarTodasLasCalificaciones,
