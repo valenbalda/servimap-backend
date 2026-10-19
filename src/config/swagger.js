@@ -39,6 +39,33 @@ const parametroCalificacionId = {
   description: 'Identificador de la calificación',
 };
 
+const perfilPrestador = {
+  type: 'object',
+  properties: {
+    id: { type: 'string' },
+    nombre: { type: 'string' },
+    email: { type: 'string' },
+    descripcionProfesional: { type: 'string', nullable: true },
+    fotoPerfil: { type: 'string', nullable: true },
+    zonaCobertura: { type: 'string', nullable: true },
+    latitud: { type: 'number', nullable: true },
+    longitud: { type: 'number', nullable: true },
+    precioMin: { type: 'number', nullable: true },
+    precioMax: { type: 'number', nullable: true },
+    telefono: { type: 'string', nullable: true },
+    whatsapp: { type: 'string', nullable: true },
+    emailContacto: { type: 'string', nullable: true },
+    disponible: { type: 'boolean' },
+    oficios: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+      },
+    },
+  },
+};
+
 const swaggerSpec = {
   openapi: '3.0.3',
   info: {
@@ -53,6 +80,7 @@ const swaggerSpec = {
     { name: 'Sistema' },
     { name: 'Auth', description: 'Registro, inicio de sesión y perfil' },
     { name: 'Oficios', description: 'Catálogo de oficios' },
+    { name: 'Prestadores', description: 'Perfil del prestador' },
     {
       name: 'Calificaciones',
       description: 'Calificaciones, reputación de los prestadores y moderación',
@@ -122,6 +150,47 @@ const swaggerSpec = {
     },
   },
   paths: {
+    '/api/prestadores/me': {
+      get: {
+        tags: ['Prestadores'],
+        summary: 'Consultar el perfil del prestador autenticado',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: respuestaJson('Perfil del prestador', perfilPrestador),
+          401: respuestaError('No autenticado'),
+          403: respuestaError('Solo los prestadores pueden usar este endpoint'),
+          404: respuestaError('Perfil de prestador no encontrado'),
+        },
+      },
+      put: {
+        tags: ['Prestadores'],
+        summary: 'Actualizar el perfil del prestador autenticado',
+        security: [{ bearerAuth: [] }],
+        requestBody: cuerpoJson({
+          type: 'object',
+          properties: {
+            descripcionProfesional: { type: 'string', example: 'Plomero con 10 años de experiencia' },
+            fotoPerfil: { type: 'string' },
+            zonaCobertura: { type: 'string', example: 'Palermo' },
+            latitud: { type: 'number', minimum: -90, maximum: 90, example: -34.5875 },
+            longitud: { type: 'number', minimum: -180, maximum: 180, example: -58.4264 },
+            precioMin: { type: 'number', minimum: 0, example: 5000 },
+            precioMax: { type: 'number', minimum: 0, example: 20000 },
+            telefono: { type: 'string' },
+            whatsapp: { type: 'string' },
+            emailContacto: { type: 'string', example: 'contacto@mail.com' },
+            disponible: { type: 'boolean', example: true },
+          },
+        }),
+        responses: {
+          200: respuestaJson('Perfil actualizado', perfilPrestador),
+          400: respuestaError('Datos inválidos, sin datos para actualizar o precio mínimo mayor al máximo'),
+          401: respuestaError('No autenticado'),
+          403: respuestaError('Solo los prestadores pueden usar este endpoint'),
+          404: respuestaError('Perfil de prestador no encontrado'),
+        },
+      },
+    },
     '/health': {
       get: {
         tags: ['Sistema'],
