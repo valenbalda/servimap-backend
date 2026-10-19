@@ -550,3 +550,47 @@ swaggerSpec.paths['/api/prestadores/me/oficios'] = {
     },
   },
 };
+
+
+// Estados de la solicitud (se agrega al final porque reutiliza la variable solicitud).
+const parametroSolicitudId = {
+  name: 'id',
+  in: 'path',
+  required: true,
+  schema: { type: 'string' },
+  description: 'Identificador de la solicitud',
+};
+
+const accionSobreSolicitud = (resumen, mensaje403, mensaje409) => ({
+  patch: {
+    tags: ['Solicitudes'],
+    summary: resumen,
+    security: [{ bearerAuth: [] }],
+    parameters: [parametroSolicitudId],
+    responses: {
+      200: respuestaJson('Solicitud actualizada', solicitud),
+      401: respuestaError('No autenticado'),
+      403: respuestaError(mensaje403),
+      404: respuestaError('Solicitud no encontrada'),
+      409: respuestaError(mensaje409),
+    },
+  },
+});
+
+swaggerSpec.paths['/api/solicitudes/{id}/aceptar'] = accionSobreSolicitud(
+  'Aceptar una solicitud pendiente (prestador dueño)',
+  'La solicitud no es del prestador o el rol no tiene permisos',
+  'La solicitud no está pendiente'
+);
+
+swaggerSpec.paths['/api/solicitudes/{id}/rechazar'] = accionSobreSolicitud(
+  'Rechazar una solicitud pendiente (prestador dueño)',
+  'La solicitud no es del prestador o el rol no tiene permisos',
+  'La solicitud no está pendiente'
+);
+
+swaggerSpec.paths['/api/solicitudes/{id}/cancelar'] = accionSobreSolicitud(
+  'Cancelar una solicitud pendiente o aceptada (cliente dueño)',
+  'La solicitud no es del cliente o el rol no tiene permisos',
+  'La solicitud ya no se puede cancelar'
+);

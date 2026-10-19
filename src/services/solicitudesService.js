@@ -61,4 +61,67 @@ async function crearSolicitud(clienteId, { prestadorId, oficioId, descripcion, d
   return formatearSolicitud(solicitud);
 }
 
-module.exports = { crearSolicitud };
+async function buscarSolicitud(id) {
+  const solicitud = await prisma.solicitud.findUnique({ where: { id } });
+  if (!solicitud) {
+    throw crearError('Solicitud no encontrada', 404);
+  }
+  return solicitud;
+}
+
+// Aceptar y rechazar tienen las mismas reglas, cambia solo el estado nuevo.
+async function responderComoPrestador(usuarioId, solicitudId, nuevoEstado) {
+  const solicitud = await buscarSolicitud(solicitudId);
+
+  // El prestador es otra tabla: se busca su perfil a partir del usuario.
+  const prestador = await prisma.prestador.findUnique({ where: { usuarioId } });
+  if (!prestador || !prestador.activo || solicitud.prestadorId !== prestador.id) {
+    throw crearError('La solicitud no es tuya', 403);
+  }
+
+  if (solicitud.estado !== 'PENDIENTE') {
+    throw crearError('Solo se puede responder una solicitud pendiente', 409);
+  }
+
+  const actualizada = await prisma.solicitud.update({
+    where: { id: solicitudId },
+    data: { estado: nuevoEstado },
+  });
+
+  return formatearSolicitud(actualizada);
+}
+
+function aceptarSolicitud(usuarioId, solicitudId) {
+  return responderComoPrestador(usuarioId, solicitudId, 'ACEPTADA');
+}
+
+function rechazarSolicitud(usuarioId, solicitudId) {
+  return responderComoPrestador(usuarioId, solicitudId, 'RECHAZADA');
+}
+
+// El cliente dueño puede cancelar mientras no esté finalizada, rechazada o cancelada.
+async function cancelarSolicitud(clienteId, solicitudId) {
+  const solicitud = await buscarSolicitud(solicitudId);
+
+  if (solicitud.clienteId !== clienteId) {
+    throw crearError('La solicitud no es tuya', 403);
+  }
+
+  if (!['PENDIENTE', 'ACEPTADA'].includes(solicitud.estado)) {
+    throw crearError('La solicitud ya no se puede cancelar', 409);
+  }
+
+  const actualizada = await prisma.solicitud.update({
+    where: { id: solicitudId },
+    data: { estado: 'CANCELADA' },
+  });
+
+  return formatearSolicitud(actualizada);
+}
+
+module.exports = {
+  crearSolicitud,
+  aceptarSolicitud,
+  rechazarSolicitud,
+  cancelarSolicitud,
+};

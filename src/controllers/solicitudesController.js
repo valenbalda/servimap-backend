@@ -41,4 +41,31 @@ async function crear(req, res, next) {
   }
 }
 
-module.exports = { crear };
+async function aceptar(req, res, next) {
+  try {
+    const solicitud = await solicitudesService.aceptarSolicitud(req.usuario.id, req.params.id);
+    res.json(solicitud);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function rechazar(req, res, next) {
+  try {
+    const solicitud = await solicitudesService.rechazarSolicitud(req.usuario.id, req.params.id);
+    res.json(solicitud);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function cancelar(req, res, next) {
+  try {
+    const solicitud = await solicitudesService.cancelarSolicitud(req.usuario.id, req.params.id);
+    res.json(solicitud);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { crear, aceptar, rechazar, cancelar };
