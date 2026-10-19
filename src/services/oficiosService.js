@@ -30,7 +30,7 @@ async function crearOficio({ nombre, categoria }) {
   return prisma.oficio.create({ data: { nombre, categoria } });
 }
 
-async function actualizarOficio(id, { nombre, categoria, activo }) {
+async function actualizarOficio(id, { nombre, categoria }) {
   const oficio = await buscarOficio(id);
 
   if (nombre && nombre !== oficio.nombre) {
@@ -42,16 +42,16 @@ async function actualizarOficio(id, { nombre, categoria, activo }) {
 
   return prisma.oficio.update({
     where: { id },
-    data: { nombre, categoria, activo },
+    data: { nombre, categoria },
   });
 }
 
-async function desactivarOficio(id) {
+async function cambiarEstadoOficio(id, activo) {
   await buscarOficio(id);
 
   return prisma.oficio.update({
     where: { id },
-    data: { activo: false },
+    data: { activo },
   });
 }
 
@@ -59,5 +59,5 @@ module.exports = {
   listarOficios,
   crearOficio,
   actualizarOficio,
-  desactivarOficio,
+  cambiarEstadoOficio,
 };

@@ -20,7 +20,14 @@ router.get(
 );
 
 router.patch(
-  '/:id/moderar',
+  '/:id/comentario',
+  autenticar,
+  autorizar('CLIENTE'),
+  calificacionesController.editarComentario
+);
+
+router.patch(
+  '/:id/moderacion',
   autenticar,
   autorizar('ADMINISTRADOR'),
   calificacionesController.moderar

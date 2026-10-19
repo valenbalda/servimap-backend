@@ -77,14 +77,21 @@ Por seguridad, el registro público solo permite crear cuentas de `CLIENTE` o `P
 | Oficios | `GET /api/oficios` (solo activos) | Público |
 | Oficios | `GET /api/oficios/todos` | Administrador |
 | Oficios | `POST /api/oficios` | Administrador |
-| Oficios | `PUT /api/oficios/:id` | Administrador |
-| Oficios | `DELETE /api/oficios/:id` (desactiva, no borra) | Administrador |
+| Oficios | `PUT /api/oficios/:id` (nombre y categoría) | Administrador |
+| Oficios | `PATCH /api/oficios/:id/estado` (activa o desactiva, no borra) | Administrador |
+| Calificaciones | `POST /api/calificaciones` | Cliente |
+| Calificaciones | `GET /api/calificaciones` (incluye las moderadas) | Administrador |
+| Calificaciones | `PATCH /api/calificaciones/:id/comentario` | Cliente |
+| Calificaciones | `PATCH /api/calificaciones/:id/moderacion` | Administrador |
+| Calificaciones | `GET /api/calificaciones/prestador/:prestadorId` (sin las moderadas) | Público |
+| Calificaciones | `GET /api/calificaciones/prestador/:prestadorId/reputacion` | Público |
+| Prestadores | `GET /api/prestadores/me` | Prestador |
+| Prestadores | `PUT /api/prestadores/me` | Prestador |
 
 ### En desarrollo
 
-- Prestadores: perfil, oficios, consulta con filtros y ubicación en el mapa.
+- Prestadores: oficios del prestador, consulta con filtros y ubicación en el mapa.
 - Solicitudes: crear, consultar, cambiar de estado, cancelar y finalizar.
-- Calificaciones: calificar, reputación del prestador y moderación de comentarios.
 
 El detalle de cada endpoint (parámetros, respuestas y códigos de error) está en la documentación Swagger.
 

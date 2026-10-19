@@ -15,7 +15,7 @@ const cuerpoJson = (schema) => ({
   content: { 'application/json': { schema } },
 });
 
-const parametroId = {
+const parametroOficioId = {
   name: 'id',
   in: 'path',
   required: true,
@@ -196,7 +196,7 @@ const swaggerSpec = {
     '/api/oficios': {
       get: {
         tags: ['Oficios'],
-        summary: 'Listar los oficios activos',
+        summary: 'Consultar los oficios activos',
         responses: {
           200: respuestaJson('Lista de oficios activos', {
             type: 'array',
@@ -228,7 +228,7 @@ const swaggerSpec = {
     '/api/oficios/todos': {
       get: {
         tags: ['Oficios'],
-        summary: 'Listar todos los oficios, incluidos los desactivados (administrador)',
+        summary: 'Consultar todos los oficios, incluidos los desactivados (administrador)',
         security: [{ bearerAuth: [] }],
         responses: {
           200: respuestaJson('Lista completa de oficios', {
@@ -243,15 +243,14 @@ const swaggerSpec = {
     '/api/oficios/{id}': {
       put: {
         tags: ['Oficios'],
-        summary: 'Editar o reactivar un oficio (administrador)',
+        summary: 'Actualizar el nombre o la categoría de un oficio (administrador)',
         security: [{ bearerAuth: [] }],
-        parameters: [parametroId],
+        parameters: [parametroOficioId],
         requestBody: cuerpoJson({
           type: 'object',
           properties: {
             nombre: { type: 'string' },
             categoria: { type: 'string' },
-            activo: { type: 'boolean' },
           },
         }),
         responses: {
@@ -263,13 +262,25 @@ const swaggerSpec = {
           409: respuestaError('Ya existe un oficio con ese nombre'),
         },
       },
-      delete: {
+    },
+    '/api/oficios/{id}/estado': {
+      patch: {
         tags: ['Oficios'],
-        summary: 'Desactivar un oficio sin borrarlo (administrador)',
+        summary: 'Activar o desactivar un oficio sin borrarlo (administrador)',
         security: [{ bearerAuth: [] }],
-        parameters: [parametroId],
+        parameters: [parametroOficioId],
+        requestBody: cuerpoJson({
+          type: 'object',
+          required: ['activo'],
+          properties: {
+            activo: { type: 'boolean', example: false },
+          },
+        }),
         responses: {
-          200: respuestaJson('Oficio desactivado', { $ref: '#/components/schemas/Oficio' }),
+          200: respuestaJson('Estado del oficio actualizado', {
+            $ref: '#/components/schemas/Oficio',
+          }),
+          400: respuestaError('El campo activo debe ser true o false'),
           401: respuestaError('No autenticado'),
           403: respuestaError('Sin permisos'),
           404: respuestaError('Oficio no encontrado'),
@@ -279,7 +290,7 @@ const swaggerSpec = {
     '/api/calificaciones': {
       post: {
         tags: ['Calificaciones'],
-        summary: 'Calificar una solicitud finalizada (cliente)',
+        summary: 'Crear una calificación de una solicitud finalizada (cliente)',
         security: [{ bearerAuth: [] }],
         requestBody: cuerpoJson({
           type: 'object',
@@ -301,7 +312,7 @@ const swaggerSpec = {
       },
       get: {
         tags: ['Calificaciones'],
-        summary: 'Listar todas las calificaciones, incluidas las moderadas (administrador)',
+        summary: 'Consultar todas las calificaciones, incluidas las moderadas (administrador)',
         security: [{ bearerAuth: [] }],
         responses: {
           200: respuestaJson('Lista completa de calificaciones', {
@@ -313,7 +324,36 @@ const swaggerSpec = {
         },
       },
     },
-    '/api/calificaciones/{id}/moderar': {
+    '/api/calificaciones/{id}/comentario': {
+      patch: {
+        tags: ['Calificaciones'],
+        summary: 'Editar el comentario de una calificación propia (cliente)',
+        security: [{ bearerAuth: [] }],
+        parameters: [parametroCalificacionId],
+        requestBody: cuerpoJson({
+          type: 'object',
+          required: ['comentario'],
+          properties: {
+            comentario: {
+              type: 'string',
+              maxLength: 500,
+              example: 'Excelente atención y muy puntual',
+            },
+          },
+        }),
+        responses: {
+          200: respuestaJson('Comentario actualizado', {
+            $ref: '#/components/schemas/Calificacion',
+          }),
+          400: respuestaError('Comentario inválido'),
+          401: respuestaError('No autenticado'),
+          403: respuestaError('La calificación no es del cliente o el rol no tiene permisos'),
+          404: respuestaError('Calificación no encontrada'),
+          409: respuestaError('La calificación está moderada'),
+        },
+      },
+    },
+    '/api/calificaciones/{id}/moderacion': {
       patch: {
         tags: ['Calificaciones'],
         summary: 'Moderar una calificación: se oculta al público y queda registrada (administrador)',
@@ -339,7 +379,7 @@ const swaggerSpec = {
     '/api/calificaciones/prestador/{prestadorId}/reputacion': {
       get: {
         tags: ['Calificaciones'],
-        summary: 'Obtener la reputación de un prestador: promedio y servicios finalizados',
+        summary: 'Consultar la reputación de un prestador: promedio y servicios finalizados',
         parameters: [parametroPrestadorId],
         responses: {
           200: respuestaJson('Reputación del prestador', { $ref: '#/components/schemas/Reputacion' }),
@@ -350,7 +390,7 @@ const swaggerSpec = {
     '/api/calificaciones/prestador/{prestadorId}': {
       get: {
         tags: ['Calificaciones'],
-        summary: 'Listar las calificaciones y comentarios de un prestador (sin los moderados)',
+        summary: 'Consultar las calificaciones y comentarios de un prestador (sin los moderados)',
         parameters: [parametroPrestadorId],
         responses: {
           200: respuestaJson('Calificaciones del prestador', {
