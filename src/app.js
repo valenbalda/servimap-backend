@@ -15,6 +15,7 @@ const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const authRouter = require('./routes/authRouter');
 const oficiosRouter = require('./routes/oficiosRouter');
 const calificacionesRouter = require('./routes/calificacionesRouter');
+const prestadoresRouter = require('./routes/prestadoresRouter');
 
 // Crea la aplicación Express.
 const app = express();
@@ -54,6 +55,9 @@ app.use('/api/oficios', oficiosRouter);
 
 // Rutas de calificaciones (los clientes califican servicios finalizados).
 app.use('/api/calificaciones', calificacionesRouter);
+
+// Rutas de prestadores (perfil propio del prestador).
+app.use('/api/prestadores', prestadoresRouter);
 
 // Estos dos van siempre al final:
 // primero, el 404 si ninguna ruta respondió; después, el manejador de errores.
