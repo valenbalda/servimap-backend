@@ -523,3 +523,30 @@ swaggerSpec.paths['/api/solicitudes'] = {
     },
   },
 };
+
+// Oficios del prestador (se agrega al final para no tocar el resto del archivo).
+swaggerSpec.paths['/api/prestadores/me/oficios'] = {
+  put: {
+    tags: ['Prestadores'],
+    summary: 'Elegir los oficios que ofrece el prestador autenticado (reemplaza los anteriores)',
+    security: [{ bearerAuth: [] }],
+    requestBody: cuerpoJson({
+      type: 'object',
+      required: ['oficioIds'],
+      properties: {
+        oficioIds: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ['id-del-oficio-1', 'id-del-oficio-2'],
+        },
+      },
+    }),
+    responses: {
+      200: respuestaJson('Perfil con los oficios actualizados', perfilPrestador),
+      400: respuestaError('Lista inválida, o algún oficio no existe o está desactivado'),
+      401: respuestaError('No autenticado'),
+      403: respuestaError('Solo los prestadores pueden usar este endpoint'),
+      404: respuestaError('Perfil de prestador no encontrado'),
+    },
+  },
+};
