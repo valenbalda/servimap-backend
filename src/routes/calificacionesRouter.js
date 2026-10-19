@@ -20,7 +20,7 @@ router.get(
 );
 
 router.patch(
-  '/:id/moderar',
+  '/:id/moderacion',
   autenticar,
   autorizar('ADMINISTRADOR'),
   calificacionesController.moderar
