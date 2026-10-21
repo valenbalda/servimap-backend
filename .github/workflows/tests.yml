@@ -1,0 +1,34 @@
+name: Tests
+
+# Cuándo corre: al abrir o actualizar un Pull Request, y al subir a develop o main.
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Baja el código del repo.
+      - uses: actions/checkout@v4
+
+      # Instala Node 20 (el que pide el README) y guarda las librerías en caché.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Instala las librerías exactamente como dice package-lock.json.
+      - run: npm ci
+
+      # Prepara el cliente de Prisma (no se conecta a ninguna base).
+      - run: npx prisma generate
+
+      # Corre los tests. Los datos son de prueba: no hay ninguna clave real.
+      - run: npm test
+        env:
+          JWT_SECRET: clave-de-prueba-solo-para-los-tests-0123456789
+          NODE_ENV: test
