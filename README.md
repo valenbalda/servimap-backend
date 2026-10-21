@@ -87,18 +87,23 @@ Por seguridad, el registro público solo permite crear cuentas de `CLIENTE` o `P
 | Calificaciones | `GET /api/calificaciones/prestador/:prestadorId/reputacion` | Público |
 | Prestadores | `GET /api/prestadores/me` | Prestador |
 | Prestadores | `PUT /api/prestadores/me` | Prestador |
+| Prestadores | `PUT /api/prestadores/me/oficios` (reemplaza los oficios del prestador) | Prestador |
+| Solicitudes | `POST /api/solicitudes` | Cliente |
+| Solicitudes | `PATCH /api/solicitudes/:id/aceptar` | Prestador |
+| Solicitudes | `PATCH /api/solicitudes/:id/rechazar` | Prestador |
+| Solicitudes | `PATCH /api/solicitudes/:id/cancelar` | Cliente |
 
 ### En desarrollo
 
-- Prestadores: oficios del prestador, consulta con filtros y ubicación en el mapa.
-- Solicitudes: crear, consultar, cambiar de estado, cancelar y finalizar.
+- Prestadores: consulta con filtros y ubicación en el mapa.
+- Solicitudes: consultar solicitudes y finalizar.
 
 El detalle de cada endpoint (parámetros, respuestas y códigos de error) está en la documentación Swagger.
 
 ### Reglas de negocio
 
 - El estado de una solicitud sigue el orden `PENDIENTE` → `ACEPTADA` → `FINALIZADA` (o `RECHAZADA` / `CANCELADA`).
-- Solo el prestador dueño de una solicitud puede cambiar su estado.
+- Solo el prestador dueño de una solicitud puede aceptarla o rechazarla (si está pendiente). Solo el cliente dueño puede cancelarla (si está pendiente o aceptada).
 - Solo se puede calificar una solicitud `FINALIZADA`, y una sola vez.
 - Cada usuario solo accede a sus propias solicitudes.
 - Los oficios no se borran: se desactivan, para conservar el historial.
