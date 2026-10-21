@@ -9,7 +9,7 @@ async function register(req, res, next) {
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+    if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(email.trim())) {
       return res.status(400).json({ error: 'Email inválido' });
     }
 
