@@ -150,6 +150,61 @@ const swaggerSpec = {
     },
   },
   paths: {
+        '/api/prestadores/{id}': {
+      get: {
+        tags: ['Prestadores'],
+        summary: 'Consultar la ficha de un prestador: contacto, reputación y comentarios (público)',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+            description: 'Identificador del prestador (no del usuario)',
+          },
+        ],
+        responses: {
+          200: respuestaJson('Ficha del prestador', {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              nombre: { type: 'string' },
+              descripcionProfesional: { type: 'string', nullable: true },
+              fotoPerfil: { type: 'string', nullable: true },
+              zonaCobertura: { type: 'string', nullable: true },
+              latitud: { type: 'number', nullable: true },
+              longitud: { type: 'number', nullable: true },
+              precioMin: { type: 'number', nullable: true },
+              precioMax: { type: 'number', nullable: true },
+              disponible: { type: 'boolean' },
+              telefono: { type: 'string', nullable: true },
+              whatsapp: { type: 'string', nullable: true },
+              emailContacto: { type: 'string', nullable: true },
+              oficios: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+                },
+              },
+              reputacion: {
+                type: 'object',
+                properties: {
+                  promedio: { type: 'number', nullable: true, example: 4.5 },
+                  totalCalificaciones: { type: 'integer', example: 12 },
+                  serviciosFinalizados: { type: 'integer', example: 15 },
+                },
+              },
+              comentarios: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/CalificacionPublica' },
+              },
+            },
+          }),
+          404: respuestaError('Prestador no encontrado'),
+        },
+      },
+    },
         '/api/prestadores': {
       get: {
         tags: ['Prestadores'],
