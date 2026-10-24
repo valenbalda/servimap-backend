@@ -594,3 +594,10 @@ swaggerSpec.paths['/api/solicitudes/{id}/cancelar'] = accionSobreSolicitud(
   'La solicitud no es del cliente o el rol no tiene permisos',
   'La solicitud ya no se puede cancelar'
 );
+
+// Finalizar solicitud (se agrega al final porque reutiliza accionSobreSolicitud).
+swaggerSpec.paths['/api/solicitudes/{id}/finalizar'] = accionSobreSolicitud(
+  'Finalizar una solicitud aceptada (prestador dueño)',
+  'La solicitud no es del prestador o el rol no tiene permisos',
+  'La solicitud no está aceptada'
+);
