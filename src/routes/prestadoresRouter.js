@@ -5,6 +5,9 @@ const { autorizar } = require('../middlewares/rolesMiddleware');
 
 const router = Router();
 
+// Público: cualquiera puede buscar prestadores.
+router.get('/', prestadoresController.listar);
+
 // IMPORTANTE: las rutas '/me' van siempre ANTES de cualquier '/:id',
 // si no, Express confunde "me" con un id.
 router.get('/me', autenticar, autorizar('PRESTADOR'), prestadoresController.obtenerMiPerfil);

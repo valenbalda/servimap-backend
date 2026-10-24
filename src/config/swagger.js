@@ -150,6 +150,100 @@ const swaggerSpec = {
     },
   },
   paths: {
+        '/api/prestadores': {
+      get: {
+        tags: ['Prestadores'],
+        summary: 'Buscar prestadores por oficio, texto y cercanía, con su reputación (público)',
+        parameters: [
+          {
+            name: 'oficioId',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'Solo prestadores que ofrecen este oficio',
+          },
+          {
+            name: 'q',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', maxLength: 100 },
+            description: 'Busca por nombre, zona de cobertura u oficio',
+          },
+          {
+            name: 'lat',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', minimum: -90, maximum: 90, example: -34.6037 },
+            description: 'Latitud de referencia (se envía junto con lng)',
+          },
+          {
+            name: 'lng',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', minimum: -180, maximum: 180, example: -58.3816 },
+            description: 'Longitud de referencia (se envía junto con lat)',
+          },
+          {
+            name: 'radioKm',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', minimum: 0, maximum: 100, default: 10 },
+            description: 'Radio de búsqueda en km (necesita lat y lng)',
+          },
+          {
+            name: 'calificacionMin',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', minimum: 1, maximum: 5 },
+            description: 'Promedio mínimo de calificaciones',
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
+            description: 'Cantidad máxima de resultados',
+          },
+        ],
+        responses: {
+          200: respuestaJson('Lista de prestadores (con distanciaKm si se envió lat y lng)', {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                nombre: { type: 'string' },
+                descripcionProfesional: { type: 'string', nullable: true },
+                fotoPerfil: { type: 'string', nullable: true },
+                zonaCobertura: { type: 'string', nullable: true },
+                latitud: { type: 'number', nullable: true },
+                longitud: { type: 'number', nullable: true },
+                precioMin: { type: 'number', nullable: true },
+                precioMax: { type: 'number', nullable: true },
+                disponible: { type: 'boolean' },
+                distanciaKm: { type: 'number' },
+                oficios: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+                  },
+                },
+                reputacion: {
+                  type: 'object',
+                  properties: {
+                    promedio: { type: 'number', nullable: true, example: 4.5 },
+                    totalCalificaciones: { type: 'integer', example: 12 },
+                    serviciosFinalizados: { type: 'integer', example: 15 },
+                  },
+                },
+              },
+            },
+          }),
+          400: respuestaError('Algún filtro es inválido'),
+        },
+      },
+    },
     '/api/prestadores/me': {
       get: {
         tags: ['Prestadores'],
