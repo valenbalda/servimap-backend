@@ -21,6 +21,17 @@ function formatearSolicitud(solicitud) {
   };
 }
 
+// Igual que la anterior, pero con los nombres del oficio, el cliente y el prestador.
+function formatearSolicitudDetallada(solicitud) {
+  return {
+    ...formatearSolicitud(solicitud),
+    oficio: { id: solicitud.oficio.id, nombre: solicitud.oficio.nombre },
+    cliente: { id: solicitud.cliente.id, nombre: solicitud.cliente.nombre },
+    prestador: { id: solicitud.prestadorId, nombre: solicitud.prestador.usuario.nombre },
+    calificada: Boolean(solicitud.calificacion),
+  };
+}
+
 async function crearSolicitud(clienteId, { prestadorId, oficioId, descripcion, direccion, contactoPreferido }) {
   // El prestador tiene que existir, estar activo y disponible.
   const prestador = await prisma.prestador.findUnique({
@@ -61,6 +72,38 @@ async function crearSolicitud(clienteId, { prestadorId, oficioId, descripcion, d
   return formatearSolicitud(solicitud);
 }
 
+// Devuelve solo las solicitudes del usuario logueado (según su rol).
+async function listarMisSolicitudes({ id: usuarioId, rol }, { estado } = {}) {
+  const where = {};
+  if (estado) where.estado = estado;
+
+  if (rol === 'CLIENTE') {
+    where.clienteId = usuarioId;
+  } else if (rol === 'PRESTADOR') {
+    // El prestador es otra tabla: se busca su perfil a partir del usuario.
+    const prestador = await prisma.prestador.findUnique({ where: { usuarioId } });
+    if (!prestador || !prestador.activo) {
+      throw crearError('Perfil de prestador no encontrado', 404);
+    }
+    where.prestadorId = prestador.id;
+  } else {
+    throw crearError('No tenés permisos para realizar esta acción', 403);
+  }
+
+  const solicitudes = await prisma.solicitud.findMany({
+    where,
+    orderBy: { fechaCreacion: 'desc' },
+    include: {
+      oficio: { select: { id: true, nombre: true } },
+      cliente: { select: { id: true, nombre: true } },
+      prestador: { include: { usuario: { select: { nombre: true } } } },
+      calificacion: { select: { id: true } },
+    },
+  });
+
+  return solicitudes.map(formatearSolicitudDetallada);
+}
+
 async function buscarSolicitud(id) {
   const solicitud = await prisma.solicitud.findUnique({ where: { id } });
   if (!solicitud) {
@@ -69,8 +112,9 @@ async function buscarSolicitud(id) {
   return solicitud;
 }
 
-// Aceptar y rechazar tienen las mismas reglas, cambia solo el estado nuevo.
-async function responderComoPrestador(usuarioId, solicitudId, nuevoEstado) {
+// Cambio de estado que solo puede hacer el prestador dueño de la solicitud.
+// Se revisa en este orden: existe (404), es suya (403), el estado lo permite (409).
+async function cambiarEstadoComoPrestador(usuarioId, solicitudId, { desde, hacia, mensajeConflicto }) {
   const solicitud = await buscarSolicitud(solicitudId);
 
   // El prestador es otra tabla: se busca su perfil a partir del usuario.
@@ -79,24 +123,41 @@ async function responderComoPrestador(usuarioId, solicitudId, nuevoEstado) {
     throw crearError('La solicitud no es tuya', 403);
   }
 
-  if (solicitud.estado !== 'PENDIENTE') {
-    throw crearError('Solo se puede responder una solicitud pendiente', 409);
+  if (solicitud.estado !== desde) {
+    throw crearError(mensajeConflicto, 409);
   }
 
   const actualizada = await prisma.solicitud.update({
     where: { id: solicitudId },
-    data: { estado: nuevoEstado },
+    data: { estado: hacia },
   });
 
   return formatearSolicitud(actualizada);
 }
 
 function aceptarSolicitud(usuarioId, solicitudId) {
-  return responderComoPrestador(usuarioId, solicitudId, 'ACEPTADA');
+  return cambiarEstadoComoPrestador(usuarioId, solicitudId, {
+    desde: 'PENDIENTE',
+    hacia: 'ACEPTADA',
+    mensajeConflicto: 'Solo se puede responder una solicitud pendiente',
+  });
 }
 
 function rechazarSolicitud(usuarioId, solicitudId) {
-  return responderComoPrestador(usuarioId, solicitudId, 'RECHAZADA');
+  return cambiarEstadoComoPrestador(usuarioId, solicitudId, {
+    desde: 'PENDIENTE',
+    hacia: 'RECHAZADA',
+    mensajeConflicto: 'Solo se puede responder una solicitud pendiente',
+  });
+}
+
+// Solo se puede finalizar una solicitud que ya fue aceptada.
+function finalizarSolicitud(usuarioId, solicitudId) {
+  return cambiarEstadoComoPrestador(usuarioId, solicitudId, {
+    desde: 'ACEPTADA',
+    hacia: 'FINALIZADA',
+    mensajeConflicto: 'Solo se puede finalizar una solicitud aceptada',
+  });
 }
 
 // El cliente dueño puede cancelar mientras no esté finalizada, rechazada o cancelada.
@@ -121,7 +182,9 @@ async function cancelarSolicitud(clienteId, solicitudId) {
 
 module.exports = {
   crearSolicitud,
+  listarMisSolicitudes,
   aceptarSolicitud,
   rechazarSolicitud,
+  finalizarSolicitud,
   cancelarSolicitud,
 };

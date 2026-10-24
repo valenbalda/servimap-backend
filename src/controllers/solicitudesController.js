@@ -1,5 +1,7 @@
 const solicitudesService = require('../services/solicitudesService');
 
+const ESTADOS = ['PENDIENTE', 'ACEPTADA', 'RECHAZADA', 'CANCELADA', 'FINALIZADA'];
+
 function esTextoNoVacio(valor) {
   return typeof valor === 'string' && valor.trim() !== '';
 }
@@ -41,6 +43,21 @@ async function crear(req, res, next) {
   }
 }
 
+async function listar(req, res, next) {
+  try {
+    const { estado } = req.query;
+
+    if (estado !== undefined && !ESTADOS.includes(estado)) {
+      return res.status(400).json({ error: 'El estado es inválido' });
+    }
+
+    const solicitudes = await solicitudesService.listarMisSolicitudes(req.usuario, { estado });
+    res.json(solicitudes);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function aceptar(req, res, next) {
   try {
     const solicitud = await solicitudesService.aceptarSolicitud(req.usuario.id, req.params.id);
@@ -59,6 +76,15 @@ async function rechazar(req, res, next) {
   }
 }
 
+async function finalizar(req, res, next) {
+  try {
+    const solicitud = await solicitudesService.finalizarSolicitud(req.usuario.id, req.params.id);
+    res.json(solicitud);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function cancelar(req, res, next) {
   try {
     const solicitud = await solicitudesService.cancelarSolicitud(req.usuario.id, req.params.id);
@@ -68,4 +94,4 @@ async function cancelar(req, res, next) {
   }
 }
 
-module.exports = { crear, aceptar, rechazar, cancelar };
+module.exports = { crear, listar, aceptar, rechazar, finalizar, cancelar };

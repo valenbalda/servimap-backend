@@ -594,3 +594,54 @@ swaggerSpec.paths['/api/solicitudes/{id}/cancelar'] = accionSobreSolicitud(
   'La solicitud no es del cliente o el rol no tiene permisos',
   'La solicitud ya no se puede cancelar'
 );
+
+// Consulta de solicitudes (se agrega al final porque reutiliza la variable solicitud).
+swaggerSpec.paths['/api/solicitudes'].get = {
+  tags: ['Solicitudes'],
+  summary: 'Consultar mis solicitudes: el cliente ve las que creó y el prestador las que recibió',
+  security: [{ bearerAuth: [] }],
+  parameters: [
+    {
+      name: 'estado',
+      in: 'query',
+      required: false,
+      schema: {
+        type: 'string',
+        enum: ['PENDIENTE', 'ACEPTADA', 'RECHAZADA', 'CANCELADA', 'FINALIZADA'],
+      },
+      description: 'Filtra por estado de la solicitud',
+    },
+  ],
+  responses: {
+    200: respuestaJson('Lista de solicitudes, de la más nueva a la más vieja', {
+      type: 'array',
+      items: {
+        allOf: [
+          solicitud,
+          {
+            type: 'object',
+            properties: {
+              oficio: {
+                type: 'object',
+                properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+              },
+              cliente: {
+                type: 'object',
+                properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+              },
+              prestador: {
+                type: 'object',
+                properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+              },
+              calificada: { type: 'boolean' },
+            },
+          },
+        ],
+      },
+    }),
+    400: respuestaError('El estado es inválido'),
+    401: respuestaError('No autenticado'),
+    403: respuestaError('Solo clientes y prestadores pueden consultar solicitudes'),
+    404: respuestaError('Perfil de prestador no encontrado'),
+  },
+};
