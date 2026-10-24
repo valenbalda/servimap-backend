@@ -49,14 +49,18 @@ async function registrarUsuario({ nombre, dni, email, password, rol }) {
   };
 }
 
-async function iniciarSesion({ dni, password }) {
+async function iniciarSesion({ dni, email, password }) {
   const usuario = await prisma.usuario.findUnique({ where: { dni } });
 
-  const passwordValida =
-    usuario && (await bcrypt.compare(password, usuario.passwordHash));
+  // El email tiene que ser el de la cuenta que tiene ese DNI.
+  const emailCoincide = Boolean(usuario) && usuario.email === email;
 
-  if (!usuario || !passwordValida) {
-    throw crearError('DNI o contraseña incorrectos', 401);
+  const passwordValida =
+    emailCoincide && (await bcrypt.compare(password, usuario.passwordHash));
+
+  // Mismo mensaje para los tres casos, así no se revela cuál dato falló.
+  if (!passwordValida) {
+    throw crearError('DNI, email o contraseña incorrectos', 401);
   }
 
   if (!usuario.activo) {

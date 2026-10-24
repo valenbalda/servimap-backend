@@ -231,8 +231,9 @@ const swaggerSpec = {
         summary: 'Iniciar sesión y obtener el token JWT',
         requestBody: cuerpoJson({
           type: 'object',
-          required: ['dni', 'password'],
+          required: ['dni', 'email', 'password'],
           properties: {
+            dni: { type: 'string', example: '12345678' },
             email: { type: 'string', example: 'ana@mail.com' },
             password: { type: 'string', example: '12345678' },
           },
@@ -246,7 +247,7 @@ const swaggerSpec = {
             },
           }),
           400: respuestaError('Faltan datos obligatorios'),
-          401: respuestaError('DNI o contraseña incorrectos'),
+          401: respuestaError('DNI, email o contraseña incorrectos'),
           403: respuestaError('La cuenta está desactivada'),
         },
       },
