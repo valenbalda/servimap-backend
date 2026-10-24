@@ -1,4 +1,7 @@
 const prisma = require('../config/prisma');
+const calificacionesService = require('./calificacionesService');
+
+const RADIO_TIERRA_KM = 6371;
 
 function crearError(mensaje, status) {
   const error = new Error(mensaje);
@@ -9,6 +12,24 @@ function crearError(mensaje, status) {
 // Prisma devuelve los decimales como objetos especiales; los pasamos a número.
 function aNumero(valor) {
   return valor === null || valor === undefined ? null : Number(valor);
+}
+
+function aRadianes(grados) {
+  return (grados * Math.PI) / 180;
+}
+
+// Distancia en km entre dos puntos del mapa (fórmula de haversine).
+function distanciaKm(lat1, lng1, lat2, lng2) {
+  const dLat = aRadianes(lat2 - lat1);
+  const dLng = aRadianes(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(aRadianes(lat1)) * Math.cos(aRadianes(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 2 * RADIO_TIERRA_KM * Math.asin(Math.sqrt(a));
+}
+
+function redondear(valor) {
+  return Math.round(valor * 10) / 10;
 }
 
 // Qué datos relacionados se traen junto con el prestador.
@@ -38,6 +59,25 @@ function formatearPerfil(prestador) {
       id: po.oficio.id,
       nombre: po.oficio.nombre,
     })),
+  };
+}
+
+// Arma el resumen público para el listado (sin datos de contacto).
+function formatearResumen(prestador) {
+  return {
+    id: prestador.id,
+    nombre: prestador.usuario.nombre,
+    descripcionProfesional: prestador.descripcionProfesional,
+    fotoPerfil: prestador.fotoPerfil,
+    zonaCobertura: prestador.zonaCobertura,
+    latitud: aNumero(prestador.latitud),
+    longitud: aNumero(prestador.longitud),
+    precioMin: aNumero(prestador.precioMin),
+    precioMax: aNumero(prestador.precioMax),
+    disponible: prestador.disponible,
+    oficios: prestador.oficios
+      .filter((po) => po.oficio.activo)
+      .map((po) => ({ id: po.oficio.id, nombre: po.oficio.nombre })),
   };
 }
 
@@ -107,4 +147,89 @@ async function asignarMisOficios(usuarioId, oficioIds) {
   return obtenerMiPerfil(usuarioId);
 }
 
-module.exports = { obtenerMiPerfil, actualizarMiPerfil, asignarMisOficios };
+// Busca prestadores (público): filtros por oficio, texto y cercanía, con su reputación.
+async function listarPrestadores({
+  oficioId,
+  q,
+  lat,
+  lng,
+  radioKm = 10,
+  calificacionMin,
+  limit = 20,
+} = {}) {
+  const conUbicacion = lat !== undefined && lng !== undefined;
+
+  // Solo prestadores activos, con usuario activo y con algún oficio activo.
+  const where = {
+    activo: true,
+    usuario: { activo: true },
+    oficios: { some: { ...(oficioId && { oficioId }), oficio: { activo: true } } },
+  };
+
+  if (q) {
+    where.OR = [
+      { usuario: { nombre: { contains: q, mode: 'insensitive' } } },
+      { zonaCobertura: { contains: q, mode: 'insensitive' } },
+      { oficios: { some: { oficio: { nombre: { contains: q, mode: 'insensitive' } } } } },
+    ];
+  }
+
+  // Para medir distancias hacen falta las coordenadas.
+  if (conUbicacion) {
+    where.latitud = { not: null };
+    where.longitud = { not: null };
+  }
+
+  const prestadores = await prisma.prestador.findMany({
+    where,
+    include: {
+      usuario: { select: { nombre: true } },
+      oficios: { include: { oficio: true } },
+    },
+    orderBy: { usuario: { nombre: 'asc' } },
+  });
+
+  let resultados = prestadores.map((prestador) => {
+    const resumen = formatearResumen(prestador);
+    if (!conUbicacion) return resumen;
+    return {
+      ...resumen,
+      distanciaKm: redondear(distanciaKm(lat, lng, resumen.latitud, resumen.longitud)),
+    };
+  });
+
+  // Con ubicación: solo los que están dentro del radio, del más cerca al más lejos.
+  if (conUbicacion) {
+    resultados = resultados
+      .filter((prestador) => prestador.distanciaKm <= radioKm)
+      .sort((a, b) => a.distanciaKm - b.distanciaKm);
+  }
+
+  // Reutiliza la reputación de Valen para no calcular el promedio dos veces.
+  const conReputacion = async (prestador) => {
+    const { promedio, totalCalificaciones, serviciosFinalizados } =
+      await calificacionesService.obtenerReputacion(prestador.id);
+    return { ...prestador, reputacion: { promedio, totalCalificaciones, serviciosFinalizados } };
+  };
+
+  // Sin filtro por calificación, la reputación se calcula solo para los que se devuelven.
+  if (calificacionMin === undefined) {
+    return Promise.all(resultados.slice(0, limit).map(conReputacion));
+  }
+
+  const todos = await Promise.all(resultados.map(conReputacion));
+  return todos
+    .filter(
+      (prestador) =>
+        prestador.reputacion.promedio !== null &&
+        prestador.reputacion.promedio >= calificacionMin
+    )
+    .slice(0, limit);
+}
+
+module.exports = {
+  obtenerMiPerfil,
+  actualizarMiPerfil,
+  asignarMisOficios,
+  listarPrestadores,
+};
