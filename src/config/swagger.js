@@ -209,9 +209,10 @@ const swaggerSpec = {
         summary: 'Registrar un usuario (cliente o prestador)',
         requestBody: cuerpoJson({
           type: 'object',
-          required: ['nombre', 'email', 'password', 'rol'],
+          required: ['nombre', 'dni', 'email', 'password', 'rol'],
           properties: {
             nombre: { type: 'string', example: 'Ana Pérez' },
+            dni: { type: 'string', example: '12345678', description: 'Solo números (7 u 8 dígitos). Único por persona: no se puede repetir.' },
             email: { type: 'string', example: 'ana@mail.com' },
             password: { type: 'string', minLength: 8, example: '12345678' },
             rol: { type: 'string', enum: ['CLIENTE', 'PRESTADOR'] },
@@ -220,7 +221,7 @@ const swaggerSpec = {
         responses: {
           201: respuestaJson('Usuario creado', { $ref: '#/components/schemas/Usuario' }),
           400: respuestaError('Datos inválidos o faltantes'),
-          409: respuestaError('El email ya está registrado'),
+          409: respuestaError('El DNI o email ya están registrados'),
         },
       },
     },
@@ -230,7 +231,7 @@ const swaggerSpec = {
         summary: 'Iniciar sesión y obtener el token JWT',
         requestBody: cuerpoJson({
           type: 'object',
-          required: ['email', 'password'],
+          required: ['dni', 'password'],
           properties: {
             email: { type: 'string', example: 'ana@mail.com' },
             password: { type: 'string', example: '12345678' },
@@ -245,7 +246,7 @@ const swaggerSpec = {
             },
           }),
           400: respuestaError('Faltan datos obligatorios'),
-          401: respuestaError('Email o contraseña incorrectos'),
+          401: respuestaError('DNI o contraseña incorrectos'),
           403: respuestaError('La cuenta está desactivada'),
         },
       },

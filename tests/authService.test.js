@@ -19,6 +19,7 @@ beforeEach(() => {
 describe('registrarUsuario', () => {
   const datos = {
     nombre: 'Ana',
+    dni: '12345678',
     email: 'ana@mail.com',
     password: '12345678',
     rol: 'CLIENTE',
@@ -32,11 +33,28 @@ describe('registrarUsuario', () => {
     expect(prisma.usuario.create).not.toHaveBeenCalled();
   });
 
-  it('rechaza un email ya registrado', async () => {
-    prisma.usuario.findUnique.mockResolvedValue({ id: 'u1' });
+  it('rechaza un DNI ya registrado', async () => {
+    prisma.usuario.findUnique.mockResolvedValueOnce({ id: 'u1' });
 
     await expect(authService.registrarUsuario(datos)).rejects.toMatchObject({
       status: 409,
+      message: 'Ya existe una cuenta con ese DNI',
+    });
+
+    expect(prisma.usuario.findUnique).toHaveBeenCalledWith({
+      where: { dni: '12345678' },
+    });
+    expect(prisma.usuario.create).not.toHaveBeenCalled();
+  });
+
+  it('rechaza un email ya registrado', async () => {
+    prisma.usuario.findUnique
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: 'u1' });
+
+    await expect(authService.registrarUsuario(datos)).rejects.toMatchObject({
+      status: 409,
+      message: 'El email ya está registrado',
     });
 
     expect(prisma.usuario.create).not.toHaveBeenCalled();
@@ -53,11 +71,13 @@ describe('registrarUsuario', () => {
     const usuario = await authService.registrarUsuario(datos);
 
     const { data } = prisma.usuario.create.mock.calls[0][0];
+    expect(data.dni).toBe('12345678');
     expect(data.passwordHash).not.toBe('12345678');
     expect(await bcrypt.compare('12345678', data.passwordHash)).toBe(true);
     expect(data.prestador).toBeUndefined();
 
     expect(usuario).not.toHaveProperty('passwordHash');
+    expect(usuario).not.toHaveProperty('dni');
     expect(usuario).toMatchObject({
       id: 'u1',
       nombre: 'Ana',
@@ -86,20 +106,31 @@ describe('iniciarSesion', () => {
   const usuarioBase = {
     id: 'u1',
     nombre: 'Ana',
+    dni: '12345678',
     email: 'ana@mail.com',
     passwordHash,
     rol: 'CLIENTE',
     activo: true,
   };
 
-  it('rechaza un email que no existe con 401', async () => {
+  it('busca al usuario por DNI', async () => {
+    prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
+
+    await authService.iniciarSesion({ dni: '12345678', password: '12345678' });
+
+    expect(prisma.usuario.findUnique).toHaveBeenCalledWith({
+      where: { dni: '12345678' },
+    });
+  });
+
+  it('rechaza un DNI que no existe con 401', async () => {
     prisma.usuario.findUnique.mockResolvedValue(null);
 
     await expect(
-      authService.iniciarSesion({ email: 'x@mail.com', password: '12345678' })
+      authService.iniciarSesion({ dni: '87654321', password: '12345678' })
     ).rejects.toMatchObject({
       status: 401,
-      message: 'Email o contraseña incorrectos',
+      message: 'DNI o contraseña incorrectos',
     });
   });
 
@@ -107,10 +138,10 @@ describe('iniciarSesion', () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
     await expect(
-      authService.iniciarSesion({ email: 'ana@mail.com', password: 'otraClave1' })
+      authService.iniciarSesion({ dni: '12345678', password: 'otraClave1' })
     ).rejects.toMatchObject({
       status: 401,
-      message: 'Email o contraseña incorrectos',
+      message: 'DNI o contraseña incorrectos',
     });
   });
 
@@ -118,15 +149,15 @@ describe('iniciarSesion', () => {
     prisma.usuario.findUnique.mockResolvedValue({ ...usuarioBase, activo: false });
 
     await expect(
-      authService.iniciarSesion({ email: 'ana@mail.com', password: '12345678' })
+      authService.iniciarSesion({ dni: '12345678', password: '12345678' })
     ).rejects.toMatchObject({ status: 403 });
   });
 
-  it('devuelve un token válido con el id y el rol, sin la contraseña', async () => {
+  it('devuelve un token válido con el id y el rol, sin la contraseña ni el DNI', async () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
     const resultado = await authService.iniciarSesion({
-      email: 'ana@mail.com',
+      dni: '12345678',
       password: '12345678',
     });
 
@@ -136,6 +167,7 @@ describe('iniciarSesion', () => {
     );
     expect(payload.sub).toBe('u1');
     expect(payload.rol).toBe('CLIENTE');
+    expect(payload).not.toHaveProperty('dni');
     expect(resultado.usuario).toEqual({
       id: 'u1',
       nombre: 'Ana',
@@ -149,6 +181,7 @@ describe('obtenerPerfil', () => {
   const usuarioBase = {
     id: 'u1',
     nombre: 'Ana',
+    dni: '12345678',
     email: 'ana@mail.com',
     passwordHash: 'hash',
     rol: 'CLIENTE',
@@ -156,12 +189,13 @@ describe('obtenerPerfil', () => {
     fechaRegistro: new Date(),
   };
 
-  it('devuelve el perfil sin la contraseña', async () => {
+  it('devuelve el perfil sin la contraseña ni el DNI', async () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
     const perfil = await authService.obtenerPerfil('u1');
 
     expect(perfil).not.toHaveProperty('passwordHash');
+    expect(perfil).not.toHaveProperty('dni');
     expect(perfil).toMatchObject({ id: 'u1', email: 'ana@mail.com' });
   });
 

@@ -25,6 +25,7 @@ model Usuario {
   id                  String   @id @default(uuid())
   nombre              String
   email               String   @unique
+  dni                 String   @unique
   passwordHash        String
   rol                 Rol
   activo              Boolean  @default(true)

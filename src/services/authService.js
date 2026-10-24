@@ -11,12 +11,18 @@ function crearError(mensaje, status) {
   return error;
 }
 
-async function registrarUsuario({ nombre, email, password, rol }) {
+async function registrarUsuario({ nombre, dni, email, password, rol }) {
   if (!ROLES_PERMITIDOS.includes(rol)) {
     throw crearError('Rol inválido', 400);
   }
 
-  const existente = await prisma.usuario.findUnique({ where: { email } });
+  // El DNI es único: una persona no puede tener dos cuentas.
+  const dniExistente = await prisma.usuario.findUnique({ where: { dni } });
+  if (dniExistente) {
+    throw crearError('Ya existe una cuenta con ese DNI', 409);
+  }
+
+  const existente = await prisma.usuario.findUnique({ where:{ email } });
   if (existente) {
     throw crearError('El email ya está registrado', 409);
   }
@@ -26,10 +32,11 @@ async function registrarUsuario({ nombre, email, password, rol }) {
   const usuario = await prisma.usuario.create({
     data: {
       nombre,
+      dni,
       email,
       passwordHash,
       rol,
-      ...(rol === 'PRESTADOR' && { prestador: { create: {} } }),
+      ...(rol === 'PRESTADOR' && { prestador: { create: {} }}),
     },
   });
 
@@ -42,21 +49,21 @@ async function registrarUsuario({ nombre, email, password, rol }) {
   };
 }
 
-async function iniciarSesion({ email, password }) {
-  const usuario = await prisma.usuario.findUnique({ where: { email } });
+async function iniciarSesion({ dni, password }) {
+  const usuario = await prisma.usuario.findUnique({ where: { dni } });
 
   const passwordValida =
     usuario && (await bcrypt.compare(password, usuario.passwordHash));
 
   if (!usuario || !passwordValida) {
-    throw crearError('Email o contraseña incorrectos', 401);
+    throw crearError('DNI o contraseña incorrectos', 401);
   }
 
   if (!usuario.activo) {
     throw crearError('La cuenta está desactivada', 403);
   }
 
-  const token = jwt.sign({ sub: usuario.id, rol: usuario.rol }, env.JWT_SECRET, {
+  const token = jwt.sign({ sub: usuario.id, rol: usuario.rol}, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN,
   });
 
@@ -72,7 +79,7 @@ async function iniciarSesion({ email, password }) {
 }
 
 async function obtenerPerfil(usuarioId) {
-  const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
+  const usuario = await prisma.usuario.findUnique({ where: {id: usuarioId } });
 
   if (!usuario || !usuario.activo) {
     throw crearError('Usuario no encontrado', 404);
