@@ -150,6 +150,100 @@ const swaggerSpec = {
     },
   },
   paths: {
+        '/api/prestadores': {
+      get: {
+        tags: ['Prestadores'],
+        summary: 'Buscar prestadores por oficio, texto y cercanía, con su reputación (público)',
+        parameters: [
+          {
+            name: 'oficioId',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'Solo prestadores que ofrecen este oficio',
+          },
+          {
+            name: 'q',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', maxLength: 100 },
+            description: 'Busca por nombre, zona de cobertura u oficio',
+          },
+          {
+            name: 'lat',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', minimum: -90, maximum: 90, example: -34.6037 },
+            description: 'Latitud de referencia (se envía junto con lng)',
+          },
+          {
+            name: 'lng',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', minimum: -180, maximum: 180, example: -58.3816 },
+            description: 'Longitud de referencia (se envía junto con lat)',
+          },
+          {
+            name: 'radioKm',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', minimum: 0, maximum: 100, default: 10 },
+            description: 'Radio de búsqueda en km (necesita lat y lng)',
+          },
+          {
+            name: 'calificacionMin',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', minimum: 1, maximum: 5 },
+            description: 'Promedio mínimo de calificaciones',
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
+            description: 'Cantidad máxima de resultados',
+          },
+        ],
+        responses: {
+          200: respuestaJson('Lista de prestadores (con distanciaKm si se envió lat y lng)', {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                nombre: { type: 'string' },
+                descripcionProfesional: { type: 'string', nullable: true },
+                fotoPerfil: { type: 'string', nullable: true },
+                zonaCobertura: { type: 'string', nullable: true },
+                latitud: { type: 'number', nullable: true },
+                longitud: { type: 'number', nullable: true },
+                precioMin: { type: 'number', nullable: true },
+                precioMax: { type: 'number', nullable: true },
+                disponible: { type: 'boolean' },
+                distanciaKm: { type: 'number' },
+                oficios: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+                  },
+                },
+                reputacion: {
+                  type: 'object',
+                  properties: {
+                    promedio: { type: 'number', nullable: true, example: 4.5 },
+                    totalCalificaciones: { type: 'integer', example: 12 },
+                    serviciosFinalizados: { type: 'integer', example: 15 },
+                  },
+                },
+              },
+            },
+          }),
+          400: respuestaError('Algún filtro es inválido'),
+        },
+      },
+    },
     '/api/prestadores/me': {
       get: {
         tags: ['Prestadores'],
@@ -209,9 +303,10 @@ const swaggerSpec = {
         summary: 'Registrar un usuario (cliente o prestador)',
         requestBody: cuerpoJson({
           type: 'object',
-          required: ['nombre', 'email', 'password', 'rol'],
+          required: ['nombre', 'dni', 'email', 'password', 'rol'],
           properties: {
             nombre: { type: 'string', example: 'Ana Pérez' },
+            dni: { type: 'string', example: '12345678', description: 'Solo números (7 u 8 dígitos). Único por persona: no se puede repetir.' },
             email: { type: 'string', example: 'ana@mail.com' },
             password: { type: 'string', minLength: 8, example: '12345678' },
             rol: { type: 'string', enum: ['CLIENTE', 'PRESTADOR'] },
@@ -220,14 +315,14 @@ const swaggerSpec = {
         responses: {
           201: respuestaJson('Usuario creado', { $ref: '#/components/schemas/Usuario' }),
           400: respuestaError('Datos inválidos o faltantes'),
-          409: respuestaError('El email ya está registrado'),
+          409: respuestaError('El DNI o email ya están registrados'),
         },
       },
     },
-    '/api/auth/login': {
+        '/api/auth/login': {
       post: {
         tags: ['Auth'],
-        summary: 'Iniciar sesión y obtener el token JWT',
+        summary: 'Iniciar sesión con email y contraseña y obtener el token JWT',
         requestBody: cuerpoJson({
           type: 'object',
           required: ['email', 'password'],
@@ -253,10 +348,18 @@ const swaggerSpec = {
     '/api/auth/me': {
       get: {
         tags: ['Auth'],
-        summary: 'Obtener el perfil del usuario autenticado',
+        summary: 'Obtener el perfil del usuario autenticado (incluye su DNI)',
         security: [{ bearerAuth: [] }],
         responses: {
-          200: respuestaJson('Perfil del usuario', { $ref: '#/components/schemas/Usuario' }),
+          200: respuestaJson('Perfil del usuario. El DNI solo lo ve su dueño.', {
+            allOf: [
+              { $ref: '#/components/schemas/Usuario' },
+              {
+                type: 'object',
+                properties: { dni: { type: 'string', example: '12345678' } },
+              },
+            ],
+          }),
           401: respuestaError('Token no proporcionado, inválido o vencido'),
           404: respuestaError('Usuario no encontrado'),
         },
@@ -593,6 +696,13 @@ swaggerSpec.paths['/api/solicitudes/{id}/cancelar'] = accionSobreSolicitud(
   'Cancelar una solicitud pendiente o aceptada (cliente dueño)',
   'La solicitud no es del cliente o el rol no tiene permisos',
   'La solicitud ya no se puede cancelar'
+);
+
+// Finalizar solicitud (se agrega al final porque reutiliza accionSobreSolicitud).
+swaggerSpec.paths['/api/solicitudes/{id}/finalizar'] = accionSobreSolicitud(
+  'Finalizar una solicitud aceptada (prestador dueño)',
+  'La solicitud no es del prestador o el rol no tiene permisos',
+  'La solicitud no está aceptada'
 );
 
 // Consulta de solicitudes (se agrega al final porque reutiliza la variable solicitud).

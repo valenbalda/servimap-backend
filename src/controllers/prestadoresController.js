@@ -9,6 +9,16 @@ const CAMPOS_TEXTO = [
   'emailContacto',
 ];
 
+function esTextoNoVacio(valor) {
+  return typeof valor === 'string' && valor.trim() !== '';
+}
+
+// Los parámetros de la dirección llegan como texto; acá se pasan a número (NaN si no sirven).
+function aNumero(valor) {
+  if (typeof valor !== 'string' || valor.trim() === '') return NaN;
+  return Number(valor);
+}
+
 // Devuelve un mensaje de error si algo está mal, o null si todo está bien.
 function validarPerfil(body) {
   for (const campo of CAMPOS_TEXTO) {
@@ -108,4 +118,74 @@ async function asignarMisOficios(req, res, next) {
   }
 }
 
-module.exports = { obtenerMiPerfil, actualizarMiPerfil, asignarMisOficios };
+async function listar(req, res, next) {
+  try {
+    const { oficioId, q, lat, lng, radioKm, calificacionMin, limit } = req.query;
+    const filtros = {};
+
+    if (oficioId !== undefined) {
+      if (!esTextoNoVacio(oficioId)) {
+        return res.status(400).json({ error: 'El oficioId es inválido' });
+      }
+      filtros.oficioId = oficioId.trim();
+    }
+
+    if (q !== undefined) {
+      if (!esTextoNoVacio(q) || q.trim().length > 100) {
+        return res.status(400).json({ error: 'La búsqueda es inválida (máximo 100 caracteres)' });
+      }
+      filtros.q = q.trim();
+    }
+
+    // lat y lng van siempre juntas.
+    if ((lat === undefined) !== (lng === undefined)) {
+      return res.status(400).json({ error: 'lat y lng se envían juntas' });
+    }
+    if (lat !== undefined) {
+      const latitud = aNumero(lat);
+      const longitud = aNumero(lng);
+      if (!(latitud >= -90 && latitud <= 90)) {
+        return res.status(400).json({ error: 'La latitud debe ser un número entre -90 y 90' });
+      }
+      if (!(longitud >= -180 && longitud <= 180)) {
+        return res.status(400).json({ error: 'La longitud debe ser un número entre -180 y 180' });
+      }
+      filtros.lat = latitud;
+      filtros.lng = longitud;
+    }
+
+    if (radioKm !== undefined) {
+      if (lat === undefined) {
+        return res.status(400).json({ error: 'radioKm necesita lat y lng' });
+      }
+      const radio = aNumero(radioKm);
+      if (!(radio > 0 && radio <= 100)) {
+        return res.status(400).json({ error: 'radioKm debe ser un número entre 0 y 100' });
+      }
+      filtros.radioKm = radio;
+    }
+
+    if (calificacionMin !== undefined) {
+      const minimo = aNumero(calificacionMin);
+      if (!(minimo >= 1 && minimo <= 5)) {
+        return res.status(400).json({ error: 'calificacionMin debe ser un número entre 1 y 5' });
+      }
+      filtros.calificacionMin = minimo;
+    }
+
+    if (limit !== undefined) {
+      const tope = aNumero(limit);
+      if (!Number.isInteger(tope) || tope < 1 || tope > 50) {
+        return res.status(400).json({ error: 'limit debe ser un entero entre 1 y 50' });
+      }
+      filtros.limit = tope;
+    }
+
+    const prestadores = await prestadoresService.listarPrestadores(filtros);
+    res.json(prestadores);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { obtenerMiPerfil, actualizarMiPerfil, asignarMisOficios, listar };
