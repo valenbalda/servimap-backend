@@ -2,6 +2,7 @@ jest.mock('../src/services/solicitudesService', () => ({
   crearSolicitud: jest.fn(),
   aceptarSolicitud: jest.fn(),
   rechazarSolicitud: jest.fn(),
+  finalizarSolicitud: jest.fn(),
   cancelarSolicitud: jest.fn(),
 }));
 
@@ -157,6 +158,7 @@ describe('crear', () => {
 describe.each([
   ['aceptar', 'aceptarSolicitud'],
   ['rechazar', 'rechazarSolicitud'],
+  ['finalizar', 'finalizarSolicitud'],
   ['cancelar', 'cancelarSolicitud'],
 ])('%s', (accion, metodoServicio) => {
   it('delega en el servicio con el usuario y la solicitud', async () => {
