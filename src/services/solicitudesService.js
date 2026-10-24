@@ -21,6 +21,17 @@ function formatearSolicitud(solicitud) {
   };
 }
 
+// Igual que la anterior, pero con los nombres del oficio, el cliente y el prestador.
+function formatearSolicitudDetallada(solicitud) {
+  return {
+    ...formatearSolicitud(solicitud),
+    oficio: { id: solicitud.oficio.id, nombre: solicitud.oficio.nombre },
+    cliente: { id: solicitud.cliente.id, nombre: solicitud.cliente.nombre },
+    prestador: { id: solicitud.prestadorId, nombre: solicitud.prestador.usuario.nombre },
+    calificada: Boolean(solicitud.calificacion),
+  };
+}
+
 async function crearSolicitud(clienteId, { prestadorId, oficioId, descripcion, direccion, contactoPreferido }) {
   // El prestador tiene que existir, estar activo y disponible.
   const prestador = await prisma.prestador.findUnique({
@@ -59,6 +70,38 @@ async function crearSolicitud(clienteId, { prestadorId, oficioId, descripcion, d
   });
 
   return formatearSolicitud(solicitud);
+}
+
+// Devuelve solo las solicitudes del usuario logueado (según su rol).
+async function listarMisSolicitudes({ id: usuarioId, rol }, { estado } = {}) {
+  const where = {};
+  if (estado) where.estado = estado;
+
+  if (rol === 'CLIENTE') {
+    where.clienteId = usuarioId;
+  } else if (rol === 'PRESTADOR') {
+    // El prestador es otra tabla: se busca su perfil a partir del usuario.
+    const prestador = await prisma.prestador.findUnique({ where: { usuarioId } });
+    if (!prestador || !prestador.activo) {
+      throw crearError('Perfil de prestador no encontrado', 404);
+    }
+    where.prestadorId = prestador.id;
+  } else {
+    throw crearError('No tenés permisos para realizar esta acción', 403);
+  }
+
+  const solicitudes = await prisma.solicitud.findMany({
+    where,
+    orderBy: { fechaCreacion: 'desc' },
+    include: {
+      oficio: { select: { id: true, nombre: true } },
+      cliente: { select: { id: true, nombre: true } },
+      prestador: { include: { usuario: { select: { nombre: true } } } },
+      calificacion: { select: { id: true } },
+    },
+  });
+
+  return solicitudes.map(formatearSolicitudDetallada);
 }
 
 async function buscarSolicitud(id) {
@@ -139,6 +182,7 @@ async function cancelarSolicitud(clienteId, solicitudId) {
 
 module.exports = {
   crearSolicitud,
+  listarMisSolicitudes,
   aceptarSolicitud,
   rechazarSolicitud,
   finalizarSolicitud,

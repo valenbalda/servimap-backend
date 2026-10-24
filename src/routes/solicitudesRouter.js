@@ -6,6 +6,7 @@ const { autorizar } = require('../middlewares/rolesMiddleware');
 const router = Router();
 
 router.post('/', autenticar, autorizar('CLIENTE'), solicitudesController.crear);
+router.get('/', autenticar, autorizar('CLIENTE', 'PRESTADOR'), solicitudesController.listar);
 router.patch('/:id/aceptar', autenticar, autorizar('PRESTADOR'), solicitudesController.aceptar);
 router.patch('/:id/rechazar', autenticar, autorizar('PRESTADOR'), solicitudesController.rechazar);
 router.patch('/:id/finalizar', autenticar, autorizar('PRESTADOR'), solicitudesController.finalizar);
