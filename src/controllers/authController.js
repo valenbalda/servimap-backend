@@ -53,28 +53,18 @@ async function register(req, res, next) {
 
 async function login(req, res, next) {
   try {
-    const { dni, email, password } = req.body || {};
+    const { email, password } = req.body || {};
 
     if (
-      typeof dni !== 'string' ||
       typeof email !== 'string' ||
       typeof password !== 'string' ||
-      !dni.trim() ||
       !email.trim() ||
       !password
     ) {
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
     }
 
-    const dniNormalizado = normalizarDni(dni);
-    if (!dniValido(dniNormalizado)) {
-      return res
-        .status(400)
-        .json({ error: 'El DNI debe tener 7 u 8 números' });
-    }
-
     const resultado = await authService.iniciarSesion({
-      dni: dniNormalizado,
       email: email.trim().toLowerCase(),
       password,
     });

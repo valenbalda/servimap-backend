@@ -112,41 +112,25 @@ describe('iniciarSesion', () => {
     rol: 'CLIENTE',
     activo: true,
   };
-  const credenciales = {
-    dni: '12345678',
-    email: 'ana@mail.com',
-    password: '12345678',
-  };
 
-  it('busca al usuario por DNI', async () => {
+  it('busca al usuario por email', async () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
-    await authService.iniciarSesion(credenciales);
+    await authService.iniciarSesion({ email: 'ana@mail.com', password: '12345678' });
 
     expect(prisma.usuario.findUnique).toHaveBeenCalledWith({
-      where: { dni: '12345678' },
+      where: { email: 'ana@mail.com' },
     });
   });
 
-  it('rechaza un DNI que no existe con 401', async () => {
+  it('rechaza un email que no existe con 401', async () => {
     prisma.usuario.findUnique.mockResolvedValue(null);
 
     await expect(
-      authService.iniciarSesion({ ...credenciales, dni: '87654321' })
+      authService.iniciarSesion({ email: 'x@mail.com', password: '12345678' })
     ).rejects.toMatchObject({
       status: 401,
-      message: 'DNI, email o contraseña incorrectos',
-    });
-  });
-
-  it('rechaza un email que no es el de esa cuenta, con el mismo mensaje', async () => {
-    prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
-
-    await expect(
-      authService.iniciarSesion({ ...credenciales, email: 'otro@mail.com' })
-    ).rejects.toMatchObject({
-      status: 401,
-      message: 'DNI, email o contraseña incorrectos',
+      message: 'Email o contraseña incorrectos',
     });
   });
 
@@ -154,25 +138,28 @@ describe('iniciarSesion', () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
     await expect(
-      authService.iniciarSesion({ ...credenciales, password: 'otraClave1' })
+      authService.iniciarSesion({ email: 'ana@mail.com', password: 'otraClave1' })
     ).rejects.toMatchObject({
       status: 401,
-      message: 'DNI, email o contraseña incorrectos',
+      message: 'Email o contraseña incorrectos',
     });
   });
 
   it('rechaza una cuenta desactivada con 403', async () => {
     prisma.usuario.findUnique.mockResolvedValue({ ...usuarioBase, activo: false });
 
-    await expect(authService.iniciarSesion(credenciales)).rejects.toMatchObject({
-      status: 403,
-    });
+    await expect(
+      authService.iniciarSesion({ email: 'ana@mail.com', password: '12345678' })
+    ).rejects.toMatchObject({ status: 403 });
   });
 
   it('devuelve un token válido con el id y el rol, sin la contraseña ni el DNI', async () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
-    const resultado = await authService.iniciarSesion(credenciales);
+    const resultado = await authService.iniciarSesion({
+      email: 'ana@mail.com',
+      password: '12345678',
+    });
 
     const payload = jwt.verify(
       resultado.token,
@@ -202,14 +189,20 @@ describe('obtenerPerfil', () => {
     fechaRegistro: new Date(),
   };
 
-  it('devuelve el perfil sin la contraseña ni el DNI', async () => {
+  it('devuelve el perfil con el DNI y sin la contraseña', async () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
     const perfil = await authService.obtenerPerfil('u1');
 
+    expect(prisma.usuario.findUnique).toHaveBeenCalledWith({ where: { id: 'u1' } });
     expect(perfil).not.toHaveProperty('passwordHash');
-    expect(perfil).not.toHaveProperty('dni');
-    expect(perfil).toMatchObject({ id: 'u1', email: 'ana@mail.com' });
+    expect(perfil).toMatchObject({
+      id: 'u1',
+      nombre: 'Ana',
+      dni: '12345678',
+      email: 'ana@mail.com',
+      rol: 'CLIENTE',
+    });
   });
 
   it('lanza 404 si el usuario no existe', async () => {

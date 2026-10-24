@@ -225,15 +225,14 @@ const swaggerSpec = {
         },
       },
     },
-    '/api/auth/login': {
+        '/api/auth/login': {
       post: {
         tags: ['Auth'],
-        summary: 'Iniciar sesión y obtener el token JWT',
+        summary: 'Iniciar sesión con email y contraseña y obtener el token JWT',
         requestBody: cuerpoJson({
           type: 'object',
-          required: ['dni', 'email', 'password'],
+          required: ['email', 'password'],
           properties: {
-            dni: { type: 'string', example: '12345678' },
             email: { type: 'string', example: 'ana@mail.com' },
             password: { type: 'string', example: '12345678' },
           },
@@ -247,7 +246,7 @@ const swaggerSpec = {
             },
           }),
           400: respuestaError('Faltan datos obligatorios'),
-          401: respuestaError('DNI, email o contraseña incorrectos'),
+          401: respuestaError('Email o contraseña incorrectos'),
           403: respuestaError('La cuenta está desactivada'),
         },
       },
@@ -255,10 +254,18 @@ const swaggerSpec = {
     '/api/auth/me': {
       get: {
         tags: ['Auth'],
-        summary: 'Obtener el perfil del usuario autenticado',
+        summary: 'Obtener el perfil del usuario autenticado (incluye su DNI)',
         security: [{ bearerAuth: [] }],
         responses: {
-          200: respuestaJson('Perfil del usuario', { $ref: '#/components/schemas/Usuario' }),
+          200: respuestaJson('Perfil del usuario. El DNI solo lo ve su dueño.', {
+            allOf: [
+              { $ref: '#/components/schemas/Usuario' },
+              {
+                type: 'object',
+                properties: { dni: { type: 'string', example: '12345678' } },
+              },
+            ],
+          }),
           401: respuestaError('Token no proporcionado, inválido o vencido'),
           404: respuestaError('Usuario no encontrado'),
         },

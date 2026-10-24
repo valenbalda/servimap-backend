@@ -190,17 +190,11 @@ describe('register', () => {
 });
 
 describe('login', () => {
-  const loginValido = {
-    dni: '12345678',
-    email: 'ana@mail.com',
-    password: '12345678',
-  };
-
-  it('responde 400 si falta la contraseña', async () => {
+  it('responde 400 si falta el email o la contraseña', async () => {
     const res = crearRes();
 
     await authController.login(
-      { body: { dni: '12345678', email: 'ana@mail.com' } },
+      { body: { email: 'ana@mail.com' } },
       res,
       jest.fn()
     );
@@ -210,21 +204,25 @@ describe('login', () => {
     expect(authService.iniciarSesion).not.toHaveBeenCalled();
   });
 
-  it('responde 400 si falta el email', async () => {
+  it('inicia sesión con el email en minúsculas y devuelve el resultado', async () => {
+    authService.iniciarSesion.mockResolvedValue({ token: 'abc' });
     const res = crearRes();
 
     await authController.login(
-      { body: { dni: '12345678', password: '12345678' } },
+      { body: { email: ' Ana@Mail.com ', password: '12345678' } },
       res,
       jest.fn()
     );
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Faltan datos obligatorios' });
-    expect(authService.iniciarSesion).not.toHaveBeenCalled();
+    expect(authService.iniciarSesion).toHaveBeenCalledWith({
+      email: 'ana@mail.com',
+      password: '12345678',
+    });
+    expect(res.json).toHaveBeenCalledWith({token: 'abc' });
   });
 
-  it('responde 400 si falta el DNI', async () => {
+  it('no pide el DNI para iniciar sesión', async () => {
+    authService.iniciarSesion.mockResolvedValue({ token: 'abc' });
     const res = crearRes();
 
     await authController.login(
@@ -233,57 +231,20 @@ describe('login', () => {
       jest.fn()
     );
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Faltan datos obligatorios' });
-    expect(authService.iniciarSesion).not.toHaveBeenCalled();
-  });
-
-  it('responde 400 si el DNI no tiene 7 u 8 números', async () => {
-    const res = crearRes();
-
-    await authController.login(
-      { body: { ...loginValido, dni: '12ab' } },
-      res,
-      jest.fn()
-    );
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      error: 'El DNI debe tener 7 u 8 números',
-    });
-    expect(authService.iniciarSesion).not.toHaveBeenCalled();
-  });
-
-  it('inicia sesión con el DNI sin puntos y el email en minúsculas', async () => {
-    authService.iniciarSesion.mockResolvedValue({ token: 'abc' });
-    const res = crearRes();
-
-    await authController.login(
-      {
-        body: {
-          dni: ' 12.345.678 ',
-          email: ' Ana@Mail.com ',
-          password: '12345678',
-        },
-      },
-      res,
-      jest.fn()
-    );
-
-    expect(authService.iniciarSesion).toHaveBeenCalledWith({
-      dni: '12345678',
-      email: 'ana@mail.com',
-      password: '12345678',
-    });
-    expect(res.json).toHaveBeenCalledWith({token: 'abc' });
+    expect(res.status).not.toHaveBeenCalledWith(400);
+    expect(authService.iniciarSesion).toHaveBeenCalledTimes(1);
   });
 
   it('pasa el error del servicio al manejador de errores', async () => {
-    const error = new Error('DNI, email o contraseña incorrectos');
+    const error = new Error('Email o contraseña incorrectos');
     authService.iniciarSesion.mockRejectedValue(error);
     const next = jest.fn();
 
-    await authController.login({ body: loginValido }, crearRes(), next);
+    await authController.login(
+      { body: { email: 'ana@mail.com', password: '12345678' } },
+      crearRes(),
+      next
+    );
 
     expect(next).toHaveBeenCalledWith(error);
   });

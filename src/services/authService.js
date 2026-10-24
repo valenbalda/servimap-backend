@@ -49,18 +49,14 @@ async function registrarUsuario({ nombre, dni, email, password, rol }) {
   };
 }
 
-async function iniciarSesion({ dni, email, password }) {
-  const usuario = await prisma.usuario.findUnique({ where: { dni } });
-
-  // El email tiene que ser el de la cuenta que tiene ese DNI.
-  const emailCoincide = Boolean(usuario) && usuario.email === email;
+async function iniciarSesion({ email, password }) {
+  const usuario = await prisma.usuario.findUnique({ where: { email } });
 
   const passwordValida =
-    emailCoincide && (await bcrypt.compare(password, usuario.passwordHash));
+    usuario && (await bcrypt.compare(password, usuario.passwordHash));
 
-  // Mismo mensaje para los tres casos, así no se revela cuál dato falló.
-  if (!passwordValida) {
-    throw crearError('DNI, email o contraseña incorrectos', 401);
+  if (!usuario || !passwordValida) {
+    throw crearError('Email o contraseña incorrectos', 401);
   }
 
   if (!usuario.activo) {
@@ -82,6 +78,8 @@ async function iniciarSesion({ dni, email, password }) {
   };
 }
 
+// El perfil es el único lugar donde se devuelve el DNI, y solo a su dueño
+// (el id sale del token, nunca de un dato que mande el usuario).
 async function obtenerPerfil(usuarioId) {
   const usuario = await prisma.usuario.findUnique({ where: {id: usuarioId } });
 
@@ -92,6 +90,7 @@ async function obtenerPerfil(usuarioId) {
   return {
     id: usuario.id,
     nombre: usuario.nombre,
+    dni: usuario.dni,
     email: usuario.email,
     rol: usuario.rol,
     fechaRegistro: usuario.fechaRegistro,
