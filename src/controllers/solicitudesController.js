@@ -59,6 +59,15 @@ async function rechazar(req, res, next) {
   }
 }
 
+async function finalizar(req, res, next) {
+  try {
+    const solicitud = await solicitudesService.finalizarSolicitud(req.usuario.id, req.params.id);
+    res.json(solicitud);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function cancelar(req, res, next) {
   try {
     const solicitud = await solicitudesService.cancelarSolicitud(req.usuario.id, req.params.id);
@@ -68,4 +77,4 @@ async function cancelar(req, res, next) {
   }
 }
 
-module.exports = { crear, aceptar, rechazar, cancelar };
+module.exports = { crear, aceptar, rechazar, finalizar, cancelar };

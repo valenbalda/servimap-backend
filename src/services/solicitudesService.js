@@ -69,8 +69,9 @@ async function buscarSolicitud(id) {
   return solicitud;
 }
 
-// Aceptar y rechazar tienen las mismas reglas, cambia solo el estado nuevo.
-async function responderComoPrestador(usuarioId, solicitudId, nuevoEstado) {
+// Cambio de estado que solo puede hacer el prestador dueño de la solicitud.
+// Se revisa en este orden: existe (404), es suya (403), el estado lo permite (409).
+async function cambiarEstadoComoPrestador(usuarioId, solicitudId, { desde, hacia, mensajeConflicto }) {
   const solicitud = await buscarSolicitud(solicitudId);
 
   // El prestador es otra tabla: se busca su perfil a partir del usuario.
@@ -79,24 +80,41 @@ async function responderComoPrestador(usuarioId, solicitudId, nuevoEstado) {
     throw crearError('La solicitud no es tuya', 403);
   }
 
-  if (solicitud.estado !== 'PENDIENTE') {
-    throw crearError('Solo se puede responder una solicitud pendiente', 409);
+  if (solicitud.estado !== desde) {
+    throw crearError(mensajeConflicto, 409);
   }
 
   const actualizada = await prisma.solicitud.update({
     where: { id: solicitudId },
-    data: { estado: nuevoEstado },
+    data: { estado: hacia },
   });
 
   return formatearSolicitud(actualizada);
 }
 
 function aceptarSolicitud(usuarioId, solicitudId) {
-  return responderComoPrestador(usuarioId, solicitudId, 'ACEPTADA');
+  return cambiarEstadoComoPrestador(usuarioId, solicitudId, {
+    desde: 'PENDIENTE',
+    hacia: 'ACEPTADA',
+    mensajeConflicto: 'Solo se puede responder una solicitud pendiente',
+  });
 }
 
 function rechazarSolicitud(usuarioId, solicitudId) {
-  return responderComoPrestador(usuarioId, solicitudId, 'RECHAZADA');
+  return cambiarEstadoComoPrestador(usuarioId, solicitudId, {
+    desde: 'PENDIENTE',
+    hacia: 'RECHAZADA',
+    mensajeConflicto: 'Solo se puede responder una solicitud pendiente',
+  });
+}
+
+// Solo se puede finalizar una solicitud que ya fue aceptada.
+function finalizarSolicitud(usuarioId, solicitudId) {
+  return cambiarEstadoComoPrestador(usuarioId, solicitudId, {
+    desde: 'ACEPTADA',
+    hacia: 'FINALIZADA',
+    mensajeConflicto: 'Solo se puede finalizar una solicitud aceptada',
+  });
 }
 
 // El cliente dueño puede cancelar mientras no esté finalizada, rechazada o cancelada.
@@ -123,5 +141,6 @@ module.exports = {
   crearSolicitud,
   aceptarSolicitud,
   rechazarSolicitud,
+  finalizarSolicitud,
   cancelarSolicitud,
 };
