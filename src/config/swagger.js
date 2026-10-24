@@ -209,9 +209,10 @@ const swaggerSpec = {
         summary: 'Registrar un usuario (cliente o prestador)',
         requestBody: cuerpoJson({
           type: 'object',
-          required: ['nombre', 'email', 'password', 'rol'],
+          required: ['nombre', 'dni', 'email', 'password', 'rol'],
           properties: {
             nombre: { type: 'string', example: 'Ana Pérez' },
+            dni: { type: 'string', example: '12345678', description: 'Solo números (7 u 8 dígitos). Único por persona: no se puede repetir.' },
             email: { type: 'string', example: 'ana@mail.com' },
             password: { type: 'string', minLength: 8, example: '12345678' },
             rol: { type: 'string', enum: ['CLIENTE', 'PRESTADOR'] },
@@ -220,14 +221,14 @@ const swaggerSpec = {
         responses: {
           201: respuestaJson('Usuario creado', { $ref: '#/components/schemas/Usuario' }),
           400: respuestaError('Datos inválidos o faltantes'),
-          409: respuestaError('El email ya está registrado'),
+          409: respuestaError('El DNI o email ya están registrados'),
         },
       },
     },
-    '/api/auth/login': {
+        '/api/auth/login': {
       post: {
         tags: ['Auth'],
-        summary: 'Iniciar sesión y obtener el token JWT',
+        summary: 'Iniciar sesión con email y contraseña y obtener el token JWT',
         requestBody: cuerpoJson({
           type: 'object',
           required: ['email', 'password'],
@@ -253,10 +254,18 @@ const swaggerSpec = {
     '/api/auth/me': {
       get: {
         tags: ['Auth'],
-        summary: 'Obtener el perfil del usuario autenticado',
+        summary: 'Obtener el perfil del usuario autenticado (incluye su DNI)',
         security: [{ bearerAuth: [] }],
         responses: {
-          200: respuestaJson('Perfil del usuario', { $ref: '#/components/schemas/Usuario' }),
+          200: respuestaJson('Perfil del usuario. El DNI solo lo ve su dueño.', {
+            allOf: [
+              { $ref: '#/components/schemas/Usuario' },
+              {
+                type: 'object',
+                properties: { dni: { type: 'string', example: '12345678' } },
+              },
+            ],
+          }),
           401: respuestaError('Token no proporcionado, inválido o vencido'),
           404: respuestaError('Usuario no encontrado'),
         },

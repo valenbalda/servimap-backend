@@ -11,12 +11,18 @@ function crearError(mensaje, status) {
   return error;
 }
 
-async function registrarUsuario({ nombre, email, password, rol }) {
+async function registrarUsuario({ nombre, dni, email, password, rol }) {
   if (!ROLES_PERMITIDOS.includes(rol)) {
     throw crearError('Rol inválido', 400);
   }
 
-  const existente = await prisma.usuario.findUnique({ where: { email } });
+  // El DNI es único: una persona no puede tener dos cuentas.
+  const dniExistente = await prisma.usuario.findUnique({ where: { dni } });
+  if (dniExistente) {
+    throw crearError('Ya existe una cuenta con ese DNI', 409);
+  }
+
+  const existente = await prisma.usuario.findUnique({ where:{ email } });
   if (existente) {
     throw crearError('El email ya está registrado', 409);
   }
@@ -26,10 +32,11 @@ async function registrarUsuario({ nombre, email, password, rol }) {
   const usuario = await prisma.usuario.create({
     data: {
       nombre,
+      dni,
       email,
       passwordHash,
       rol,
-      ...(rol === 'PRESTADOR' && { prestador: { create: {} } }),
+      ...(rol === 'PRESTADOR' && { prestador: { create: {} }}),
     },
   });
 
@@ -56,7 +63,7 @@ async function iniciarSesion({ email, password }) {
     throw crearError('La cuenta está desactivada', 403);
   }
 
-  const token = jwt.sign({ sub: usuario.id, rol: usuario.rol }, env.JWT_SECRET, {
+  const token = jwt.sign({ sub: usuario.id, rol: usuario.rol}, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN,
   });
 
@@ -71,8 +78,10 @@ async function iniciarSesion({ email, password }) {
   };
 }
 
+// El perfil es el único lugar donde se devuelve el DNI, y solo a su dueño
+// (el id sale del token, nunca de un dato que mande el usuario).
 async function obtenerPerfil(usuarioId) {
-  const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
+  const usuario = await prisma.usuario.findUnique({ where: {id: usuarioId } });
 
   if (!usuario || !usuario.activo) {
     throw crearError('Usuario no encontrado', 404);
@@ -81,6 +90,7 @@ async function obtenerPerfil(usuarioId) {
   return {
     id: usuario.id,
     nombre: usuario.nombre,
+    dni: usuario.dni,
     email: usuario.email,
     rol: usuario.rol,
     fechaRegistro: usuario.fechaRegistro,
