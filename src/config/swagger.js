@@ -66,6 +66,38 @@ const perfilPrestador = {
   },
 };
 
+// Esquemas que comparten el listado y la ficha de prestadores.
+const oficioResumen = {
+  type: 'object',
+  properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+};
+
+const resumenPrestador = {
+  type: 'object',
+  properties: {
+    id: { type: 'string' },
+    nombre: { type: 'string' },
+    descripcionProfesional: { type: 'string', nullable: true },
+    fotoPerfil: { type: 'string', nullable: true },
+    zonaCobertura: { type: 'string', nullable: true },
+    latitud: { type: 'number', nullable: true },
+    longitud: { type: 'number', nullable: true },
+    precioMin: { type: 'number', nullable: true },
+    precioMax: { type: 'number', nullable: true },
+    disponible: { type: 'boolean' },
+    oficios: { type: 'array', items: oficioResumen },
+  },
+};
+
+const reputacionPrestador = {
+  type: 'object',
+  properties: {
+    promedio: { type: 'number', nullable: true, example: 4.5 },
+    totalCalificaciones: { type: 'integer', example: 12 },
+    serviciosFinalizados: { type: 'integer', example: 15 },
+  },
+};
+
 const swaggerSpec = {
   openapi: '3.0.3',
   info: {
@@ -165,47 +197,28 @@ const swaggerSpec = {
         ],
         responses: {
           200: respuestaJson('Ficha del prestador', {
-            type: 'object',
-            properties: {
-              id: { type: 'string' },
-              nombre: { type: 'string' },
-              descripcionProfesional: { type: 'string', nullable: true },
-              fotoPerfil: { type: 'string', nullable: true },
-              zonaCobertura: { type: 'string', nullable: true },
-              latitud: { type: 'number', nullable: true },
-              longitud: { type: 'number', nullable: true },
-              precioMin: { type: 'number', nullable: true },
-              precioMax: { type: 'number', nullable: true },
-              disponible: { type: 'boolean' },
-              telefono: { type: 'string', nullable: true },
-              whatsapp: { type: 'string', nullable: true },
-              emailContacto: { type: 'string', nullable: true },
-              oficios: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: { id: { type: 'string' }, nombre: { type: 'string' } },
-                },
-              },
-              reputacion: {
+            allOf: [
+              resumenPrestador,
+              {
                 type: 'object',
                 properties: {
-                  promedio: { type: 'number', nullable: true, example: 4.5 },
-                  totalCalificaciones: { type: 'integer', example: 12 },
-                  serviciosFinalizados: { type: 'integer', example: 15 },
+                  telefono: { type: 'string', nullable: true },
+                  whatsapp: { type: 'string', nullable: true },
+                  emailContacto: { type: 'string', nullable: true },
+                  reputacion: reputacionPrestador,
+                  comentarios: {
+                    type: 'array',
+                    items: { $ref: '#/components/schemas/CalificacionPublica' },
+                  },
                 },
               },
-              comentarios: {
-                type: 'array',
-                items: { $ref: '#/components/schemas/CalificacionPublica' },
-              },
-            },
+            ],
           }),
           404: respuestaError('Prestador no encontrado'),
         },
       },
     },
-        '/api/prestadores': {
+    '/api/prestadores': {
       get: {
         tags: ['Prestadores'],
         summary: 'Buscar prestadores por oficio, texto y cercanía, con su reputación (público)',
@@ -264,35 +277,16 @@ const swaggerSpec = {
           200: respuestaJson('Lista de prestadores (con distanciaKm si se envió lat y lng)', {
             type: 'array',
             items: {
-              type: 'object',
-              properties: {
-                id: { type: 'string' },
-                nombre: { type: 'string' },
-                descripcionProfesional: { type: 'string', nullable: true },
-                fotoPerfil: { type: 'string', nullable: true },
-                zonaCobertura: { type: 'string', nullable: true },
-                latitud: { type: 'number', nullable: true },
-                longitud: { type: 'number', nullable: true },
-                precioMin: { type: 'number', nullable: true },
-                precioMax: { type: 'number', nullable: true },
-                disponible: { type: 'boolean' },
-                distanciaKm: { type: 'number' },
-                oficios: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: { id: { type: 'string' }, nombre: { type: 'string' } },
-                  },
-                },
-                reputacion: {
+              allOf: [
+                resumenPrestador,
+                {
                   type: 'object',
                   properties: {
-                    promedio: { type: 'number', nullable: true, example: 4.5 },
-                    totalCalificaciones: { type: 'integer', example: 12 },
-                    serviciosFinalizados: { type: 'integer', example: 15 },
+                    distanciaKm: { type: 'number' },
+                    reputacion: reputacionPrestador,
                   },
                 },
-              },
+              ],
             },
           }),
           400: respuestaError('Algún filtro es inválido'),
