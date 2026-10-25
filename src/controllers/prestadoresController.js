@@ -197,4 +197,20 @@ async function detalle(req, res, next) {
   }
 }
 
-module.exports = { obtenerMiPerfil, actualizarMiPerfil, asignarMisOficios, listar, detalle };
+async function misCalificaciones(req, res, next) {
+  try {
+    const calificaciones = await prestadoresService.listarMisCalificaciones(req.usuario.id);
+    res.json(calificaciones);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = {
+  obtenerMiPerfil,
+  actualizarMiPerfil,
+  asignarMisOficios,
+  listar,
+  detalle,
+  misCalificaciones,
+};

@@ -182,6 +182,22 @@ const swaggerSpec = {
     },
   },
   paths: {
+        '/api/prestadores/me/calificaciones': {
+      get: {
+        tags: ['Prestadores'],
+        summary: 'Consultar las calificaciones y comentarios que recibió el prestador autenticado',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: respuestaJson('Calificaciones recibidas, de la más nueva a la más vieja (sin las moderadas)', {
+            type: 'array',
+            items: { $ref: '#/components/schemas/CalificacionPublica' },
+          }),
+          401: respuestaError('No autenticado'),
+          403: respuestaError('Solo los prestadores pueden usar este endpoint'),
+          404: respuestaError('Perfil de prestador no encontrado'),
+        },
+      },
+    },
         '/api/prestadores/{id}': {
       get: {
         tags: ['Prestadores'],

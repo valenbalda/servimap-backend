@@ -13,6 +13,7 @@ router.get('/', prestadoresController.listar);
 router.get('/me', autenticar, autorizar('PRESTADOR'), prestadoresController.obtenerMiPerfil);
 router.put('/me', autenticar, autorizar('PRESTADOR'), prestadoresController.actualizarMiPerfil);
 router.put('/me/oficios', autenticar, autorizar('PRESTADOR'), prestadoresController.asignarMisOficios);
+router.get('/me/calificaciones', autenticar, autorizar('PRESTADOR'), prestadoresController.misCalificaciones);
 
 // Público: ficha de un prestador. Siempre al final de las rutas con GET.
 router.get('/:id', prestadoresController.detalle);
