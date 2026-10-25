@@ -227,9 +227,46 @@ async function listarPrestadores({
     .slice(0, limit);
 }
 
+// Ficha pública de un prestador: datos de contacto, reputación y comentarios.
+async function obtenerDetallePrestador(prestadorId) {
+  // Solo se muestra si el prestador y su usuario están activos.
+  const prestador = await prisma.prestador.findFirst({
+    where: { id: prestadorId, activo: true, usuario: { activo: true } },
+    include: {
+      usuario: { select: { nombre: true } },
+      oficios: { include: { oficio: true } },
+    },
+  });
+
+  if (!prestador) {
+    throw crearError('Prestador no encontrado', 404);
+  }
+
+  // Reutiliza lo de Valen: la reputación y los comentarios (sin los moderados).
+  // Promise.all hace las dos consultas al mismo tiempo.
+  const [reputacion, comentarios] = await Promise.all([
+    calificacionesService.obtenerReputacion(prestador.id),
+    calificacionesService.listarCalificacionesPrestador(prestador.id),
+  ]);
+
+  return {
+    ...formatearResumen(prestador),
+    telefono: prestador.telefono,
+    whatsapp: prestador.whatsapp,
+    emailContacto: prestador.emailContacto,
+    reputacion: {
+      promedio: reputacion.promedio,
+      totalCalificaciones: reputacion.totalCalificaciones,
+      serviciosFinalizados: reputacion.serviciosFinalizados,
+    },
+    comentarios,
+  };
+}
+
 module.exports = {
   obtenerMiPerfil,
   actualizarMiPerfil,
   asignarMisOficios,
   listarPrestadores,
+  obtenerDetallePrestador,
 };

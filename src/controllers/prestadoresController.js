@@ -188,4 +188,13 @@ async function listar(req, res, next) {
   }
 }
 
-module.exports = { obtenerMiPerfil, actualizarMiPerfil, asignarMisOficios, listar };
+async function detalle(req, res, next) {
+  try {
+    const prestador = await prestadoresService.obtenerDetallePrestador(req.params.id);
+    res.json(prestador);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { obtenerMiPerfil, actualizarMiPerfil, asignarMisOficios, listar, detalle };
