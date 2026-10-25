@@ -15,6 +15,7 @@ const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const authRouter = require('./routes/authRouter');
 const oficiosRouter = require('./routes/oficiosRouter');
 const calificacionesRouter = require('./routes/calificacionesRouter');
+const mapaRouter = require('./routes/mapaRouter');
 const prestadoresRouter = require('./routes/prestadoresRouter');
 const solicitudesRouter = require('./routes/solicitudesRouter');
 
@@ -57,6 +58,8 @@ app.use('/api/oficios', oficiosRouter);
 // Rutas de calificaciones (los clientes califican servicios finalizados).
 app.use('/api/calificaciones', calificacionesRouter);
 
+// Rutas del mapa. Van antes que /api/prestadores, si no '/:id' captura "mapa".
+app.use('/api/prestadores/mapa', mapaRouter);
 // Rutas de prestadores (perfil propio del prestador).
 app.use('/api/prestadores', prestadoresRouter);
 
