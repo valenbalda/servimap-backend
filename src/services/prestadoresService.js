@@ -156,6 +156,7 @@ async function listarPrestadores({
   radioKm = 10,
   calificacionMin,
   limit = 20,
+  disponible,
 } = {}) {
   const conUbicacion = lat !== undefined && lng !== undefined;
 
@@ -164,6 +165,7 @@ async function listarPrestadores({
     activo: true,
     usuario: { activo: true },
     oficios: { some: { ...(oficioId && { oficioId }), oficio: { activo: true } } },
+    ...(disponible !== undefined && { disponible }),
   };
 
   if (q) {
