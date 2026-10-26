@@ -18,6 +18,8 @@ Los clientes ubican prestadores cercanos, comparan rangos de precio y calificaci
 | Base de datos | PostgreSQL (Neon) |
 | Autenticación | JWT (jsonwebtoken) y bcryptjs |
 | Documentación | Swagger / OpenAPI |
+| Pruebas | Jest y Supertest |
+| Calidad | GitHub Actions y SonarQube Cloud |
 | Despliegue | Vercel |
 
 ## Arquitectura
@@ -37,6 +39,7 @@ Request → Rutas → Controladores → Servicios → Prisma → PostgreSQL
 
 ```
 servimap-backend/
+├── .github/workflows/       # CI: tests, cobertura y análisis de SonarQube
 ├── prisma/
 │   ├── schema.prisma        # modelos de la base de datos
 │   └── migrations/          # historial de migraciones
@@ -48,6 +51,8 @@ servimap-backend/
 │   ├── services/            # lógica de negocio
 │   ├── app.js               # configuración de Express
 │   └── server.js            # arranque del servidor
+├── tests/                   # pruebas automáticas (Jest)
+├── sonar-project.properties # configuración de SonarQube
 ├── .env.example
 └── package.json
 ```
@@ -58,62 +63,66 @@ Los archivos van en camelCase (por ejemplo `authService.js`, `oficiosRouter.js`)
 
 | Rol | Qué puede hacer |
 |---|---|
-| `CLIENTE` | Buscar prestadores, crear solicitudes y calificar servicios finalizados |
-| `PRESTADOR` | Gestionar su perfil y sus oficios, y aceptar, rechazar o finalizar solicitudes |
+| `CLIENTE` | Buscar prestadores, crear y cancelar solicitudes, consultar las suyas y calificar servicios finalizados |
+| `PRESTADOR` | Gestionar su perfil y sus oficios, consultar sus solicitudes y calificaciones, y aceptar, rechazar o finalizar solicitudes |
 | `ADMINISTRADOR` | Gestionar el catálogo de oficios y moderar comentarios |
 
 Por seguridad, el registro público solo permite crear cuentas de `CLIENTE` o `PRESTADOR`. Las cuentas de administrador se crean directamente en la base de datos.
 
-## Endpoints
+Para crear una cuenta hay que informar el **DNI** (7 u 8 números; se aceptan puntos o espacios). Es único: una misma persona no puede tener más de una cuenta. El inicio de sesión sigue siendo con email y contraseña.
 
-### Disponibles
+## Endpoints
 
 | Servicio | Endpoint | Acceso |
 |---|---|---|
 | Sistema | `GET /health` | Público |
-| Auth | `POST /api/auth/register` | Público |
+| Auth | `POST /api/auth/register` (requiere `dni`) | Público |
 | Auth | `POST /api/auth/login` | Público |
-| Auth | `GET /api/auth/me` | Autenticado |
+| Auth | `GET /api/auth/me` (incluye el DNI, solo para su dueño) | Autenticado |
 | Oficios | `GET /api/oficios` (solo activos) | Público |
 | Oficios | `GET /api/oficios/todos` | Administrador |
 | Oficios | `POST /api/oficios` | Administrador |
 | Oficios | `PUT /api/oficios/:id` (nombre y categoría) | Administrador |
 | Oficios | `PATCH /api/oficios/:id/estado` (activa o desactiva, no borra) | Administrador |
+| Prestadores | `GET /api/prestadores` (búsqueda con filtros: `oficioId`, `q`, `lat`/`lng`/`radioKm`, `calificacionMin`, `limit`) | Público |
+| Prestadores | `GET /api/prestadores/mapa` (marcadores con ubicación aproximada) | Público |
+| Prestadores | `GET /api/prestadores/:id` (ficha con contacto, reputación y comentarios) | Público |
+| Prestadores | `GET /api/prestadores/me` | Prestador |
+| Prestadores | `PUT /api/prestadores/me` | Prestador |
+| Prestadores | `PUT /api/prestadores/me/oficios` (reemplaza los oficios del prestador) | Prestador |
+| Prestadores | `GET /api/prestadores/me/calificaciones` (sin las moderadas) | Prestador |
+| Solicitudes | `POST /api/solicitudes` | Cliente |
+| Solicitudes | `GET /api/solicitudes` (las propias; filtro opcional `estado`) | Cliente o prestador |
+| Solicitudes | `PATCH /api/solicitudes/:id/aceptar` | Prestador |
+| Solicitudes | `PATCH /api/solicitudes/:id/rechazar` | Prestador |
+| Solicitudes | `PATCH /api/solicitudes/:id/finalizar` | Prestador |
+| Solicitudes | `PATCH /api/solicitudes/:id/cancelar` | Cliente |
 | Calificaciones | `POST /api/calificaciones` | Cliente |
 | Calificaciones | `GET /api/calificaciones` (incluye las moderadas) | Administrador |
 | Calificaciones | `PATCH /api/calificaciones/:id/comentario` | Cliente |
 | Calificaciones | `PATCH /api/calificaciones/:id/moderacion` | Administrador |
 | Calificaciones | `GET /api/calificaciones/prestador/:prestadorId` (sin las moderadas) | Público |
 | Calificaciones | `GET /api/calificaciones/prestador/:prestadorId/reputacion` | Público |
-| Prestadores | `GET /api/prestadores/me` | Prestador |
-| Prestadores | `PUT /api/prestadores/me` | Prestador |
-| Prestadores | `PUT /api/prestadores/me/oficios` (reemplaza los oficios del prestador) | Prestador |
-| Solicitudes | `POST /api/solicitudes` | Cliente |
-| Solicitudes | `PATCH /api/solicitudes/:id/aceptar` | Prestador |
-| Solicitudes | `PATCH /api/solicitudes/:id/rechazar` | Prestador |
-| Solicitudes | `PATCH /api/solicitudes/:id/cancelar` | Cliente |
-
-### En desarrollo
-
-- Prestadores: consulta con filtros y ubicación en el mapa.
-- Solicitudes: consultar solicitudes y finalizar.
 
 El detalle de cada endpoint (parámetros, respuestas y códigos de error) está en la documentación Swagger.
 
 ### Reglas de negocio
 
 - El estado de una solicitud sigue el orden `PENDIENTE` → `ACEPTADA` → `FINALIZADA` (o `RECHAZADA` / `CANCELADA`).
-- Solo el prestador dueño de una solicitud puede aceptarla o rechazarla (si está pendiente). Solo el cliente dueño puede cancelarla (si está pendiente o aceptada).
+- Solo el prestador dueño de una solicitud puede aceptarla o rechazarla (si está pendiente) y finalizarla (si está aceptada). Solo el cliente dueño puede cancelarla (si está pendiente o aceptada).
 - Solo se puede calificar una solicitud `FINALIZADA`, y una sola vez.
 - Cada usuario solo accede a sus propias solicitudes.
 - Los oficios no se borran: se desactivan, para conservar el historial.
 - Los comentarios moderados se conservan con registro de la moderación.
+- La búsqueda y el mapa solo muestran prestadores activos, con usuario activo y al menos un oficio activo. El mapa, además, solo muestra los disponibles y con ubicación cargada.
+- El DNI es único y solo lo ve su dueño en `GET /api/auth/me`. No se devuelve en el registro, el login ni los listados, y no se puede modificar después de creada la cuenta.
 
 ## Seguridad
 
 - Contraseñas hasheadas con **bcryptjs** (nunca se guardan en texto plano).
 - Autenticación con **JWT** (firmado con HS256) y control de acceso por rol.
 - Mensaje único para email o contraseña incorrectos, para no revelar qué emails existen.
+- DNI único por persona, fuera del token y de las respuestas públicas.
 - **Helmet** para los headers HTTP de seguridad.
 - **CORS** restringido a los orígenes definidos en `CORS_ORIGIN`.
 - **Rate limiting** para frenar abusos y fuerza bruta.
@@ -143,7 +152,9 @@ npm run dev
 
 El servidor queda en `http://localhost:3000`.
 
-Si usás una base de datos nueva y vacía, aplicá las migraciones con `npx prisma migrate deploy`. Si compartís la base del equipo, las tablas ya existen y no hace falta.
+Si usás una base de datos nueva y vacía, aplicá las migraciones con `npx prisma migrate deploy`. Si compartís la base del equipo, ya tiene las tablas, pero después de traer cambios nuevos corré `npx prisma migrate deploy` y `npx prisma generate`.
+
+> La migración que agrega el DNI falla si la tabla de usuarios ya tiene filas, porque la columna es obligatoria y no tiene valor por defecto. En una base con datos de prueba, vaciá los usuarios antes de aplicarla.
 
 ### Variables de entorno
 
@@ -167,23 +178,27 @@ Para probar endpoints protegidos:
 3. Pegá el token (sin la palabra `Bearer`) y confirmá.
 4. Desde ese momento, los endpoints con candado se prueban autenticados.
 
+## Pruebas y calidad
+
+```bash
+npm test                  # corre todas las pruebas
+npm test -- --coverage    # además muestra la cobertura
+```
+
+- Las pruebas automáticas usan **Jest** y cubren servicios, controladores y middlewares con la base de datos simulada.
+- En cada Pull Request, **GitHub Actions** corre las pruebas con cobertura y envía el análisis a **SonarQube Cloud**.
+- El Quality Gate exige como mínimo 80% de cobertura y no más de 3% de duplicación en el código nuevo.
+
 ## Flujo de trabajo con Git
 
 - `main`: versión final y estable. Solo recibe el merge de `develop` al terminar el proyecto.
 - `develop`: rama de integración. Todo el trabajo se junta acá.
-- `feature/<tarea>`, `fix/<tarea>`, `docs/<tarea>`: una rama por tarea, **siempre creada desde `develop`** (nunca desde otra rama de trabajo).
+- `feature/<tarea>`, `fix/<tarea>`, `docs/<tarea>`, `test/<tarea>`: una rama por tarea, **siempre creada desde `develop`** (nunca desde otra rama de trabajo).
 
 Pasos para cada tarea:
 
 1. `git checkout develop && git pull`
 2. `git checkout -b feature/nombre-de-la-tarea`
-3. Commits chicos y descriptivos (`feat:`, `fix:`, `docs:`, `chore:`).
+3. Commits chicos y descriptivos (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
 4. `git push -u origin feature/nombre-de-la-tarea`
-5. Abrir un Pull Request con base `develop` y pedir revisión.
-6. Tras el merge, borrar la rama y volver a empezar desde `develop` actualizado.
-
-Los PR son chicos y se mergean seguido para que nadie quede esperando a otra persona.
-
-## Despliegue
-
-El backend se despliega en **Vercel**. Las variables de entorno (incluida `DATABASE_URL`) se cargan desde el panel del proyecto en Vercel, nunca en el código.
+5. Abrir un Pull Request con base `develop` y pedir
