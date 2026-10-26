@@ -39,7 +39,7 @@ async function crearSolicitud(clienteId, { prestadorId, oficioId, descripcion, d
     include: { oficios: true },
   });
 
-  if (!prestador || !prestador.activo) {
+  if (!prestador?.activo) {
     throw crearError('Prestador no encontrado', 404);
   }
   if (!prestador.disponible) {
@@ -48,7 +48,7 @@ async function crearSolicitud(clienteId, { prestadorId, oficioId, descripcion, d
 
   // El oficio tiene que existir y estar activo.
   const oficio = await prisma.oficio.findUnique({ where: { id: oficioId } });
-  if (!oficio || !oficio.activo) {
+  if (!oficio?.activo) {
     throw crearError('El oficio no existe o está desactivado', 400);
   }
 
@@ -82,7 +82,7 @@ async function listarMisSolicitudes({ id: usuarioId, rol }, { estado } = {}) {
   } else if (rol === 'PRESTADOR') {
     // El prestador es otra tabla: se busca su perfil a partir del usuario.
     const prestador = await prisma.prestador.findUnique({ where: { usuarioId } });
-    if (!prestador || !prestador.activo) {
+    if (!prestador?.activo) {
       throw crearError('Perfil de prestador no encontrado', 404);
     }
     where.prestadorId = prestador.id;
@@ -119,7 +119,7 @@ async function cambiarEstadoComoPrestador(usuarioId, solicitudId, { desde, hacia
 
   // El prestador es otra tabla: se busca su perfil a partir del usuario.
   const prestador = await prisma.prestador.findUnique({ where: { usuarioId } });
-  if (!prestador || !prestador.activo || solicitud.prestadorId !== prestador.id) {
+  if (!prestador?.activo || solicitud.prestadorId !== prestador.id) {
     throw crearError('La solicitud no es tuya', 403);
   }
 

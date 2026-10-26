@@ -31,7 +31,7 @@ async function crear(req, res, next) {
 
     const oficio = await oficiosService.crearOficio({
       nombre: nombre.trim(),
-      categoria: categoria && categoria.trim(),
+      categoria: categoria?.trim(),
     });
 
     res.status(201).json(oficio);
@@ -55,8 +55,8 @@ async function actualizar(req, res, next) {
     }
 
     const oficio = await oficiosService.actualizarOficio(req.params.id, {
-      nombre: nombre && nombre.trim(),
-      categoria: categoria && categoria.trim(),
+      nombre: nombre?.trim(),
+      categoria: categoria?.trim(),
     });
 
     res.json(oficio);

@@ -93,7 +93,7 @@ async function buscarPrestador(usuarioId) {
     include: INCLUIR,
   });
 
-  if (!prestador || !prestador.activo) {
+  if (!prestador?.activo) {
     throw crearError('Perfil de prestador no encontrado', 404);
   }
 

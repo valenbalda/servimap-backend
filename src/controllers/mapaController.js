@@ -13,7 +13,7 @@ async function listar(req, res, next) {
     }
 
     const marcadores = await mapaService.listarMarcadores({
-      oficioId: oficioId && oficioId.trim(),
+      oficioId: oficioId?.trim(),
     });
     res.json(marcadores);
   } catch (error) {

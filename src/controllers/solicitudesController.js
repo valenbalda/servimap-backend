@@ -1,6 +1,6 @@
 const solicitudesService = require('../services/solicitudesService');
 
-const ESTADOS = ['PENDIENTE', 'ACEPTADA', 'RECHAZADA', 'CANCELADA', 'FINALIZADA'];
+const ESTADOS = new Set(['PENDIENTE', 'ACEPTADA', 'RECHAZADA', 'CANCELADA', 'FINALIZADA']);
 
 function esTextoNoVacio(valor) {
   return typeof valor === 'string' && valor.trim() !== '';
@@ -33,8 +33,8 @@ async function crear(req, res, next) {
       prestadorId: prestadorId.trim(),
       oficioId: oficioId.trim(),
       descripcion: descripcion.trim(),
-      direccion: direccion && direccion.trim(),
-      contactoPreferido: contactoPreferido && contactoPreferido.trim(),
+      direccion: direccion?.trim(),
+      contactoPreferido: contactoPreferido?.trim(),
     });
 
     res.status(201).json(solicitud);
@@ -47,7 +47,7 @@ async function listar(req, res, next) {
   try {
     const { estado } = req.query;
 
-    if (estado !== undefined && !ESTADOS.includes(estado)) {
+    if (estado !== undefined && !ESTADOS.has(estado)) {
       return res.status(400).json({ error: 'El estado es inválido' });
     }
 
