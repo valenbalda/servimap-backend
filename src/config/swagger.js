@@ -288,6 +288,13 @@ const swaggerSpec = {
             schema: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
             description: 'Cantidad máxima de resultados',
           },
+          {
+            name: 'disponible',
+            in: 'query',
+            required: false,
+            schema: { type: 'boolean' },
+            description: 'true: solo los disponibles; false: solo los no disponibles',
+          },
         ],
         responses: {
           200: respuestaJson('Lista de prestadores (con distanciaKm si se envió lat y lng)', {
