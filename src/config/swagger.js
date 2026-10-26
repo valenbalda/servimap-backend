@@ -643,6 +643,40 @@ const swaggerSpec = {
 
 module.exports = swaggerSpec;
 
+// Mapa de prestadores (se agrega acá para no chocar con otros cambios en paths).
+swaggerSpec.paths['/api/prestadores/mapa'] = {
+  get: {
+    tags: ['Prestadores'],
+    summary: 'Consultar los marcadores del mapa: prestadores activos y disponibles, con ubicación aproximada (público)',
+    parameters: [
+      {
+        name: 'oficioId',
+        in: 'query',
+        required: false,
+        schema: { type: 'string' },
+        description: 'Solo prestadores que ofrecen este oficio',
+      },
+    ],
+    responses: {
+      200: respuestaJson('Marcadores del mapa (máximo 200), ordenados por nombre', {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', description: 'Identificador del prestador, para abrir su ficha' },
+            nombre: { type: 'string' },
+            latitud: { type: 'number', description: 'Aproximada, con 2 decimales' },
+            longitud: { type: 'number', description: 'Aproximada, con 2 decimales' },
+            oficioPrincipal: { type: 'string' },
+            promedio: { type: 'number', nullable: true, example: 4.5 },
+          },
+        },
+      }),
+      400: respuestaError('El oficioId es inválido'),
+    },
+  },
+};
+
 
 // Solicitudes (se agrega al final para no tocar el resto del archivo).
 const solicitud = {
