@@ -14,6 +14,12 @@ function aNumero(valor) {
   return valor === null || valor === undefined ? null : Number(valor);
 }
 
+// La ubicación pública es aproximada (2 decimales, unos 1 km), no el domicilio exacto.
+function aproximar(valor) {
+  const numero = aNumero(valor);
+  return numero === null ? null : Number(numero.toFixed(2));
+}
+
 function aRadianes(grados) {
   return (grados * Math.PI) / 180;
 }
@@ -70,8 +76,8 @@ function formatearResumen(prestador) {
     descripcionProfesional: prestador.descripcionProfesional,
     fotoPerfil: prestador.fotoPerfil,
     zonaCobertura: prestador.zonaCobertura,
-    latitud: aNumero(prestador.latitud),
-    longitud: aNumero(prestador.longitud),
+    latitud: aproximar(prestador.latitud),
+    longitud: aproximar(prestador.longitud),
     precioMin: aNumero(prestador.precioMin),
     precioMax: aNumero(prestador.precioMax),
     disponible: prestador.disponible,
