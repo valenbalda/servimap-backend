@@ -263,10 +263,18 @@ async function obtenerDetallePrestador(prestadorId) {
   };
 }
 
+// Calificaciones y comentarios que recibió el prestador autenticado (RF-21).
+// Reutiliza el listado de Valen, así respeta lo mismo que el público: sin las moderadas.
+async function listarMisCalificaciones(usuarioId) {
+  const prestador = await buscarPrestador(usuarioId);
+  return calificacionesService.listarCalificacionesPrestador(prestador.id);
+}
+
 module.exports = {
   obtenerMiPerfil,
   actualizarMiPerfil,
   asignarMisOficios,
   listarPrestadores,
   obtenerDetallePrestador,
+  listarMisCalificaciones,
 };
