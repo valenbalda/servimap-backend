@@ -21,6 +21,7 @@ const solicitudesRouter = require('./routes/solicitudesRouter');
 
 // Crea la aplicación Express.
 const app = express();
+app.set('trust proxy', 1);
 
 // Seguridad: headers de protección.
 app.use(helmet());
