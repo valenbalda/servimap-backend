@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const prisma = require('../config/prisma');
 const env = require('../config/env');
 
-const ROLES_PERMITIDOS = ['CLIENTE', 'PRESTADOR'];
+const ROLES_PERMITIDOS = new Set(['CLIENTE', 'PRESTADOR']);
 
 function crearError(mensaje, status) {
   const error = new Error(mensaje);
@@ -12,7 +12,7 @@ function crearError(mensaje, status) {
 }
 
 async function registrarUsuario({ nombre, dni, email, password, rol }) {
-  if (!ROLES_PERMITIDOS.includes(rol)) {
+  if (!ROLES_PERMITIDOS.has(rol)) {
     throw crearError('Rol inválido', 400);
   }
 
@@ -83,7 +83,7 @@ async function iniciarSesion({ email, password }) {
 async function obtenerPerfil(usuarioId) {
   const usuario = await prisma.usuario.findUnique({ where: {id: usuarioId } });
 
-  if (!usuario || !usuario.activo) {
+  if (!usuario?.activo) {
     throw crearError('Usuario no encontrado', 404);
   }
 
