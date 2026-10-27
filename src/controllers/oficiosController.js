@@ -31,7 +31,7 @@ async function crear(req, res, next) {
 
     const oficio = await oficiosService.crearOficio({
       nombre: nombre.trim(),
-      categoria: categoria && categoria.trim(),
+      categoria: categoria?.trim(),
     });
 
     res.status(201).json(oficio);
@@ -42,7 +42,7 @@ async function crear(req, res, next) {
 
 async function actualizar(req, res, next) {
   try {
-    const { nombre, categoria, activo } = req.body;
+    const { nombre, categoria } = req.body;
 
     if (nombre !== undefined && (typeof nombre !== 'string' || !nombre.trim())) {
       return res.status(400).json({ error: 'El nombre es inválido' });
@@ -50,17 +50,13 @@ async function actualizar(req, res, next) {
     if (categoria !== undefined && typeof categoria !== 'string') {
       return res.status(400).json({ error: 'La categoría es inválida' });
     }
-    if (activo !== undefined && typeof activo !== 'boolean') {
-      return res.status(400).json({ error: 'El campo activo debe ser true o false' });
-    }
-    if (nombre === undefined && categoria === undefined && activo === undefined) {
+    if (nombre === undefined && categoria === undefined) {
       return res.status(400).json({ error: 'No hay datos para actualizar' });
     }
 
     const oficio = await oficiosService.actualizarOficio(req.params.id, {
-      nombre: nombre && nombre.trim(),
-      categoria: categoria && categoria.trim(),
-      activo,
+      nombre: nombre?.trim(),
+      categoria: categoria?.trim(),
     });
 
     res.json(oficio);
@@ -69,13 +65,20 @@ async function actualizar(req, res, next) {
   }
 }
 
-async function desactivar(req, res, next) {
+async function cambiarEstado(req, res, next) {
   try {
-    const oficio = await oficiosService.desactivarOficio(req.params.id);
+    const { activo } = req.body;
+
+    if (typeof activo !== 'boolean') {
+      return res.status(400).json({ error: 'El campo activo debe ser true o false' });
+    }
+
+    const oficio = await oficiosService.cambiarEstadoOficio(req.params.id, activo);
+
     res.json(oficio);
   } catch (error) {
     next(error);
   }
 }
 
-module.exports = { listar, listarTodos, crear, actualizar, desactivar };
+module.exports = { listar, listarTodos, crear, actualizar, cambiarEstado };

@@ -1,15 +1,33 @@
 const authService = require('../services/authService');
 
+// El DNI puede venir escrito con puntos o espacios (12.345.678). Los sacamos
+// para guardarlo siempre igual: solo números.
+function normalizarDni(dni) {
+  return dni.replace(/[.\s]/g, '');
+}
+
+// Un DNI argentino tiene 7 u 8 dígitos y nada más.
+function dniValido(dni) {
+  return /^\d{7,8}$/.test(dni);
+}
+
 async function register(req, res, next) {
   try {
-    const { nombre, email, password, rol } = req.body;
+    const { nombre, dni, email, password, rol } = req.body || {};
 
-    const datos = [nombre, email, password, rol];
+    const datos = [nombre, dni, email, password, rol];
     if (datos.some((dato) => typeof dato !== 'string' || !dato.trim())) {
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+    const dniNormalizado = normalizarDni(dni);
+    if (!dniValido(dniNormalizado)) {
+      return res
+        .status(400)
+        .json({ error: 'El DNI debe tener 7 u 8 números' });
+    }
+
+    if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(email.trim())) {
       return res.status(400).json({ error: 'Email inválido' });
     }
 
@@ -21,6 +39,7 @@ async function register(req, res, next) {
 
     const usuario = await authService.registrarUsuario({
       nombre: nombre.trim(),
+      dni: dniNormalizado,
       email: email.trim().toLowerCase(),
       password,
       rol,
@@ -34,7 +53,7 @@ async function register(req, res, next) {
 
 async function login(req, res, next) {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
     if (
       typeof email !== 'string' ||
