@@ -1,0 +1,113 @@
+name: Backend CI
+
+# Tests unitarios, tests de integración contra PostgreSQL y reporte a Qase.
+# SonarQube sigue en tests.yml (no se toca, para no cambiar el check que usa el Quality Gate).
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Unitarios, integración y Qase
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Base PostgreSQL descartable: se usa cuando no hay secret DATABASE_URL_TEST
+    # (por ejemplo, en los PR que vienen de forks, que no tienen acceso a los secrets).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: servimap
+          POSTGRES_PASSWORD: servimap
+          POSTGRES_DB: servimap_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U servimap -d servimap_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      JWT_SECRET: clave-de-prueba-solo-para-los-tests-0123456789
+      DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST || 'postgresql://servimap:servimap@localhost:5432/servimap_test?schema=public' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx prisma generate
+
+      - name: Aplicar migraciones en la base de test
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL_TEST }}
+
+      - name: Tests unitarios con cobertura
+        run: npm run test:unit -- --coverage
+
+      - name: Tests de integración
+        run: npm run test:integration
+
+      - name: Documentación de QA al día
+        run: npm run docs:qa -- --check
+
+      # El token no se expone a los pasos anteriores: solo se mira si existe.
+      - name: ¿Hay acceso a Qase?
+        id: qase
+        env:
+          TOKEN: ${{ secrets.QASE_TESTOPS_API_TOKEN }}
+          PROYECTO: ${{ secrets.QASE_TESTOPS_PROJECT }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$PROYECTO" ]; then
+            echo "habilitado=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "habilitado=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Sin secrets de Qase (por ejemplo, PR desde un fork): se omite el reporte."
+          fi
+
+      # Vuelve a correr todo con el reporter de Qase. No bloquea el pipeline: los tests
+      # ya se validaron en los pasos anteriores, y una falla de Qase no debe frenar el merge.
+      - name: Reporte a Qase
+        if: steps.qase.outputs.habilitado == 'true'
+        continue-on-error: true
+        timeout-minutes: 10
+        env:
+          QASE_MODE: testops
+          QASE_TESTOPS_API_TOKEN: ${{ secrets.QASE_TESTOPS_API_TOKEN }}
+          QASE_TESTOPS_PROJECT: ${{ secrets.QASE_TESTOPS_PROJECT }}
+          QASE_TESTOPS_RUN_TITLE: 'Backend CI #${{ github.run_number }} (${{ github.head_ref || github.ref_name }})'
+          QASE_TESTOPS_RUN_COMPLETE: 'true'
+          ENTORNO_QASE: ${{ vars.QASE_ENVIRONMENT }}
+        run: |
+          if [ -n "$ENTORNO_QASE" ]; then export QASE_ENVIRONMENT="$ENTORNO_QASE"; fi
+          npm run test:qase
+
+      - name: Guardar cobertura y reporte local de Qase
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes-backend
+          path: |
+            coverage/
+            build/qase-report/
+          if-no-files-found: ignore
+          retention-days: 7

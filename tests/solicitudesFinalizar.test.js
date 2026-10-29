@@ -5,6 +5,7 @@ jest.mock('../src/config/prisma', () => ({
 
 const prisma = require('../src/config/prisma');
 const solicitudesService = require('../src/services/solicitudesService');
+const { caso } = require('./qase/qase');
 
 const solicitudAceptada = {
   id: 's1',
@@ -25,7 +26,7 @@ beforeEach(() => {
 });
 
 describe('finalizarSolicitud', () => {
-  it('pasa la solicitud aceptada a FINALIZADA', async () => {
+  it(caso('TC-SOL-044', 'pasa la solicitud aceptada a FINALIZADA'), async () => {
     prisma.solicitud.findUnique.mockResolvedValue(solicitudAceptada);
     prisma.prestador.findUnique.mockResolvedValue(prestadorDueno);
     prisma.solicitud.update.mockResolvedValue({ ...solicitudAceptada, estado: 'FINALIZADA' });
@@ -40,7 +41,7 @@ describe('finalizarSolicitud', () => {
     expect(solicitud.estado).toBe('FINALIZADA');
   });
 
-  it('lanza 404 si la solicitud no existe', async () => {
+  it(caso('TC-SOL-045', 'lanza 404 si la solicitud no existe'), async () => {
     prisma.solicitud.findUnique.mockResolvedValue(null);
 
     await expect(solicitudesService.finalizarSolicitud('u1', 's1')).rejects.toMatchObject({
@@ -49,7 +50,7 @@ describe('finalizarSolicitud', () => {
     expect(prisma.prestador.findUnique).not.toHaveBeenCalled();
   });
 
-  it('lanza 403 si la solicitud es de otro prestador', async () => {
+  it(caso('TC-SOL-046', 'lanza 403 si la solicitud es de otro prestador'), async () => {
     prisma.solicitud.findUnique.mockResolvedValue(solicitudAceptada);
     prisma.prestador.findUnique.mockResolvedValue({ id: 'p2', activo: true });
 
@@ -59,7 +60,7 @@ describe('finalizarSolicitud', () => {
     expect(prisma.solicitud.update).not.toHaveBeenCalled();
   });
 
-  it('lanza 403 si el usuario no tiene perfil de prestador', async () => {
+  it(caso('TC-SOL-047', 'lanza 403 si el usuario no tiene perfil de prestador'), async () => {
     prisma.solicitud.findUnique.mockResolvedValue(solicitudAceptada);
     prisma.prestador.findUnique.mockResolvedValue(null);
 
@@ -70,7 +71,7 @@ describe('finalizarSolicitud', () => {
   });
 
   it.each(['PENDIENTE', 'RECHAZADA', 'CANCELADA', 'FINALIZADA'])(
-    'lanza 409 si la solicitud está %s y no aceptada',
+    caso('TC-SOL-048', 'lanza 409 si la solicitud está %s y no aceptada'),
     async (estado) => {
       prisma.solicitud.findUnique.mockResolvedValue({ ...solicitudAceptada, estado });
       prisma.prestador.findUnique.mockResolvedValue(prestadorDueno);

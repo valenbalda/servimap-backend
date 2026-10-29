@@ -9,6 +9,7 @@ jest.mock('../src/config/prisma', () => ({
 
 const prisma = require('../src/config/prisma');
 const oficiosService = require('../src/services/oficiosService');
+const { caso } = require('./qase/qase');
 
 const oficioBase = {
   id: 'o1',
@@ -22,7 +23,7 @@ beforeEach(() => {
 });
 
 describe('listarOficios', () => {
-  it('lista solo los oficios activos por defecto', async () => {
+  it(caso('TC-OFI-018', 'lista solo los oficios activos por defecto'), async () => {
     prisma.oficio.findMany.mockResolvedValue([oficioBase]);
 
     const oficios = await oficiosService.listarOficios();
@@ -34,7 +35,7 @@ describe('listarOficios', () => {
     expect(oficios).toEqual([oficioBase]);
   });
 
-  it('incluye los inactivos cuando se pide', async () => {
+  it(caso('TC-OFI-019', 'incluye los inactivos cuando se pide'), async () => {
     prisma.oficio.findMany.mockResolvedValue([]);
 
     await oficiosService.listarOficios({ incluirInactivos: true });
@@ -47,7 +48,7 @@ describe('listarOficios', () => {
 });
 
 describe('crearOficio', () => {
-  it('rechaza un nombre que ya existe con 409', async () => {
+  it(caso('TC-OFI-020', 'rechaza un nombre que ya existe con 409'), async () => {
     prisma.oficio.findUnique.mockResolvedValue(oficioBase);
 
     await expect(
@@ -57,7 +58,7 @@ describe('crearOficio', () => {
     expect(prisma.oficio.create).not.toHaveBeenCalled();
   });
 
-  it('crea el oficio si el nombre está libre', async () => {
+  it(caso('TC-OFI-021', 'crea el oficio si el nombre está libre'), async () => {
     prisma.oficio.findUnique.mockResolvedValue(null);
     prisma.oficio.create.mockResolvedValue(oficioBase);
 
@@ -74,7 +75,7 @@ describe('crearOficio', () => {
 });
 
 describe('actualizarOficio', () => {
-  it('lanza 404 si el oficio no existe', async () => {
+  it(caso('TC-OFI-022', 'lanza 404 si el oficio no existe'), async () => {
     prisma.oficio.findUnique.mockResolvedValue(null);
 
     await expect(
@@ -84,7 +85,7 @@ describe('actualizarOficio', () => {
     expect(prisma.oficio.update).not.toHaveBeenCalled();
   });
 
-  it('rechaza un nombre que ya usa otro oficio con 409', async () => {
+  it(caso('TC-OFI-023', 'rechaza un nombre que ya usa otro oficio con 409'), async () => {
     prisma.oficio.findUnique.mockImplementation(async ({ where }) =>
       where.id ? oficioBase : { id: 'o2', nombre: where.nombre }
     );
@@ -96,7 +97,7 @@ describe('actualizarOficio', () => {
     expect(prisma.oficio.update).not.toHaveBeenCalled();
   });
 
-  it('no busca duplicados si el nombre no cambia', async () => {
+  it(caso('TC-OFI-024', 'no busca duplicados si el nombre no cambia'), async () => {
     prisma.oficio.findUnique.mockResolvedValue(oficioBase);
     prisma.oficio.update.mockResolvedValue({ ...oficioBase, categoria: 'Obra' });
 
@@ -112,7 +113,7 @@ describe('actualizarOficio', () => {
     });
   });
 
-  it('actualiza el oficio con un nombre nuevo disponible', async () => {
+  it(caso('TC-OFI-025', 'actualiza el oficio con un nombre nuevo disponible'), async () => {
     prisma.oficio.findUnique.mockImplementation(async ({ where }) =>
       where.id ? oficioBase : null
     );
@@ -126,7 +127,7 @@ describe('actualizarOficio', () => {
 });
 
 describe('cambiarEstadoOficio', () => {
-  it('lanza 404 si el oficio no existe', async () => {
+  it(caso('TC-OFI-026', 'lanza 404 si el oficio no existe'), async () => {
     prisma.oficio.findUnique.mockResolvedValue(null);
 
     await expect(
@@ -136,7 +137,7 @@ describe('cambiarEstadoOficio', () => {
     expect(prisma.oficio.update).not.toHaveBeenCalled();
   });
 
-  it('desactiva el oficio sin borrarlo', async () => {
+  it(caso('TC-OFI-027', 'desactiva el oficio sin borrarlo'), async () => {
     prisma.oficio.findUnique.mockResolvedValue(oficioBase);
     prisma.oficio.update.mockResolvedValue({ ...oficioBase, activo: false });
 

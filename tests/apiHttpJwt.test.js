@@ -27,6 +27,7 @@ const app = require('../src/app');
 const prestadoresService = require('../src/services/prestadoresService');
 const solicitudesService = require('../src/services/solicitudesService');
 const mapaService = require('../src/services/mapaService');
+const { caso } = require('./qase/qase');
 
 const ROLES = ['CLIENTE', 'PRESTADOR', 'ADMINISTRADOR'];
 
@@ -93,7 +94,7 @@ beforeEach(() => {
 });
 
 describe('sin token', () => {
-  it.each(rutasProtegidas)('%s %s responde 401', async (metodo, ruta) => {
+  it.each(rutasProtegidas)(caso('TC-SEG-013', '%s %s responde 401'), async (metodo, ruta) => {
     const res = await pedir(metodo, ruta);
 
     expect(res.status).toBe(401);
@@ -103,7 +104,7 @@ describe('sin token', () => {
 
 describe('token inválido', () => {
   it.each(autorizacionesInvalidas)(
-    'un token %s responde 401 en todas las rutas protegidas',
+    caso('TC-SEG-014', 'un token %s responde 401 en todas las rutas protegidas'),
     async (_motivo, autorizacion) => {
       for (const [metodo, ruta] of rutasProtegidas) {
         const res = await pedir(metodo, ruta, { autorizacion });
@@ -115,7 +116,7 @@ describe('token inválido', () => {
 });
 
 describe('rol incorrecto', () => {
-  it.each(casosRolIncorrecto)('%s %s con el rol %s responde 403', async (metodo, ruta, rol) => {
+  it.each(casosRolIncorrecto)(caso('TC-SEG-015', '%s %s con el rol %s responde 403'), async (metodo, ruta, rol) => {
     const res = await pedir(metodo, ruta, { autorizacion: conToken(rol) });
 
     expect(res.status).toBe(403);
@@ -142,13 +143,13 @@ describe('con JWT válido y datos válidos', () => {
     ['patch', '/api/solicitudes/s1/rechazar', 'PRESTADOR', undefined, 200],
     ['patch', '/api/solicitudes/s1/finalizar', 'PRESTADOR', undefined, 200],
     ['patch', '/api/solicitudes/s1/cancelar', 'CLIENTE', undefined, 200],
-  ])('%s %s como %s responde %i', async (metodo, ruta, rol, body, esperado) => {
+  ])(caso('TC-SEG-016', '%s %s como %s responde %i'), async (metodo, ruta, rol, body, esperado) => {
     const res = await pedir(metodo, ruta, { autorizacion: conToken(rol), body });
 
     expect(res.status).toBe(esperado);
   });
 
-  it('usa el id del token y no uno que venga en el pedido', async () => {
+  it(caso('TC-SEG-017', 'usa el id del token y no uno que venga en el pedido'), async () => {
     await pedir('put', '/api/prestadores/me', {
       autorizacion: conToken('PRESTADOR', 'u7'),
       body: { zonaCobertura: 'Palermo', usuarioId: 'otro' },
@@ -159,7 +160,7 @@ describe('con JWT válido y datos válidos', () => {
     });
   });
 
-  it('le pasa al servicio el usuario y el rol que vienen en el token', async () => {
+  it(caso('TC-SEG-018', 'le pasa al servicio el usuario y el rol que vienen en el token'), async () => {
     await pedir('get', '/api/solicitudes', { autorizacion: conToken('CLIENTE', 'u3') });
 
     expect(solicitudesService.listarMisSolicitudes).toHaveBeenCalledWith(
@@ -177,7 +178,7 @@ describe('con JWT válido y datos inválidos', () => {
     ['post', '/api/solicitudes', 'CLIENTE', {}],
     ['post', '/api/solicitudes', 'CLIENTE', { prestadorId: 'p1', oficioId: 'o1' }],
     ['get', '/api/solicitudes?estado=pendiente', 'CLIENTE', undefined],
-  ])('%s %s como %s con el cuerpo %j responde 400', async (metodo, ruta, rol, body) => {
+  ])(caso('TC-SEG-019', '%s %s como %s con el cuerpo %j responde 400'), async (metodo, ruta, rol, body) => {
     const res = await pedir(metodo, ruta, { autorizacion: conToken(rol), body });
 
     expect(res.status).toBe(400);
@@ -185,7 +186,7 @@ describe('con JWT válido y datos inválidos', () => {
     expect(todosLosMocks.some((mock) => mock.mock.calls.length > 0)).toBe(false);
   });
 
-  it('responde 400 si el cuerpo no es un JSON válido', async () => {
+  it(caso('TC-SEG-020', 'responde 400 si el cuerpo no es un JSON válido'), async () => {
     const res = await request(app)
       .post('/api/solicitudes')
       .set('Authorization', conToken('CLIENTE'))
@@ -199,7 +200,7 @@ describe('con JWT válido y datos inválidos', () => {
 
 describe('rutas públicas', () => {
   it.each(['/health', '/api/prestadores', '/api/prestadores/mapa', '/api/prestadores/p1'])(
-    'GET %s no pide token y responde 200',
+    caso('TC-SEG-021', 'GET %s no pide token y responde 200'),
     async (ruta) => {
       const res = await pedir('get', ruta);
 
@@ -208,7 +209,7 @@ describe('rutas públicas', () => {
   );
 
   it.each(['/api/prestadores?lat=-34.6', '/api/prestadores/mapa?oficioId=%20'])(
-    'GET %s con filtros inválidos responde 400',
+    caso('TC-SEG-022', 'GET %s con filtros inválidos responde 400'),
     async (ruta) => {
       const res = await pedir('get', ruta);
 
@@ -216,7 +217,7 @@ describe('rutas públicas', () => {
     }
   );
 
-  it('responde 404 en una ruta que no existe', async () => {
+  it(caso('TC-SEG-023', 'responde 404 en una ruta que no existe'), async () => {
     const res = await pedir('get', '/api/no-existe');
 
     expect(res.status).toBe(404);
@@ -229,7 +230,7 @@ describe('errores de los servicios', () => {
     [403, 'La solicitud no es tuya'],
     [404, 'Solicitud no encontrada'],
     [409, 'Solo se puede responder una solicitud pendiente'],
-  ])('traduce un error %i del servicio al código HTTP y a su mensaje', async (estado, mensaje) => {
+  ])(caso('TC-SEG-024', 'traduce un error %i del servicio al código HTTP y a su mensaje'), async (estado, mensaje) => {
     solicitudesService.aceptarSolicitud.mockRejectedValue(
       Object.assign(new Error(mensaje), { status: estado })
     );
@@ -242,7 +243,7 @@ describe('errores de los servicios', () => {
     expect(res.body).toEqual({ error: mensaje });
   });
 
-  it('responde 500 sin mostrar el detalle interno', async () => {
+  it(caso('TC-SEG-025', 'responde 500 sin mostrar el detalle interno'), async () => {
     const consola = jest.spyOn(console, 'error').mockImplementation(() => {});
     solicitudesService.aceptarSolicitud.mockRejectedValue(new Error('detalle interno de la base'));
 

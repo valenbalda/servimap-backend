@@ -9,6 +9,7 @@ jest.mock('../src/services/calificacionesService', () => ({
 const prisma = require('../src/config/prisma');
 const calificacionesService = require('../src/services/calificacionesService');
 const prestadoresService = require('../src/services/prestadoresService');
+const { caso } = require('./qase/qase');
 
 function crearPrestador(id, nombre, extra = {}) {
   return {
@@ -41,7 +42,7 @@ beforeEach(() => {
 });
 
 describe('listarPrestadores', () => {
-  it('devuelve el resumen público con la reputación, sin datos de contacto ni oficios desactivados', async () => {
+  it(caso('TC-PRE-033', 'devuelve el resumen público con la reputación, sin datos de contacto ni oficios desactivados'), async () => {
     const prestador = crearPrestador('p1', 'Juan', {
       oficios: [
         { oficio: { id: 'o1', nombre: 'Plomería', activo: true } },
@@ -72,7 +73,7 @@ describe('listarPrestadores', () => {
     expect(lista[0].distanciaKm).toBeUndefined();
   });
 
-  it('filtra por oficio', async () => {
+  it(caso('TC-PRE-034', 'filtra por oficio'), async () => {
     prisma.prestador.findMany.mockResolvedValue([]);
 
     await prestadoresService.listarPrestadores({ oficioId: 'o1' });
@@ -86,7 +87,7 @@ describe('listarPrestadores', () => {
     );
   });
 
-  it('busca por nombre, zona u oficio sin distinguir mayúsculas', async () => {
+  it(caso('TC-PRE-035', 'busca por nombre, zona u oficio sin distinguir mayúsculas'), async () => {
     prisma.prestador.findMany.mockResolvedValue([]);
 
     await prestadoresService.listarPrestadores({ q: 'plom' });
@@ -98,7 +99,7 @@ describe('listarPrestadores', () => {
     });
   });
 
-  it('filtra por distancia y ordena del más cerca al más lejos', async () => {
+  it(caso('TC-PRE-036', 'filtra por distancia y ordena del más cerca al más lejos'), async () => {
     const cerca = crearPrestador('pa', 'Ana', { latitud: -34.605, longitud: -58.4 });
     const medio = crearPrestador('pb', 'Beto', { latitud: -34.63, longitud: -58.4 });
     const lejos = crearPrestador('pc', 'Carla', { latitud: -31.42, longitud: -64.18 });
@@ -126,7 +127,7 @@ describe('listarPrestadores', () => {
     expect(lista[1].distanciaKm).toBeLessThanOrEqual(10);
   });
 
-  it('filtra por calificación mínima y deja afuera a los que no tienen calificaciones', async () => {
+  it(caso('TC-PRE-037', 'filtra por calificación mínima y deja afuera a los que no tienen calificaciones'), async () => {
     prisma.prestador.findMany.mockResolvedValue([
       crearPrestador('p1', 'Ana'),
       crearPrestador('p2', 'Beto'),
@@ -142,7 +143,7 @@ describe('listarPrestadores', () => {
     expect(lista.map((p) => p.id)).toEqual(['p1']);
   });
 
-  it('respeta el limit y calcula la reputación solo de los devueltos', async () => {
+  it(caso('TC-PRE-038', 'respeta el limit y calcula la reputación solo de los devueltos'), async () => {
     prisma.prestador.findMany.mockResolvedValue([
       crearPrestador('p1', 'Ana'),
       crearPrestador('p2', 'Beto'),
@@ -158,7 +159,7 @@ describe('listarPrestadores', () => {
     expect(calificacionesService.obtenerReputacion).toHaveBeenCalledTimes(2);
   });
 
-  it('devuelve promedio null si el prestador todavía no tiene calificaciones', async () => {
+  it(caso('TC-PRE-039', 'devuelve promedio null si el prestador todavía no tiene calificaciones'), async () => {
     prisma.prestador.findMany.mockResolvedValue([crearPrestador('p1', 'Juan')]);
     calificacionesService.obtenerReputacion.mockResolvedValue(reputacion('p1', null, 0));
 

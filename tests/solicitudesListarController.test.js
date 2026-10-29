@@ -4,6 +4,7 @@ jest.mock('../src/services/solicitudesService', () => ({
 
 const solicitudesService = require('../src/services/solicitudesService');
 const solicitudesController = require('../src/controllers/solicitudesController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -20,7 +21,7 @@ beforeEach(() => {
 
 describe('listar', () => {
   it.each(['pendiente', 'CUALQUIERA', '', 'ACEPTADA,RECHAZADA'])(
-    'responde 400 con el estado inválido "%s"',
+    caso('TC-SOL-013', 'responde 400 con el estado inválido "%s"'),
     async (estado) => {
       const res = crearRes();
 
@@ -32,7 +33,7 @@ describe('listar', () => {
     }
   );
 
-  it('sin filtro, delega en el servicio con el usuario del token', async () => {
+  it(caso('TC-SOL-014', 'sin filtro, delega en el servicio con el usuario del token'), async () => {
     solicitudesService.listarMisSolicitudes.mockResolvedValue([{ id: 's1' }]);
     const res = crearRes();
 
@@ -45,7 +46,7 @@ describe('listar', () => {
   });
 
   it.each(['PENDIENTE', 'ACEPTADA', 'RECHAZADA', 'CANCELADA', 'FINALIZADA'])(
-    'acepta el estado %s y se lo pasa al servicio',
+    caso('TC-SOL-015', 'acepta el estado %s y se lo pasa al servicio'),
     async (estado) => {
       solicitudesService.listarMisSolicitudes.mockResolvedValue([]);
       const res = crearRes();
@@ -57,7 +58,7 @@ describe('listar', () => {
     }
   );
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-SOL-016', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Perfil de prestador no encontrado');
     solicitudesService.listarMisSolicitudes.mockRejectedValue(error);
     const next = jest.fn();

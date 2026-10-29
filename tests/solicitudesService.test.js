@@ -6,6 +6,7 @@ jest.mock('../src/config/prisma', () => ({
 
 const prisma = require('../src/config/prisma');
 const solicitudesService = require('../src/services/solicitudesService');
+const { caso } = require('./qase/qase');
 
 const datos = {
   prestadorId: 'p1',
@@ -27,7 +28,7 @@ beforeEach(() => {
 });
 
 describe('crearSolicitud', () => {
-  it('crea la solicitud con el cliente logueado', async () => {
+  it(caso('TC-SOL-017', 'crea la solicitud con el cliente logueado'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(prestadorOk);
     prisma.oficio.findUnique.mockResolvedValue({ id: 'o1', activo: true });
     prisma.solicitud.create.mockResolvedValue({
@@ -54,7 +55,7 @@ describe('crearSolicitud', () => {
     expect(solicitud.clienteId).toBe('c1');
   });
 
-  it('lanza 404 si el prestador no existe', async () => {
+  it(caso('TC-SOL-018', 'lanza 404 si el prestador no existe'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(null);
 
     await expect(solicitudesService.crearSolicitud('c1', datos)).rejects.toMatchObject({
@@ -63,7 +64,7 @@ describe('crearSolicitud', () => {
     expect(prisma.solicitud.create).not.toHaveBeenCalled();
   });
 
-  it('lanza 404 si el prestador está inactivo', async () => {
+  it(caso('TC-SOL-019', 'lanza 404 si el prestador está inactivo'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ ...prestadorOk, activo: false });
 
     await expect(solicitudesService.crearSolicitud('c1', datos)).rejects.toMatchObject({
@@ -71,7 +72,7 @@ describe('crearSolicitud', () => {
     });
   });
 
-  it('lanza 409 si el prestador no está disponible', async () => {
+  it(caso('TC-SOL-020', 'lanza 409 si el prestador no está disponible'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ ...prestadorOk, disponible: false });
 
     await expect(solicitudesService.crearSolicitud('c1', datos)).rejects.toMatchObject({
@@ -80,7 +81,7 @@ describe('crearSolicitud', () => {
     expect(prisma.solicitud.create).not.toHaveBeenCalled();
   });
 
-  it('lanza 400 si el oficio no existe', async () => {
+  it(caso('TC-SOL-021', 'lanza 400 si el oficio no existe'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(prestadorOk);
     prisma.oficio.findUnique.mockResolvedValue(null);
 
@@ -89,7 +90,7 @@ describe('crearSolicitud', () => {
     });
   });
 
-  it('lanza 400 si el oficio está desactivado', async () => {
+  it(caso('TC-SOL-022', 'lanza 400 si el oficio está desactivado'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(prestadorOk);
     prisma.oficio.findUnique.mockResolvedValue({ id: 'o1', activo: false });
 
@@ -99,7 +100,7 @@ describe('crearSolicitud', () => {
     expect(prisma.solicitud.create).not.toHaveBeenCalled();
   });
 
-  it('lanza 400 si el prestador no ofrece ese oficio', async () => {
+  it(caso('TC-SOL-023', 'lanza 400 si el prestador no ofrece ese oficio'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ ...prestadorOk, oficios: [] });
     prisma.oficio.findUnique.mockResolvedValue({ id: 'o1', activo: true });
 

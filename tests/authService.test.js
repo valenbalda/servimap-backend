@@ -11,6 +11,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const prisma = require('../src/config/prisma');
 const authService = require('../src/services/authService');
+const { caso } = require('./qase/qase');
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -25,7 +26,7 @@ describe('registrarUsuario', () => {
     rol: 'CLIENTE',
   };
 
-  it('rechaza un rol que no es CLIENTE ni PRESTADOR', async () => {
+  it(caso('TC-AUTH-018', 'rechaza un rol que no es CLIENTE ni PRESTADOR'), async () => {
     await expect(
       authService.registrarUsuario({ ...datos, rol: 'ADMINISTRADOR' })
     ).rejects.toMatchObject({ status: 400 });
@@ -33,7 +34,7 @@ describe('registrarUsuario', () => {
     expect(prisma.usuario.create).not.toHaveBeenCalled();
   });
 
-  it('rechaza un DNI ya registrado', async () => {
+  it(caso('TC-AUTH-019', 'rechaza un DNI ya registrado'), async () => {
     prisma.usuario.findUnique.mockResolvedValueOnce({ id: 'u1' });
 
     await expect(authService.registrarUsuario(datos)).rejects.toMatchObject({
@@ -47,7 +48,7 @@ describe('registrarUsuario', () => {
     expect(prisma.usuario.create).not.toHaveBeenCalled();
   });
 
-  it('rechaza un email ya registrado', async () => {
+  it(caso('TC-AUTH-020', 'rechaza un email ya registrado'), async () => {
     prisma.usuario.findUnique
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce({ id: 'u1' });
@@ -60,7 +61,7 @@ describe('registrarUsuario', () => {
     expect(prisma.usuario.create).not.toHaveBeenCalled();
   });
 
-  it('crea un cliente con la contraseña hasheada y sin perfil de prestador', async () => {
+  it(caso('TC-AUTH-021', 'crea un cliente con la contraseña hasheada y sin perfil de prestador'), async () => {
     prisma.usuario.findUnique.mockResolvedValue(null);
     prisma.usuario.create.mockImplementation(async ({ data }) => ({
       id: 'u1',
@@ -86,7 +87,7 @@ describe('registrarUsuario', () => {
     });
   });
 
-  it('crea el perfil de prestador vacío al registrar un PRESTADOR', async () => {
+  it(caso('TC-AUTH-022', 'crea el perfil de prestador vacío al registrar un PRESTADOR'), async () => {
     prisma.usuario.findUnique.mockResolvedValue(null);
     prisma.usuario.create.mockImplementation(async ({ data }) => ({
       id: 'u2',
@@ -113,7 +114,7 @@ describe('iniciarSesion', () => {
     activo: true,
   };
 
-  it('busca al usuario por email', async () => {
+  it(caso('TC-AUTH-023', 'busca al usuario por email'), async () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
     await authService.iniciarSesion({ email: 'ana@mail.com', password: '12345678' });
@@ -123,7 +124,7 @@ describe('iniciarSesion', () => {
     });
   });
 
-  it('rechaza un email que no existe con 401', async () => {
+  it(caso('TC-AUTH-024', 'rechaza un email que no existe con 401'), async () => {
     prisma.usuario.findUnique.mockResolvedValue(null);
 
     await expect(
@@ -134,7 +135,7 @@ describe('iniciarSesion', () => {
     });
   });
 
-  it('rechaza una contraseña incorrecta con el mismo mensaje', async () => {
+  it(caso('TC-AUTH-025', 'rechaza una contraseña incorrecta con el mismo mensaje'), async () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
     await expect(
@@ -145,7 +146,7 @@ describe('iniciarSesion', () => {
     });
   });
 
-  it('rechaza una cuenta desactivada con 403', async () => {
+  it(caso('TC-AUTH-026', 'rechaza una cuenta desactivada con 403'), async () => {
     prisma.usuario.findUnique.mockResolvedValue({ ...usuarioBase, activo: false });
 
     await expect(
@@ -153,7 +154,7 @@ describe('iniciarSesion', () => {
     ).rejects.toMatchObject({ status: 403 });
   });
 
-  it('devuelve un token válido con el id y el rol, sin la contraseña ni el DNI', async () => {
+  it(caso('TC-AUTH-027', 'devuelve un token válido con el id y el rol, sin la contraseña ni el DNI'), async () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
     const resultado = await authService.iniciarSesion({
@@ -189,7 +190,7 @@ describe('obtenerPerfil', () => {
     fechaRegistro: new Date(),
   };
 
-  it('devuelve el perfil con el DNI y sin la contraseña', async () => {
+  it(caso('TC-AUTH-028', 'devuelve el perfil con el DNI y sin la contraseña'), async () => {
     prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
 
     const perfil = await authService.obtenerPerfil('u1');
@@ -205,7 +206,7 @@ describe('obtenerPerfil', () => {
     });
   });
 
-  it('lanza 404 si el usuario no existe', async () => {
+  it(caso('TC-AUTH-029', 'lanza 404 si el usuario no existe'), async () => {
     prisma.usuario.findUnique.mockResolvedValue(null);
 
     await expect(authService.obtenerPerfil('u1')).rejects.toMatchObject({
@@ -213,7 +214,7 @@ describe('obtenerPerfil', () => {
     });
   });
 
-  it('lanza 404 si el usuario está desactivado', async () => {
+  it(caso('TC-AUTH-030', 'lanza 404 si el usuario está desactivado'), async () => {
     prisma.usuario.findUnique.mockResolvedValue({ ...usuarioBase, activo: false });
 
     await expect(authService.obtenerPerfil('u1')).rejects.toMatchObject({

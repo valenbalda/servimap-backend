@@ -9,6 +9,7 @@ jest.mock('../src/services/calificacionesService', () => ({
 const prisma = require('../src/config/prisma');
 const calificacionesService = require('../src/services/calificacionesService');
 const prestadoresService = require('../src/services/prestadoresService');
+const { caso } = require('./qase/qase');
 
 const calificaciones = [
   { id: 'k1', puntaje: 5, comentario: 'Muy bueno', fechaPublicacion: new Date('2026-10-20') },
@@ -20,7 +21,7 @@ beforeEach(() => {
 });
 
 describe('listarMisCalificaciones', () => {
-  it('busca al prestador por el usuario del token y devuelve sus calificaciones', async () => {
+  it(caso('TC-PRE-054', 'busca al prestador por el usuario del token y devuelve sus calificaciones'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ id: 'p1', activo: true });
     calificacionesService.listarCalificacionesPrestador.mockResolvedValue(calificaciones);
 
@@ -33,7 +34,7 @@ describe('listarMisCalificaciones', () => {
     expect(lista).toEqual(calificaciones);
   });
 
-  it('devuelve una lista vacía si todavía no recibió calificaciones', async () => {
+  it(caso('TC-PRE-055', 'devuelve una lista vacía si todavía no recibió calificaciones'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ id: 'p1', activo: true });
     calificacionesService.listarCalificacionesPrestador.mockResolvedValue([]);
 
@@ -43,7 +44,7 @@ describe('listarMisCalificaciones', () => {
   });
 
   it.each([null, { id: 'p1', activo: false }])(
-    'lanza 404 si el perfil de prestador es %j',
+    caso('TC-PRE-056', 'lanza 404 si el perfil de prestador es %j'),
     async (perfil) => {
       prisma.prestador.findUnique.mockResolvedValue(perfil);
 

@@ -183,7 +183,12 @@ Para probar endpoints protegidos:
 ```bash
 npm test                  # corre todas las pruebas
 npm test -- --coverage    # además muestra la cobertura
+npm run test:unit         # solo los tests unitarios
+npm run test:integration  # solo los de integración (necesitan DATABASE_URL_TEST)
+npm run test:qase         # todo, reportando los resultados a Qase
 ```
+
+Los casos de uso, los casos de prueba, la trazabilidad con los requerimientos y la integración con Qase están documentados en [docs/qa](docs/qa/README.md).
 
 - Las pruebas automáticas usan **Jest** y cubren servicios, controladores y middlewares con la base de datos simulada.
 - En cada Pull Request, **GitHub Actions** corre las pruebas con cobertura y envía el análisis a **SonarQube Cloud**.

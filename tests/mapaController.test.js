@@ -4,6 +4,7 @@ jest.mock('../src/services/mapaService', () => ({
 
 const mapaService = require('../src/services/mapaService');
 const mapaController = require('../src/controllers/mapaController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -18,7 +19,7 @@ beforeEach(() => {
 
 describe('listar', () => {
   it.each(['', '   ', ['o1', 'o2']])(
-    'responde 400 con el oficioId %j',
+    caso('TC-MAPA-001', 'responde 400 con el oficioId %j'),
     async (oficioId) => {
       const res = crearRes();
 
@@ -30,7 +31,7 @@ describe('listar', () => {
     }
   );
 
-  it('sin filtro, pide todos los marcadores y devuelve el resultado', async () => {
+  it(caso('TC-MAPA-002', 'sin filtro, pide todos los marcadores y devuelve el resultado'), async () => {
     mapaService.listarMarcadores.mockResolvedValue([{ id: 'p1' }]);
     const res = crearRes();
 
@@ -40,7 +41,7 @@ describe('listar', () => {
     expect(res.json).toHaveBeenCalledWith([{ id: 'p1' }]);
   });
 
-  it('pasa el oficioId sin espacios', async () => {
+  it(caso('TC-MAPA-003', 'pasa el oficioId sin espacios'), async () => {
     mapaService.listarMarcadores.mockResolvedValue([]);
 
     await mapaController.listar({ query: { oficioId: ' o1 ' } }, crearRes(), jest.fn());
@@ -48,7 +49,7 @@ describe('listar', () => {
     expect(mapaService.listarMarcadores).toHaveBeenCalledWith({ oficioId: 'o1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-MAPA-004', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Falló la consulta');
     mapaService.listarMarcadores.mockRejectedValue(error);
     const next = jest.fn();

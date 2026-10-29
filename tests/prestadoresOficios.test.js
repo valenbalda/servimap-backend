@@ -7,6 +7,7 @@ jest.mock('../src/config/prisma', () => ({
 
 const prisma = require('../src/config/prisma');
 const prestadoresService = require('../src/services/prestadoresService');
+const { caso } = require('./qase/qase');
 
 const prestadorBase = {
   id: 'p1',
@@ -32,7 +33,7 @@ beforeEach(() => {
 });
 
 describe('asignarMisOficios', () => {
-  it('reemplaza los oficios y devuelve el perfil actualizado', async () => {
+  it(caso('TC-PRE-028', 'reemplaza los oficios y devuelve el perfil actualizado'), async () => {
     prisma.prestador.findUnique
       .mockResolvedValueOnce(prestadorBase)
       .mockResolvedValueOnce({
@@ -63,7 +64,7 @@ describe('asignarMisOficios', () => {
     ]);
   });
 
-  it('rechaza con 400 si algún oficio no existe o está desactivado', async () => {
+  it(caso('TC-PRE-029', 'rechaza con 400 si algún oficio no existe o está desactivado'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(prestadorBase);
     prisma.oficio.findMany.mockResolvedValue([{ id: 'o1' }]);
 
@@ -74,7 +75,7 @@ describe('asignarMisOficios', () => {
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
-  it('ignora los ids repetidos', async () => {
+  it(caso('TC-PRE-030', 'ignora los ids repetidos'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(prestadorBase);
     prisma.oficio.findMany.mockResolvedValue([{ id: 'o1' }]);
     prisma.$transaction.mockResolvedValue([]);
@@ -89,7 +90,7 @@ describe('asignarMisOficios', () => {
     });
   });
 
-  it('permite dejar al prestador sin oficios con una lista vacía', async () => {
+  it(caso('TC-PRE-031', 'permite dejar al prestador sin oficios con una lista vacía'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(prestadorBase);
     prisma.oficio.findMany.mockResolvedValue([]);
     prisma.$transaction.mockResolvedValue([]);
@@ -100,7 +101,7 @@ describe('asignarMisOficios', () => {
     expect(perfil.oficios).toEqual([]);
   });
 
-  it('lanza 404 si el prestador no existe', async () => {
+  it(caso('TC-PRE-032', 'lanza 404 si el prestador no existe'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(null);
 
     await expect(
