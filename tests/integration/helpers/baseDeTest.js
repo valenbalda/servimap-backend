@@ -58,6 +58,8 @@ function describeConBase(nombre, fn) {
         'exclusiva para tests (ver docs/qa/README.md).'
     );
   }
+  // Se omite a propósito: los tests de integración necesitan una base PostgreSQL de prueba
+  // (DATABASE_URL_TEST) y se saltean cuando esa variable no está definida, por ejemplo en local.
   return describe.skip(nombre, fn);
 }
 
