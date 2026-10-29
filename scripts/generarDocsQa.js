@@ -3,8 +3,35 @@
 //
 //   npm run docs:qa              → regenera los archivos
 //   npm run docs:qa -- --check   → falla si están desactualizados o si hay casos sin test
+//   npm run docs:qa -- --validate-csv [archivo]
+//                                → valida que las celdas de pasos del CSV sean JSON válido
+//                                  (por defecto, docs/qa/casos-de-prueba.csv)
 const fs = require('node:fs');
 const path = require('node:path');
+const { codificarPasos, csvValor, validarCsvQase } = require('./csvQase');
+
+const RAIZ = path.join(__dirname, '..');
+const DIR_DOCS = path.join(RAIZ, 'docs', 'qa');
+
+function informarValidacion(errores, origen) {
+  if (errores.length) {
+    console.error(`${origen} no cumple el formato de Qase:\n${errores.join('\n')}`);
+    process.exit(1);
+  }
+}
+
+// Modo validación: solo lee el CSV, sin regenerar nada.
+const posValidar = process.argv.indexOf('--validate-csv');
+if (posValidar !== -1) {
+  const argumento = process.argv[posValidar + 1];
+  const archivo = argumento && !argumento.startsWith('--')
+    ? path.resolve(argumento)
+    : path.join(DIR_DOCS, 'casos-de-prueba.csv');
+  informarValidacion(validarCsvQase(fs.readFileSync(archivo, 'utf8')), path.relative(RAIZ, archivo));
+  console.log(`${path.relative(RAIZ, archivo)}: formato de pasos válido.`);
+  process.exit(0);
+}
+
 const { LISTA } = require('../tests/qase/casos');
 const { REQUERIMIENTOS, PENDIENTES } = require('../tests/qase/requerimientos');
 const {
@@ -17,9 +44,7 @@ const {
 } = require('../tests/qase/qase');
 const qaseIds = require('../tests/qase/qase-ids.json');
 
-const RAIZ = path.join(__dirname, '..');
 const DIR_TESTS = path.join(RAIZ, 'tests');
-const DIR_DOCS = path.join(RAIZ, 'docs', 'qa');
 const CHECK = process.argv.includes('--check');
 
 // --- 1. Qué test referencia a cada caso ---------------------------------------
@@ -182,11 +207,6 @@ const COLUMNAS_CSV = [
   'parameters',
 ];
 
-function csvValor(valor) {
-  const texto = String(valor ?? '');
-  return /[",\r\n]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
-}
-
 function generarCsv() {
   // Suites: "Unitarios" e "Integración" en la raíz, y un módulo por debajo de cada una.
   const suites = [];
@@ -208,7 +228,8 @@ function generarCsv() {
   });
 
   for (const c of casos) {
-    const ultimo = c.pasos.length;
+    // El resultado esperado va en el último paso; los anteriores no tienen resultado propio.
+    const resultados = c.pasos.map((_, i) => (i === c.pasos.length - 1 ? c.esperado : null));
     const descripcion = [
       `${c.id} — ${c.descripcion}`,
       `Rol: ${c.rol}. Requerimiento: ${rfTexto(c)}. Capa: ${capaTexto(c)}.`,
@@ -230,8 +251,8 @@ function generarCsv() {
       is_flaky: 'no',
       layer: CAPA[c.capa],
       steps_type: 'classic',
-      steps_actions: enLista(c.pasos),
-      steps_result: c.pasos.map((_, i) => `${i + 1}. ${i + 1 === ultimo ? c.esperado : ''}`.trimEnd()).join('\n'),
+      steps_actions: codificarPasos(c.pasos),
+      steps_result: codificarPasos(resultados),
       steps_data: '',
       milestone_id: '',
       milestone: '',
@@ -302,6 +323,9 @@ const archivos = {
   'casos-de-prueba.csv': generarCsv(),
   'trazabilidad.md': generarTrazabilidad(),
 };
+
+// El CSV se valida antes de escribirlo o compararlo, para no generar uno que Qase rechace.
+informarValidacion(validarCsvQase(archivos['casos-de-prueba.csv']), 'El CSV generado');
 
 const normalizar = (texto) => texto.replace(/\r\n/g, '\n');
 let desactualizados = 0;

@@ -26,6 +26,7 @@ npm run test:unit         # solo unitarios
 npm run test:integration  # solo integración (en serie, contra DATABASE_URL_TEST)
 npm run test:qase         # todo, reportando los resultados a Qase
 npm run docs:qa           # regenera casos-de-prueba.md/.csv y trazabilidad.md
+npm run docs:qa -- --validate-csv   # valida el formato de pasos del CSV antes de importarlo
 npm run qase:ids -- export.csv   # completa los IDs numéricos de Qase (ver paso 3)
 ```
 
@@ -91,7 +92,9 @@ También se puede poner `DATABASE_URL_TEST=...` en el `.env` local.
 1. En el proyecto: **Repository → Import → origen "Qase.io"** y subir [`casos-de-prueba.csv`](casos-de-prueba.csv).
 2. Se crean las suites (`Unitarios` / `Integración` y un módulo por debajo) y todos los casos con descripción, precondiciones, postcondiciones, pasos, resultado esperado, prioridad, severidad, tipo, comportamiento, capa y tags (ID propio, RF, rol y capa).
 
-El CSV usa las columnas del formato de Qase (`v2.id, title, description, preconditions, postconditions, tags, priority, severity, type, behavior, automation, status, is_flaky, layer, steps_type, steps_actions, steps_result, ...`). Si la importación se queja de algún encabezado, exportar un caso de prueba desde el proyecto y comparar los nombres de las columnas: Qase exige que coincidan exactamente.
+El CSV usa las columnas del formato de Qase (`v2.id, title, description, preconditions, postconditions, tags, priority, severity, type, behavior, automation, status, is_flaky, layer, steps_type, steps_actions, steps_result, ...`). En este formato (V2), cada paso va en su propia línea, numerado, con el contenido JSON-encoded: `1. "Hacer el pedido"`. Acciones (`steps_actions`) y resultados (`steps_result`) se emparejan por número; el resultado esperado va en el último paso. El generador valida el CSV antes de escribirlo, y `npm run docs:qa -- --validate-csv` lo revisa celda por celda (indica fila y columna si algo no es JSON válido).
+
+Si la importación se queja de algún encabezado, exportar un caso de prueba desde el proyecto y comparar los nombres de las columnas: Qase exige que coincidan exactamente.
 
 ### 3. Vincular los IDs de Qase
 
