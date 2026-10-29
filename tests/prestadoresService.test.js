@@ -4,6 +4,7 @@ jest.mock('../src/config/prisma', () => ({
 
 const prisma = require('../src/config/prisma');
 const prestadoresService = require('../src/services/prestadoresService');
+const { caso } = require('./qase/qase');
 
 const prestadorBase = {
   id: 'p1',
@@ -29,7 +30,7 @@ beforeEach(() => {
 });
 
 describe('obtenerMiPerfil', () => {
-  it('devuelve el perfil con nombre, email y oficios', async () => {
+  it(caso('TC-PRE-023', 'devuelve el perfil con nombre, email y oficios'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(prestadorBase);
 
     const perfil = await prestadoresService.obtenerMiPerfil('u1');
@@ -39,7 +40,7 @@ describe('obtenerMiPerfil', () => {
     expect(perfil.oficios).toEqual([{ id: 'o1', nombre: 'Plomería' }]);
   });
 
-  it('lanza 404 si el prestador no existe', async () => {
+  it(caso('TC-PRE-024', 'lanza 404 si el prestador no existe'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(null);
 
     await expect(prestadoresService.obtenerMiPerfil('u1')).rejects.toMatchObject({
@@ -47,7 +48,7 @@ describe('obtenerMiPerfil', () => {
     });
   });
 
-  it('lanza 404 si el prestador está inactivo', async () => {
+  it(caso('TC-PRE-025', 'lanza 404 si el prestador está inactivo'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ ...prestadorBase, activo: false });
 
     await expect(prestadoresService.obtenerMiPerfil('u1')).rejects.toMatchObject({
@@ -57,7 +58,7 @@ describe('obtenerMiPerfil', () => {
 });
 
 describe('actualizarMiPerfil', () => {
-  it('actualiza los datos y devuelve el perfil nuevo', async () => {
+  it(caso('TC-PRE-026', 'actualiza los datos y devuelve el perfil nuevo'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(prestadorBase);
     prisma.prestador.update.mockResolvedValue({
       ...prestadorBase,
@@ -77,7 +78,7 @@ describe('actualizarMiPerfil', () => {
     expect(perfil.zonaCobertura).toBe('Recoleta');
   });
 
-  it('rechaza si el precio mínimo supera al máximo guardado', async () => {
+  it(caso('TC-PRE-027', 'rechaza si el precio mínimo supera al máximo guardado'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({
       ...prestadorBase,
       precioMin: 1000,

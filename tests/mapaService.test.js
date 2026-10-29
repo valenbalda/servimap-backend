@@ -5,6 +5,7 @@ jest.mock('../src/config/prisma', () => ({
 
 const prisma = require('../src/config/prisma');
 const mapaService = require('../src/services/mapaService');
+const { caso } = require('./qase/qase');
 
 function crearPrestador(id, nombre, extra = {}) {
   return {
@@ -22,7 +23,7 @@ beforeEach(() => {
 });
 
 describe('listarMarcadores', () => {
-  it('devuelve los marcadores con ubicación aproximada, oficio principal y promedio', async () => {
+  it(caso('TC-MAPA-005', 'devuelve los marcadores con ubicación aproximada, oficio principal y promedio'), async () => {
     prisma.prestador.findMany.mockResolvedValue([
       crearPrestador('p1', 'Juan', { latitud: '-34.603722', longitud: '-58.381592' }),
     ]);
@@ -44,7 +45,7 @@ describe('listarMarcadores', () => {
     ]);
   });
 
-  it('busca solo prestadores activos, disponibles y con coordenadas', async () => {
+  it(caso('TC-MAPA-006', 'busca solo prestadores activos, disponibles y con coordenadas'), async () => {
     prisma.prestador.findMany.mockResolvedValue([]);
 
     await mapaService.listarMarcadores();
@@ -64,7 +65,7 @@ describe('listarMarcadores', () => {
     );
   });
 
-  it('filtra por oficio cuando se pide', async () => {
+  it(caso('TC-MAPA-007', 'filtra por oficio cuando se pide'), async () => {
     prisma.prestador.findMany.mockResolvedValue([]);
 
     await mapaService.listarMarcadores({ oficioId: 'o1' });
@@ -73,7 +74,7 @@ describe('listarMarcadores', () => {
     expect(where.oficios).toEqual({ some: { oficioId: 'o1', oficio: { activo: true } } });
   });
 
-  it('devuelve promedio null si el prestador todavía no tiene calificaciones', async () => {
+  it(caso('TC-MAPA-008', 'devuelve promedio null si el prestador todavía no tiene calificaciones'), async () => {
     prisma.prestador.findMany.mockResolvedValue([crearPrestador('p1', 'Juan')]);
     prisma.calificacion.groupBy.mockResolvedValue([]);
 
@@ -82,7 +83,7 @@ describe('listarMarcadores', () => {
     expect(marcador.promedio).toBeNull();
   });
 
-  it('pide los promedios solo de los prestadores encontrados', async () => {
+  it(caso('TC-MAPA-009', 'pide los promedios solo de los prestadores encontrados'), async () => {
     prisma.prestador.findMany.mockResolvedValue([
       crearPrestador('p1', 'Ana'),
       crearPrestador('p2', 'Beto'),
@@ -96,7 +97,7 @@ describe('listarMarcadores', () => {
     );
   });
 
-  it('devuelve una lista vacía sin consultar los promedios si no hay prestadores', async () => {
+  it(caso('TC-MAPA-010', 'devuelve una lista vacía sin consultar los promedios si no hay prestadores'), async () => {
     prisma.prestador.findMany.mockResolvedValue([]);
 
     const marcadores = await mapaService.listarMarcadores();

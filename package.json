@@ -7,6 +7,11 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "jest",
+    "test:unit": "jest --testPathIgnorePatterns /node_modules/ /tests/integration/",
+    "test:integration": "jest tests/integration --runInBand",
+    "test:qase": "jest --runInBand",
+    "docs:qa": "node scripts/generarDocsQa.js",
+    "qase:ids": "node scripts/sincronizarQaseIds.js",
     "postinstall": "prisma generate"
   },
   "repository": {
@@ -34,6 +39,7 @@
   },
   "devDependencies": {
     "jest": "^30.5.2",
+    "jest-qase-reporter": "^2.6.0",
     "nodemon": "^3.1.14",
     "prisma": "^6.19.3",
     "supertest": "^7.3.1"

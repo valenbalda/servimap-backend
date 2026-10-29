@@ -5,6 +5,7 @@ jest.mock('../src/config/prisma', () => ({
 
 const prisma = require('../src/config/prisma');
 const solicitudesService = require('../src/services/solicitudesService');
+const { caso } = require('./qase/qase');
 
 const solicitudBase = {
   id: 's1',
@@ -27,7 +28,7 @@ beforeEach(() => {
 });
 
 describe('listarMisSolicitudes', () => {
-  it('el cliente ve solo las suyas, de la más nueva a la más vieja', async () => {
+  it(caso('TC-SOL-024', 'el cliente ve solo las suyas, de la más nueva a la más vieja'), async () => {
     prisma.solicitud.findMany.mockResolvedValue([solicitudBase]);
 
     const lista = await solicitudesService.listarMisSolicitudes({ id: 'c1', rol: 'CLIENTE' });
@@ -43,7 +44,7 @@ describe('listarMisSolicitudes', () => {
     expect(lista[0].prestador.nombre).toBe('Juan');
   });
 
-  it('el prestador ve las que le llegaron, buscando su perfil por usuarioId', async () => {
+  it(caso('TC-SOL-025', 'el prestador ve las que le llegaron, buscando su perfil por usuarioId'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ id: 'p1', activo: true });
     prisma.solicitud.findMany.mockResolvedValue([solicitudBase]);
 
@@ -56,7 +57,7 @@ describe('listarMisSolicitudes', () => {
     expect(lista[0].cliente.nombre).toBe('Ana');
   });
 
-  it('filtra por estado cuando se pide', async () => {
+  it(caso('TC-SOL-026', 'filtra por estado cuando se pide'), async () => {
     prisma.solicitud.findMany.mockResolvedValue([]);
 
     await solicitudesService.listarMisSolicitudes(
@@ -69,7 +70,7 @@ describe('listarMisSolicitudes', () => {
     );
   });
 
-  it('marca como calificada solo la que ya tiene calificación', async () => {
+  it(caso('TC-SOL-027', 'marca como calificada solo la que ya tiene calificación'), async () => {
     prisma.solicitud.findMany.mockResolvedValue([
       { ...solicitudBase, calificacion: { id: 'k1' } },
       solicitudBase,
@@ -80,7 +81,7 @@ describe('listarMisSolicitudes', () => {
     expect(lista.map((s) => s.calificada)).toEqual([true, false]);
   });
 
-  it('no devuelve datos sensibles de las personas', async () => {
+  it(caso('TC-SOL-028', 'no devuelve datos sensibles de las personas'), async () => {
     prisma.solicitud.findMany.mockResolvedValue([solicitudBase]);
 
     const [solicitud] = await solicitudesService.listarMisSolicitudes({ id: 'c1', rol: 'CLIENTE' });
@@ -89,7 +90,7 @@ describe('listarMisSolicitudes', () => {
     expect(solicitud.prestador).toEqual({ id: 'p1', nombre: 'Juan' });
   });
 
-  it('lanza 404 si el prestador no existe', async () => {
+  it(caso('TC-SOL-029', 'lanza 404 si el prestador no existe'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(null);
 
     await expect(
@@ -98,7 +99,7 @@ describe('listarMisSolicitudes', () => {
     expect(prisma.solicitud.findMany).not.toHaveBeenCalled();
   });
 
-  it('lanza 404 si el prestador está inactivo', async () => {
+  it(caso('TC-SOL-030', 'lanza 404 si el prestador está inactivo'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ id: 'p1', activo: false });
 
     await expect(
@@ -106,7 +107,7 @@ describe('listarMisSolicitudes', () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
-  it('lanza 403 si el rol no es cliente ni prestador', async () => {
+  it(caso('TC-SOL-031', 'lanza 403 si el rol no es cliente ni prestador'), async () => {
     await expect(
       solicitudesService.listarMisSolicitudes({ id: 'a1', rol: 'ADMINISTRADOR' })
     ).rejects.toMatchObject({ status: 403 });

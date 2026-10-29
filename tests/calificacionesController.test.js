@@ -9,6 +9,7 @@ jest.mock('../src/services/calificacionesService', () => ({
 
 const calificacionesService = require('../src/services/calificacionesService');
 const calificacionesController = require('../src/controllers/calificacionesController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -25,7 +26,7 @@ beforeEach(() => {
 
 describe('crear', () => {
   it.each([undefined, '   ', 5])(
-    'responde 400 si la solicitud es %p',
+    caso('TC-CAL-001', 'responde 400 si la solicitud es %p'),
     async (solicitudId) => {
       const res = crearRes();
 
@@ -42,7 +43,7 @@ describe('crear', () => {
   );
 
   it.each([0, 6, 3.5, '4', undefined])(
-    'responde 400 con el puntaje %p',
+    caso('TC-CAL-002', 'responde 400 con el puntaje %p'),
     async (puntaje) => {
       const res = crearRes();
 
@@ -63,7 +64,7 @@ describe('crear', () => {
   it.each([
     ['no es texto', 123],
     ['es demasiado largo', 'a'.repeat(501)],
-  ])('responde 400 si el comentario %s', async (_descripcion, comentario) => {
+  ])(caso('TC-CAL-003', 'responde 400 si el comentario %s'), async (_descripcion, comentario) => {
     const res = crearRes();
 
     await calificacionesController.crear(
@@ -79,7 +80,7 @@ describe('crear', () => {
     expect(calificacionesService.crearCalificacion).not.toHaveBeenCalled();
   });
 
-  it('crea la calificación con los datos limpios y responde 201', async () => {
+  it(caso('TC-CAL-004', 'crea la calificación con los datos limpios y responde 201'), async () => {
     calificacionesService.crearCalificacion.mockResolvedValue({ id: 'c1' });
     const res = crearRes();
 
@@ -102,7 +103,7 @@ describe('crear', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'c1' });
   });
 
-  it('permite calificar sin comentario', async () => {
+  it(caso('TC-CAL-005', 'permite calificar sin comentario'), async () => {
     calificacionesService.crearCalificacion.mockResolvedValue({ id: 'c1' });
 
     await calificacionesController.crear(
@@ -119,7 +120,7 @@ describe('crear', () => {
     });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-CAL-006', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Esta solicitud ya fue calificada');
     calificacionesService.crearCalificacion.mockRejectedValue(error);
     const next = jest.fn();
@@ -139,7 +140,7 @@ describe('editarComentario', () => {
     ['falta', undefined],
     ['son solo espacios', '   '],
     ['es demasiado largo', 'a'.repeat(501)],
-  ])('responde 400 si el comentario %s', async (_descripcion, comentario) => {
+  ])(caso('TC-CAL-007', 'responde 400 si el comentario %s'), async (_descripcion, comentario) => {
     const res = crearRes();
 
     await calificacionesController.editarComentario(
@@ -155,7 +156,7 @@ describe('editarComentario', () => {
     expect(calificacionesService.editarComentario).not.toHaveBeenCalled();
   });
 
-  it('edita el comentario con los datos limpios', async () => {
+  it(caso('TC-CAL-008', 'edita el comentario con los datos limpios'), async () => {
     calificacionesService.editarComentario.mockResolvedValue({ id: 'c1' });
     const res = crearRes();
 
@@ -173,7 +174,7 @@ describe('editarComentario', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'c1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-CAL-009', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Calificación no encontrada');
     calificacionesService.editarComentario.mockRejectedValue(error);
     const next = jest.fn();
@@ -189,7 +190,7 @@ describe('editarComentario', () => {
 });
 
 describe('reputacion', () => {
-  it('devuelve la reputación del prestador', async () => {
+  it(caso('TC-CAL-010', 'devuelve la reputación del prestador'), async () => {
     calificacionesService.obtenerReputacion.mockResolvedValue({ promedio: 4.5 });
     const res = crearRes();
 
@@ -203,7 +204,7 @@ describe('reputacion', () => {
     expect(res.json).toHaveBeenCalledWith({ promedio: 4.5 });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-CAL-011', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Prestador no encontrado');
     calificacionesService.obtenerReputacion.mockRejectedValue(error);
     const next = jest.fn();
@@ -219,7 +220,7 @@ describe('reputacion', () => {
 });
 
 describe('listarPorPrestador', () => {
-  it('devuelve las calificaciones públicas del prestador', async () => {
+  it(caso('TC-CAL-012', 'devuelve las calificaciones públicas del prestador'), async () => {
     calificacionesService.listarCalificacionesPrestador.mockResolvedValue([
       { id: 'c1' },
     ]);
@@ -237,7 +238,7 @@ describe('listarPorPrestador', () => {
     expect(res.json).toHaveBeenCalledWith([{ id: 'c1' }]);
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-CAL-013', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Prestador no encontrado');
     calificacionesService.listarCalificacionesPrestador.mockRejectedValue(error);
     const next = jest.fn();
@@ -253,7 +254,7 @@ describe('listarPorPrestador', () => {
 });
 
 describe('listarTodas', () => {
-  it('devuelve todas las calificaciones', async () => {
+  it(caso('TC-CAL-014', 'devuelve todas las calificaciones'), async () => {
     calificacionesService.listarTodasLasCalificaciones.mockResolvedValue([
       { id: 'c1' },
       { id: 'c2' },
@@ -265,7 +266,7 @@ describe('listarTodas', () => {
     expect(res.json).toHaveBeenCalledWith([{ id: 'c1' }, { id: 'c2' }]);
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-CAL-015', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('falla');
     calificacionesService.listarTodasLasCalificaciones.mockRejectedValue(error);
     const next = jest.fn();
@@ -281,7 +282,7 @@ describe('moderar', () => {
     ['falta', undefined],
     ['son solo espacios', '   '],
     ['es demasiado largo', 'a'.repeat(201)],
-  ])('responde 400 si el motivo %s', async (_descripcion, motivo) => {
+  ])(caso('TC-CAL-016', 'responde 400 si el motivo %s'), async (_descripcion, motivo) => {
     const res = crearRes();
 
     await calificacionesController.moderar(
@@ -297,7 +298,7 @@ describe('moderar', () => {
     expect(calificacionesService.moderarCalificacion).not.toHaveBeenCalled();
   });
 
-  it('modera la calificación con el motivo limpio', async () => {
+  it(caso('TC-CAL-017', 'modera la calificación con el motivo limpio'), async () => {
     calificacionesService.moderarCalificacion.mockResolvedValue({ id: 'c1' });
     const res = crearRes();
 
@@ -314,7 +315,7 @@ describe('moderar', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'c1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-CAL-018', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('La calificación ya fue moderada');
     calificacionesService.moderarCalificacion.mockRejectedValue(error);
     const next = jest.fn();

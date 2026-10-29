@@ -4,6 +4,7 @@ jest.mock('../src/services/prestadoresService', () => ({
 
 const prestadoresService = require('../src/services/prestadoresService');
 const prestadoresController = require('../src/controllers/prestadoresController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -18,7 +19,7 @@ beforeEach(() => {
 });
 
 describe('misCalificaciones', () => {
-  it('devuelve las calificaciones del prestador autenticado', async () => {
+  it(caso('TC-PRE-057', 'devuelve las calificaciones del prestador autenticado'), async () => {
     prestadoresService.listarMisCalificaciones.mockResolvedValue([{ id: 'k1' }]);
     const res = crearRes();
 
@@ -28,7 +29,7 @@ describe('misCalificaciones', () => {
     expect(res.json).toHaveBeenCalledWith([{ id: 'k1' }]);
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-PRE-058', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Perfil de prestador no encontrado');
     prestadoresService.listarMisCalificaciones.mockRejectedValue(error);
     const next = jest.fn();

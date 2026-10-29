@@ -10,6 +10,7 @@ jest.mock('../src/services/calificacionesService', () => ({
 const prisma = require('../src/config/prisma');
 const calificacionesService = require('../src/services/calificacionesService');
 const prestadoresService = require('../src/services/prestadoresService');
+const { caso } = require('./qase/qase');
 
 const prestadorBase = {
   id: 'p1',
@@ -43,7 +44,7 @@ beforeEach(() => {
 });
 
 describe('obtenerDetallePrestador', () => {
-  it('devuelve la ficha con contacto, reputación y comentarios', async () => {
+  it(caso('TC-PRE-047', 'devuelve la ficha con contacto, reputación y comentarios'), async () => {
     prisma.prestador.findFirst.mockResolvedValue(prestadorBase);
     calificacionesService.obtenerReputacion.mockResolvedValue({
       prestadorId: 'p1',
@@ -74,7 +75,7 @@ describe('obtenerDetallePrestador', () => {
     });
   });
 
-  it('no devuelve datos internos ni el email de la cuenta', async () => {
+  it(caso('TC-PRE-048', 'no devuelve datos internos ni el email de la cuenta'), async () => {
     prisma.prestador.findFirst.mockResolvedValue(prestadorBase);
     calificacionesService.obtenerReputacion.mockResolvedValue({
       prestadorId: 'p1',
@@ -92,7 +93,7 @@ describe('obtenerDetallePrestador', () => {
     expect(detalle.reputacion).not.toHaveProperty('prestadorId');
   });
 
-  it('busca solo prestadores activos y con usuario activo', async () => {
+  it(caso('TC-PRE-049', 'busca solo prestadores activos y con usuario activo'), async () => {
     prisma.prestador.findFirst.mockResolvedValue(prestadorBase);
     calificacionesService.obtenerReputacion.mockResolvedValue({
       prestadorId: 'p1',
@@ -111,7 +112,7 @@ describe('obtenerDetallePrestador', () => {
     );
   });
 
-  it('devuelve promedio null y sin comentarios si todavía no tiene calificaciones', async () => {
+  it(caso('TC-PRE-050', 'devuelve promedio null y sin comentarios si todavía no tiene calificaciones'), async () => {
     prisma.prestador.findFirst.mockResolvedValue(prestadorBase);
     calificacionesService.obtenerReputacion.mockResolvedValue({
       prestadorId: 'p1',
@@ -128,7 +129,7 @@ describe('obtenerDetallePrestador', () => {
     expect(detalle.comentarios).toEqual([]);
   });
 
-  it('lanza 404 si el prestador no existe, está inactivo o su usuario está desactivado', async () => {
+  it(caso('TC-PRE-051', 'lanza 404 si el prestador no existe, está inactivo o su usuario está desactivado'), async () => {
     prisma.prestador.findFirst.mockResolvedValue(null);
 
     await expect(prestadoresService.obtenerDetallePrestador('p9')).rejects.toMatchObject({

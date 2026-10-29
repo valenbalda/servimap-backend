@@ -8,6 +8,7 @@ jest.mock('../src/services/solicitudesService', () => ({
 
 const solicitudesService = require('../src/services/solicitudesService');
 const solicitudesController = require('../src/controllers/solicitudesController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -39,7 +40,7 @@ describe('crear', () => {
   }
 
   it.each([undefined, '   ', 5])(
-    'responde 400 si el prestadorId es %p',
+    caso('TC-SOL-001', 'responde 400 si el prestadorId es %p'),
     async (prestadorId) => {
       const { res } = await crearConBody({ ...bodyValido, prestadorId });
 
@@ -50,7 +51,7 @@ describe('crear', () => {
   );
 
   it.each([undefined, '   ', 5])(
-    'responde 400 si el oficioId es %p',
+    caso('TC-SOL-002', 'responde 400 si el oficioId es %p'),
     async (oficioId) => {
       const { res } = await crearConBody({ ...bodyValido, oficioId });
 
@@ -61,7 +62,7 @@ describe('crear', () => {
   );
 
   it.each([undefined, '   ', 5])(
-    'responde 400 si la descripción es %p',
+    caso('TC-SOL-003', 'responde 400 si la descripción es %p'),
     async (descripcion) => {
       const { res } = await crearConBody({ ...bodyValido, descripcion });
 
@@ -71,7 +72,7 @@ describe('crear', () => {
     }
   );
 
-  it('responde 400 si la descripción supera los 1000 caracteres', async () => {
+  it(caso('TC-SOL-004', 'responde 400 si la descripción supera los 1000 caracteres'), async () => {
     const { res } = await crearConBody({
       ...bodyValido,
       descripcion: 'a'.repeat(1001),
@@ -84,7 +85,7 @@ describe('crear', () => {
     expect(solicitudesService.crearSolicitud).not.toHaveBeenCalled();
   });
 
-  it('responde 400 si la dirección no es texto', async () => {
+  it(caso('TC-SOL-005', 'responde 400 si la dirección no es texto'), async () => {
     const { res } = await crearConBody({ ...bodyValido, direccion: 5 });
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -92,7 +93,7 @@ describe('crear', () => {
     expect(solicitudesService.crearSolicitud).not.toHaveBeenCalled();
   });
 
-  it('responde 400 si el contacto preferido no es texto', async () => {
+  it(caso('TC-SOL-006', 'responde 400 si el contacto preferido no es texto'), async () => {
     const { res } = await crearConBody({ ...bodyValido, contactoPreferido: 5 });
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -102,14 +103,14 @@ describe('crear', () => {
     expect(solicitudesService.crearSolicitud).not.toHaveBeenCalled();
   });
 
-  it('responde 400 si el pedido no trae body', async () => {
+  it(caso('TC-SOL-007', 'responde 400 si el pedido no trae body'), async () => {
     const { res } = await crearConBody(undefined);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(solicitudesService.crearSolicitud).not.toHaveBeenCalled();
   });
 
-  it('crea la solicitud con los datos limpios y responde 201', async () => {
+  it(caso('TC-SOL-008', 'crea la solicitud con los datos limpios y responde 201'), async () => {
     solicitudesService.crearSolicitud.mockResolvedValue({ id: 's1' });
 
     const { res } = await crearConBody({
@@ -131,7 +132,7 @@ describe('crear', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 's1' });
   });
 
-  it('permite crear la solicitud sin dirección ni contacto preferido', async () => {
+  it(caso('TC-SOL-009', 'permite crear la solicitud sin dirección ni contacto preferido'), async () => {
     solicitudesService.crearSolicitud.mockResolvedValue({ id: 's1' });
 
     await crearConBody(bodyValido);
@@ -145,7 +146,7 @@ describe('crear', () => {
     });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-SOL-010', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('El prestador no existe');
     solicitudesService.crearSolicitud.mockRejectedValue(error);
 
@@ -161,7 +162,7 @@ describe.each([
   ['finalizar', 'finalizarSolicitud'],
   ['cancelar', 'cancelarSolicitud'],
 ])('%s', (accion, metodoServicio) => {
-  it('delega en el servicio con el usuario y la solicitud', async () => {
+  it(caso('TC-SOL-011', 'delega en el servicio con el usuario y la solicitud'), async () => {
     solicitudesService[metodoServicio].mockResolvedValue({ id: 's1' });
     const res = crearRes();
 
@@ -175,7 +176,7 @@ describe.each([
     expect(res.json).toHaveBeenCalledWith({ id: 's1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-SOL-012', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('La solicitud no es tuya');
     solicitudesService[metodoServicio].mockRejectedValue(error);
     const next = jest.fn();

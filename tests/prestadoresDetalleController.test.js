@@ -4,6 +4,7 @@ jest.mock('../src/services/prestadoresService', () => ({
 
 const prestadoresService = require('../src/services/prestadoresService');
 const prestadoresController = require('../src/controllers/prestadoresController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -17,7 +18,7 @@ beforeEach(() => {
 });
 
 describe('detalle', () => {
-  it('delega en el servicio con el id de la dirección y devuelve la ficha', async () => {
+  it(caso('TC-PRE-052', 'delega en el servicio con el id de la dirección y devuelve la ficha'), async () => {
     prestadoresService.obtenerDetallePrestador.mockResolvedValue({ id: 'p1' });
     const res = crearRes();
 
@@ -27,7 +28,7 @@ describe('detalle', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'p1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-PRE-053', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Prestador no encontrado');
     prestadoresService.obtenerDetallePrestador.mockRejectedValue(error);
     const next = jest.fn();

@@ -1,0 +1,28 @@
+{
+  "mode": "off",
+  "fallback": "report",
+  "testops": {
+    "run": {
+      "title": "ServiMap backend - Jest",
+      "description": "Tests unitarios y de integración del backend de ServiMap",
+      "complete": true
+    },
+    "batch": {
+      "size": 100
+    },
+    "api": {
+      "timeout": 20,
+      "retries": 2
+    },
+    "uploadAttachments": false
+  },
+  "report": {
+    "driver": "local",
+    "connection": {
+      "local": {
+        "path": "./build/qase-report",
+        "format": "json"
+      }
+    }
+  }
+}

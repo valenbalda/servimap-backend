@@ -6,6 +6,7 @@ jest.mock('../src/services/authService', ()=> ({
 
 const authService = require('../src/services/authService');
 const authController = require('../src/controllers/authController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -27,7 +28,7 @@ beforeEach(() => {
 });
 
 describe('register', () => {
-  it('responde 400 si falta algún dato', async () => {
+  it(caso('TC-AUTH-001', 'responde 400 si falta algún dato'), async () => {
     const res = crearRes();
 
     await authController.register(
@@ -41,7 +42,7 @@ describe('register', () => {
     expect(authService.registrarUsuario).not.toHaveBeenCalled();
   });
 
-  it('responde 400 si falta el DNI', async () => {
+  it(caso('TC-AUTH-002', 'responde 400 si falta el DNI'), async () => {
     const res = crearRes();
     const { dni, ...sinDni } = bodyValido;
 
@@ -52,7 +53,7 @@ describe('register', () => {
     expect(authService.registrarUsuario).not.toHaveBeenCalled();
   });
 
-  it('responde 400 si un dato no es texto',async () => {
+  it(caso('TC-AUTH-003', 'responde 400 si un dato no es texto'),async () => {
     const res = crearRes();
 
     await authController.register(
@@ -65,7 +66,7 @@ describe('register', () => {
     expect(authService.registrarUsuario).not.toHaveBeenCalled();
   });
 
-  it('responde 400 si el DNI llega como número y no como texto', async () => {
+  it(caso('TC-AUTH-004', 'responde 400 si el DNI llega como número y no como texto'), async () => {
     const res = crearRes();
 
     await authController.register(
@@ -79,7 +80,7 @@ describe('register', () => {
   });
 
   it.each(['1234567a', '123456', '123456789', 'abcdefgh', '12-345-678'])(
-    'responde 400 con el DNI inválido "%s"',
+    caso('TC-AUTH-005', 'responde 400 con el DNI inválido "%s"'),
     async (dni) => {
       const res = crearRes();
 
@@ -98,7 +99,7 @@ describe('register', () => {
   );
 
   it.each(['sin-arroba', 'a@b', 'a b@c.com', '@c.com'])(
-    'responde 400 con el email inválido "%s"',
+    caso('TC-AUTH-006', 'responde 400 con el email inválido "%s"'),
     async (email) => {
       const res = crearRes();
 
@@ -113,7 +114,7 @@ describe('register', () => {
     }
   );
 
-  it('responde 400 si la contraseña tiene menos de 8 caracteres', async () => {
+  it(caso('TC-AUTH-007', 'responde 400 si la contraseña tiene menos de 8 caracteres'), async () => {
     const res = crearRes();
 
     await authController.register(
@@ -128,7 +129,7 @@ describe('register', () => {
     });
   });
 
-  it('registra con los datos limpios y responde 201', async () => {
+  it(caso('TC-AUTH-008', 'registra con los datos limpios y responde 201'), async () => {
     authService.registrarUsuario.mockResolvedValue({ id: 'u1' });
     const res = crearRes();
 
@@ -146,7 +147,7 @@ describe('register', () => {
   });
 
   it.each(['12.345.678', '12 345 678', '12345678'])(
-    'guarda siempre el mismo DNI aunque se escriba como "%s"',
+    caso('TC-AUTH-009', 'guarda siempre el mismo DNI aunque se escriba como "%s"'),
     async (dni) => {
       authService.registrarUsuario.mockResolvedValue({ id: 'u1' });
 
@@ -162,7 +163,7 @@ describe('register', () => {
     }
   );
 
-  it('acepta un DNI que empieza con 9', async () => {
+  it(caso('TC-AUTH-010', 'acepta un DNI que empieza con 9'), async () => {
     authService.registrarUsuario.mockResolvedValue({ id: 'u1' });
     const res = crearRes();
 
@@ -178,7 +179,7 @@ describe('register', () => {
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-AUTH-011', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Ya existe una cuenta con ese DNI');
     authService.registrarUsuario.mockRejectedValue(error);
     const next = jest.fn();
@@ -190,7 +191,7 @@ describe('register', () => {
 });
 
 describe('login', () => {
-  it('responde 400 si falta el email o la contraseña', async () => {
+  it(caso('TC-AUTH-012', 'responde 400 si falta el email o la contraseña'), async () => {
     const res = crearRes();
 
     await authController.login(
@@ -204,7 +205,7 @@ describe('login', () => {
     expect(authService.iniciarSesion).not.toHaveBeenCalled();
   });
 
-  it('inicia sesión con el email en minúsculas y devuelve el resultado', async () => {
+  it(caso('TC-AUTH-013', 'inicia sesión con el email en minúsculas y devuelve el resultado'), async () => {
     authService.iniciarSesion.mockResolvedValue({ token: 'abc' });
     const res = crearRes();
 
@@ -221,7 +222,7 @@ describe('login', () => {
     expect(res.json).toHaveBeenCalledWith({token: 'abc' });
   });
 
-  it('no pide el DNI para iniciar sesión', async () => {
+  it(caso('TC-AUTH-014', 'no pide el DNI para iniciar sesión'), async () => {
     authService.iniciarSesion.mockResolvedValue({ token: 'abc' });
     const res = crearRes();
 
@@ -235,7 +236,7 @@ describe('login', () => {
     expect(authService.iniciarSesion).toHaveBeenCalledTimes(1);
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-AUTH-015', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Email o contraseña incorrectos');
     authService.iniciarSesion.mockRejectedValue(error);
     const next = jest.fn();
@@ -251,7 +252,7 @@ describe('login', () => {
 });
 
 describe('me', () => {
-  it('devuelve el perfil del usuario autenticado', async () => {
+  it(caso('TC-AUTH-016', 'devuelve el perfil del usuario autenticado'), async () => {
     authService.obtenerPerfil.mockResolvedValue({ id: 'u1' });
     const res = crearRes();
 
@@ -261,7 +262,7 @@ describe('me', () => {
     expect(res.json).toHaveBeenCalledWith({id: 'u1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-AUTH-017', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Usuario no encontrado');
     authService.obtenerPerfil.mockRejectedValue(error);
     const next = jest.fn();

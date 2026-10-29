@@ -7,6 +7,7 @@ jest.mock('../src/services/oficiosService', () => ({
 
 const oficiosService = require('../src/services/oficiosService');
 const oficiosController = require('../src/controllers/oficiosController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -20,7 +21,7 @@ beforeEach(() => {
 });
 
 describe('listar', () => {
-  it('devuelve los oficios activos', async () => {
+  it(caso('TC-OFI-001', 'devuelve los oficios activos'), async () => {
     oficiosService.listarOficios.mockResolvedValue([{ id: 'o1' }]);
     const res = crearRes();
 
@@ -30,7 +31,7 @@ describe('listar', () => {
     expect(res.json).toHaveBeenCalledWith([{ id: 'o1' }]);
   });
 
-  it('pasa el error al manejador de errores', async () => {
+  it(caso('TC-OFI-002', 'pasa el error al manejador de errores'), async () => {
     const error = new Error('falla');
     oficiosService.listarOficios.mockRejectedValue(error);
     const next = jest.fn();
@@ -42,7 +43,7 @@ describe('listar', () => {
 });
 
 describe('listarTodos', () => {
-  it('devuelve también los oficios inactivos', async () => {
+  it(caso('TC-OFI-003', 'devuelve también los oficios inactivos'), async () => {
     oficiosService.listarOficios.mockResolvedValue([{ id: 'o1' }, { id: 'o2' }]);
     const res = crearRes();
 
@@ -54,7 +55,7 @@ describe('listarTodos', () => {
     expect(res.json).toHaveBeenCalledWith([{ id: 'o1' }, { id: 'o2' }]);
   });
 
-  it('pasa el error al manejador de errores', async () => {
+  it(caso('TC-OFI-004', 'pasa el error al manejador de errores'), async () => {
     const error = new Error('falla');
     oficiosService.listarOficios.mockRejectedValue(error);
     const next = jest.fn();
@@ -67,7 +68,7 @@ describe('listarTodos', () => {
 
 describe('crear', () => {
   it.each([undefined, '   ', 123])(
-    'responde 400 si el nombre es %p',
+    caso('TC-OFI-005', 'responde 400 si el nombre es %p'),
     async (nombre) => {
       const res = crearRes();
 
@@ -79,7 +80,7 @@ describe('crear', () => {
     }
   );
 
-  it('responde 400 si la categoría no es texto', async () => {
+  it(caso('TC-OFI-006', 'responde 400 si la categoría no es texto'), async () => {
     const res = crearRes();
 
     await oficiosController.crear(
@@ -92,7 +93,7 @@ describe('crear', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'La categoría es inválida' });
   });
 
-  it('crea el oficio con los datos limpios y responde 201', async () => {
+  it(caso('TC-OFI-007', 'crea el oficio con los datos limpios y responde 201'), async () => {
     oficiosService.crearOficio.mockResolvedValue({ id: 'o1' });
     const res = crearRes();
 
@@ -110,7 +111,7 @@ describe('crear', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'o1' });
   });
 
-  it('permite crear un oficio sin categoría', async () => {
+  it(caso('TC-OFI-008', 'permite crear un oficio sin categoría'), async () => {
     oficiosService.crearOficio.mockResolvedValue({ id: 'o1' });
 
     await oficiosController.crear(
@@ -125,7 +126,7 @@ describe('crear', () => {
     });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-OFI-009', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Ya existe un oficio con ese nombre');
     oficiosService.crearOficio.mockRejectedValue(error);
     const next = jest.fn();
@@ -137,7 +138,7 @@ describe('crear', () => {
 });
 
 describe('actualizar', () => {
-  it.each(['', '   ', 123])('responde 400 si el nombre es %p', async (nombre) => {
+  it.each(['', '   ', 123])(caso('TC-OFI-010', 'responde 400 si el nombre es %p'), async (nombre) => {
     const res = crearRes();
 
     await oficiosController.actualizar(
@@ -151,7 +152,7 @@ describe('actualizar', () => {
     expect(oficiosService.actualizarOficio).not.toHaveBeenCalled();
   });
 
-  it('responde 400 si la categoría no es texto', async () => {
+  it(caso('TC-OFI-011', 'responde 400 si la categoría no es texto'), async () => {
     const res = crearRes();
 
     await oficiosController.actualizar(
@@ -164,7 +165,7 @@ describe('actualizar', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'La categoría es inválida' });
   });
 
-  it('responde 400 si no hay nada para actualizar', async () => {
+  it(caso('TC-OFI-012', 'responde 400 si no hay nada para actualizar'), async () => {
     const res = crearRes();
 
     await oficiosController.actualizar(
@@ -177,7 +178,7 @@ describe('actualizar', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'No hay datos para actualizar' });
   });
 
-  it('actualiza con los datos limpios y devuelve el oficio', async () => {
+  it(caso('TC-OFI-013', 'actualiza con los datos limpios y devuelve el oficio'), async () => {
     oficiosService.actualizarOficio.mockResolvedValue({ id: 'o1' });
     const res = crearRes();
 
@@ -194,7 +195,7 @@ describe('actualizar', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'o1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-OFI-014', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Oficio no encontrado');
     oficiosService.actualizarOficio.mockRejectedValue(error);
     const next = jest.fn();
@@ -211,7 +212,7 @@ describe('actualizar', () => {
 
 describe('cambiarEstado', () => {
   it.each(['true', 1, undefined])(
-    'responde 400 si activo es %p',
+    caso('TC-OFI-015', 'responde 400 si activo es %p'),
     async (activo) => {
       const res = crearRes();
 
@@ -229,7 +230,7 @@ describe('cambiarEstado', () => {
     }
   );
 
-  it('cambia el estado y devuelve el oficio', async () => {
+  it(caso('TC-OFI-016', 'cambia el estado y devuelve el oficio'), async () => {
     oficiosService.cambiarEstadoOficio.mockResolvedValue({ id: 'o1', activo: false });
     const res = crearRes();
 
@@ -243,7 +244,7 @@ describe('cambiarEstado', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'o1', activo: false });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-OFI-017', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Oficio no encontrado');
     oficiosService.cambiarEstadoOficio.mockRejectedValue(error);
     const next = jest.fn();

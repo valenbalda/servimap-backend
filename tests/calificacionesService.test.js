@@ -12,6 +12,7 @@ jest.mock('../src/config/prisma', () => ({
 
 const prisma = require('../src/config/prisma');
 const calificacionesService = require('../src/services/calificacionesService');
+const { caso } = require('./qase/qase');
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -33,7 +34,7 @@ describe('crearCalificacion', () => {
     calificacion: null,
   };
 
-  it('lanza 404 si la solicitud no existe', async () => {
+  it(caso('TC-CAL-019', 'lanza 404 si la solicitud no existe'), async () => {
     prisma.solicitud.findUnique.mockResolvedValue(null);
 
     await expect(
@@ -43,7 +44,7 @@ describe('crearCalificacion', () => {
     expect(prisma.calificacion.create).not.toHaveBeenCalled();
   });
 
-  it('lanza 403 si la solicitud es de otro cliente', async () => {
+  it(caso('TC-CAL-020', 'lanza 403 si la solicitud es de otro cliente'), async () => {
     prisma.solicitud.findUnique.mockResolvedValue({
       ...solicitudBase,
       clienteId: 'otro',
@@ -56,7 +57,7 @@ describe('crearCalificacion', () => {
     expect(prisma.calificacion.create).not.toHaveBeenCalled();
   });
 
-  it('lanza 409 si la solicitud no está finalizada', async () => {
+  it(caso('TC-CAL-021', 'lanza 409 si la solicitud no está finalizada'), async () => {
     prisma.solicitud.findUnique.mockResolvedValue({
       ...solicitudBase,
       estado: 'ACEPTADA',
@@ -69,7 +70,7 @@ describe('crearCalificacion', () => {
     expect(prisma.calificacion.create).not.toHaveBeenCalled();
   });
 
-  it('lanza 409 si la solicitud ya fue calificada', async () => {
+  it(caso('TC-CAL-022', 'lanza 409 si la solicitud ya fue calificada'), async () => {
     prisma.solicitud.findUnique.mockResolvedValue({
       ...solicitudBase,
       calificacion: { id: 'c1' },
@@ -82,7 +83,7 @@ describe('crearCalificacion', () => {
     expect(prisma.calificacion.create).not.toHaveBeenCalled();
   });
 
-  it('crea la calificación con el prestador de la solicitud', async () => {
+  it(caso('TC-CAL-023', 'crea la calificación con el prestador de la solicitud'), async () => {
     prisma.solicitud.findUnique.mockResolvedValue(solicitudBase);
     prisma.calificacion.create.mockResolvedValue({ id: 'c1' });
 
@@ -105,7 +106,7 @@ describe('editarComentario', () => {
   const datos = { clienteId: 'u1', calificacionId: 'c1', comentario: 'Nuevo' };
   const calificacionBase = { id: 'c1', clienteId: 'u1', moderada: false };
 
-  it('lanza 404 si la calificación no existe', async () => {
+  it(caso('TC-CAL-024', 'lanza 404 si la calificación no existe'), async () => {
     prisma.calificacion.findUnique.mockResolvedValue(null);
 
     await expect(
@@ -113,7 +114,7 @@ describe('editarComentario', () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
-  it('lanza 403 si la calificación es de otro cliente', async () => {
+  it(caso('TC-CAL-025', 'lanza 403 si la calificación es de otro cliente'), async () => {
     prisma.calificacion.findUnique.mockResolvedValue({
       ...calificacionBase,
       clienteId: 'otro',
@@ -126,7 +127,7 @@ describe('editarComentario', () => {
     expect(prisma.calificacion.update).not.toHaveBeenCalled();
   });
 
-  it('lanza 409 si la calificación está moderada', async () => {
+  it(caso('TC-CAL-026', 'lanza 409 si la calificación está moderada'), async () => {
     prisma.calificacion.findUnique.mockResolvedValue({
       ...calificacionBase,
       moderada: true,
@@ -139,7 +140,7 @@ describe('editarComentario', () => {
     expect(prisma.calificacion.update).not.toHaveBeenCalled();
   });
 
-  it('actualiza el comentario de la propia calificación', async () => {
+  it(caso('TC-CAL-027', 'actualiza el comentario de la propia calificación'), async () => {
     prisma.calificacion.findUnique.mockResolvedValue(calificacionBase);
     prisma.calificacion.update.mockResolvedValue({ id: 'c1', comentario: 'Nuevo' });
 
@@ -154,7 +155,7 @@ describe('editarComentario', () => {
 });
 
 describe('obtenerReputacion', () => {
-  it('lanza 404 si el prestador no existe', async () => {
+  it(caso('TC-CAL-028', 'lanza 404 si el prestador no existe'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(null);
 
     await expect(
@@ -162,7 +163,7 @@ describe('obtenerReputacion', () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
-  it('calcula el promedio redondeado a un decimal y los servicios finalizados', async () => {
+  it(caso('TC-CAL-029', 'calcula el promedio redondeado a un decimal y los servicios finalizados'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ id: 'p1' });
     prisma.calificacion.aggregate.mockResolvedValue({
       _avg: { puntaje: 4.666 },
@@ -183,7 +184,7 @@ describe('obtenerReputacion', () => {
     });
   });
 
-  it('devuelve promedio null si todavía no tiene calificaciones', async () => {
+  it(caso('TC-CAL-030', 'devuelve promedio null si todavía no tiene calificaciones'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ id: 'p1' });
     prisma.calificacion.aggregate.mockResolvedValue({
       _avg: { puntaje: null },
@@ -199,7 +200,7 @@ describe('obtenerReputacion', () => {
 });
 
 describe('listarCalificacionesPrestador', () => {
-  it('lanza 404 si el prestador no existe', async () => {
+  it(caso('TC-CAL-031', 'lanza 404 si el prestador no existe'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(null);
 
     await expect(
@@ -207,7 +208,7 @@ describe('listarCalificacionesPrestador', () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
-  it('lista solo las calificaciones no moderadas, las más nuevas primero', async () => {
+  it(caso('TC-CAL-032', 'lista solo las calificaciones no moderadas, las más nuevas primero'), async () => {
     prisma.prestador.findUnique.mockResolvedValue({ id: 'p1' });
     prisma.calificacion.findMany.mockResolvedValue([{ id: 'c1' }]);
 
@@ -228,7 +229,7 @@ describe('listarCalificacionesPrestador', () => {
 });
 
 describe('listarTodasLasCalificaciones', () => {
-  it('lista todas, incluidas las moderadas', async () => {
+  it(caso('TC-CAL-033', 'lista todas, incluidas las moderadas'), async () => {
     prisma.calificacion.findMany.mockResolvedValue([{ id: 'c1' }, { id: 'c2' }]);
 
     const lista = await calificacionesService.listarTodasLasCalificaciones();
@@ -241,7 +242,7 @@ describe('listarTodasLasCalificaciones', () => {
 });
 
 describe('moderarCalificacion', () => {
-  it('lanza 404 si la calificación no existe', async () => {
+  it(caso('TC-CAL-034', 'lanza 404 si la calificación no existe'), async () => {
     prisma.calificacion.findUnique.mockResolvedValue(null);
 
     await expect(
@@ -249,7 +250,7 @@ describe('moderarCalificacion', () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
-  it('lanza 409 si ya fue moderada', async () => {
+  it(caso('TC-CAL-035', 'lanza 409 si ya fue moderada'), async () => {
     prisma.calificacion.findUnique.mockResolvedValue({ id: 'c1', moderada: true });
 
     await expect(
@@ -259,7 +260,7 @@ describe('moderarCalificacion', () => {
     expect(prisma.calificacion.update).not.toHaveBeenCalled();
   });
 
-  it('marca la calificación como moderada con fecha y motivo', async () => {
+  it(caso('TC-CAL-036', 'marca la calificación como moderada con fecha y motivo'), async () => {
     prisma.calificacion.findUnique.mockResolvedValue({ id: 'c1', moderada: false });
     prisma.calificacion.update.mockResolvedValue({ id: 'c1', moderada: true });
 
