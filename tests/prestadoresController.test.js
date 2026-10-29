@@ -7,6 +7,7 @@ jest.mock('../src/services/prestadoresService', () => ({
 
 const prestadoresService = require('../src/services/prestadoresService');
 const prestadoresController = require('../src/controllers/prestadoresController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -22,7 +23,7 @@ beforeEach(() => {
 });
 
 describe('obtenerMiPerfil', () => {
-  it('devuelve el perfil del prestador autenticado', async () => {
+  it(caso('TC-PRE-001', 'devuelve el perfil del prestador autenticado'), async () => {
     prestadoresService.obtenerMiPerfil.mockResolvedValue({ id: 'p1' });
     const res = crearRes();
 
@@ -32,7 +33,7 @@ describe('obtenerMiPerfil', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'p1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-PRE-002', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Perfil de prestador no encontrado');
     prestadoresService.obtenerMiPerfil.mockRejectedValue(error);
     const next = jest.fn();
@@ -60,7 +61,7 @@ describe('actualizarMiPerfil', () => {
     'telefono',
     'whatsapp',
     'emailContacto',
-  ])('responde 400 si %s no es texto', async (campo) => {
+  ])(caso('TC-PRE-003', 'responde 400 si %s no es texto'), async (campo) => {
     const { res } = await actualizarConBody({ [campo]: 5 });
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -68,7 +69,7 @@ describe('actualizarMiPerfil', () => {
     expect(prestadoresService.actualizarMiPerfil).not.toHaveBeenCalled();
   });
 
-  it('responde 400 si el email de contacto no tiene arroba', async () => {
+  it(caso('TC-PRE-004', 'responde 400 si el email de contacto no tiene arroba'), async () => {
     const { res } = await actualizarConBody({ emailContacto: 'sin-arroba' });
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -86,7 +87,7 @@ describe('actualizarMiPerfil', () => {
     [{ precioMax: -1 }, 'El precio máximo debe ser un número mayor o igual a 0'],
     [{ precioMax: '5' }, 'El precio máximo debe ser un número mayor o igual a 0'],
     [{ disponible: 'si' }, 'El campo disponible debe ser true o false'],
-  ])('responde 400 con los datos %j', async (body, mensaje) => {
+  ])(caso('TC-PRE-005', 'responde 400 con los datos %j'), async (body, mensaje) => {
     const { res } = await actualizarConBody(body);
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -95,7 +96,7 @@ describe('actualizarMiPerfil', () => {
   });
 
   it.each([undefined, {}])(
-    'responde 400 si no hay datos para actualizar (%p)',
+    caso('TC-PRE-006', 'responde 400 si no hay datos para actualizar (%p)'),
     async (body) => {
       const { res } = await actualizarConBody(body);
 
@@ -105,7 +106,7 @@ describe('actualizarMiPerfil', () => {
     }
   );
 
-  it('actualiza con los datos limpios e ignora los campos que no se pueden editar', async () => {
+  it(caso('TC-PRE-007', 'actualiza con los datos limpios e ignora los campos que no se pueden editar'), async () => {
     prestadoresService.actualizarMiPerfil.mockResolvedValue({ id: 'p1' });
 
     const { res } = await actualizarConBody({
@@ -123,7 +124,7 @@ describe('actualizarMiPerfil', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'p1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-PRE-008', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('El precio mínimo no puede ser mayor al máximo');
     prestadoresService.actualizarMiPerfil.mockRejectedValue(error);
 
@@ -149,7 +150,7 @@ describe('asignarMisOficios', () => {
     [{ oficioIds: 'o1' }],
     [{ oficioIds: [5] }],
     [{ oficioIds: ['   '] }],
-  ])('responde 400 con el cuerpo %j', async (body) => {
+  ])(caso('TC-PRE-009', 'responde 400 con el cuerpo %j'), async (body) => {
     const { res } = await asignarConBody(body);
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -159,7 +160,7 @@ describe('asignarMisOficios', () => {
     expect(prestadoresService.asignarMisOficios).not.toHaveBeenCalled();
   });
 
-  it('asigna los oficios con los identificadores limpios', async () => {
+  it(caso('TC-PRE-010', 'asigna los oficios con los identificadores limpios'), async () => {
     prestadoresService.asignarMisOficios.mockResolvedValue({ id: 'p1' });
 
     const { res } = await asignarConBody({ oficioIds: [' o1 ', 'o2'] });
@@ -168,7 +169,7 @@ describe('asignarMisOficios', () => {
     expect(res.json).toHaveBeenCalledWith({ id: 'p1' });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-PRE-011', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Algún oficio no existe o está desactivado');
     prestadoresService.asignarMisOficios.mockRejectedValue(error);
 
@@ -206,7 +207,7 @@ describe('listar', () => {
     [{ limit: '51' }, 'limit debe ser un entero entre 1 y 50'],
     [{ limit: '2.5' }, 'limit debe ser un entero entre 1 y 50'],
     [{ limit: 'abc' }, 'limit debe ser un entero entre 1 y 50'],
-  ])('responde 400 con la consulta %j', async (query, mensaje) => {
+  ])(caso('TC-PRE-012', 'responde 400 con la consulta %j'), async (query, mensaje) => {
     const { res } = await listarConQuery(query);
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -214,7 +215,7 @@ describe('listar', () => {
     expect(prestadoresService.listarPrestadores).not.toHaveBeenCalled();
   });
 
-  it('sin filtros, busca con la consulta vacía y devuelve el resultado', async () => {
+  it(caso('TC-PRE-013', 'sin filtros, busca con la consulta vacía y devuelve el resultado'), async () => {
     prestadoresService.listarPrestadores.mockResolvedValue([{ id: 'p1' }]);
 
     const { res } = await listarConQuery({});
@@ -223,7 +224,7 @@ describe('listar', () => {
     expect(res.json).toHaveBeenCalledWith([{ id: 'p1' }]);
   });
 
-  it('pasa los filtros ya convertidos a número y sin espacios', async () => {
+  it(caso('TC-PRE-014', 'pasa los filtros ya convertidos a número y sin espacios'), async () => {
     prestadoresService.listarPrestadores.mockResolvedValue([]);
 
     await listarConQuery({
@@ -247,7 +248,7 @@ describe('listar', () => {
     });
   });
 
-  it('pasa el error del servicio al manejador de errores', async () => {
+  it(caso('TC-PRE-015', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Falló la consulta');
     prestadoresService.listarPrestadores.mockRejectedValue(error);
 

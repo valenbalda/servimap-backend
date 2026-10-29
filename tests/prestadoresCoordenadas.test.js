@@ -10,6 +10,7 @@ jest.mock('../src/services/calificacionesService', () => ({
 const prisma = require('../src/config/prisma');
 const calificacionesService = require('../src/services/calificacionesService');
 const prestadoresService = require('../src/services/prestadoresService');
+const { caso } = require('./qase/qase');
 
 function crearPrestador(id, latitud, longitud) {
   return {
@@ -44,7 +45,7 @@ beforeEach(() => {
 });
 
 describe('ubicación aproximada', () => {
-  it('el listado devuelve las coordenadas redondeadas a 2 decimales', async () => {
+  it(caso('TC-PRE-042', 'el listado devuelve las coordenadas redondeadas a 2 decimales'), async () => {
     prisma.prestador.findMany.mockResolvedValue([crearPrestador('p1', '-34.603722', '-58.381592')]);
 
     const [prestador] = await prestadoresService.listarPrestadores();
@@ -53,7 +54,7 @@ describe('ubicación aproximada', () => {
     expect(prestador.longitud).toBe(-58.38);
   });
 
-  it('la ficha devuelve las coordenadas redondeadas a 2 decimales', async () => {
+  it(caso('TC-PRE-043', 'la ficha devuelve las coordenadas redondeadas a 2 decimales'), async () => {
     prisma.prestador.findFirst.mockResolvedValue(crearPrestador('p1', '-34.603722', '-58.381592'));
 
     const detalle = await prestadoresService.obtenerDetallePrestador('p1');
@@ -62,7 +63,7 @@ describe('ubicación aproximada', () => {
     expect(detalle.longitud).toBe(-58.38);
   });
 
-  it('el perfil propio sigue devolviendo la coordenada exacta', async () => {
+  it(caso('TC-PRE-044', 'el perfil propio sigue devolviendo la coordenada exacta'), async () => {
     prisma.prestador.findUnique.mockResolvedValue(crearPrestador('p1', '-34.603722', '-58.381592'));
 
     const perfil = await prestadoresService.obtenerMiPerfil('u-p1');
@@ -71,7 +72,7 @@ describe('ubicación aproximada', () => {
     expect(perfil.longitud).toBe(-58.381592);
   });
 
-  it('un prestador sin coordenadas las sigue devolviendo como null', async () => {
+  it(caso('TC-PRE-045', 'un prestador sin coordenadas las sigue devolviendo como null'), async () => {
     prisma.prestador.findMany.mockResolvedValue([crearPrestador('p1', null, null)]);
 
     const [prestador] = await prestadoresService.listarPrestadores();
@@ -80,7 +81,7 @@ describe('ubicación aproximada', () => {
     expect(prestador.longitud).toBeNull();
   });
 
-  it('la distancia se calcula con la coordenada aproximada y no con la exacta', async () => {
+  it(caso('TC-PRE-046', 'la distancia se calcula con la coordenada aproximada y no con la exacta'), async () => {
     // Las dos ubicaciones difieren en ~500 m, pero se redondean al mismo punto.
     prisma.prestador.findMany.mockResolvedValue([
       crearPrestador('p1', '-34.6001', '-58.4'),

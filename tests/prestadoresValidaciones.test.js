@@ -5,6 +5,7 @@ jest.mock('../src/services/prestadoresService', () => ({
 
 const prestadoresService = require('../src/services/prestadoresService');
 const prestadoresController = require('../src/controllers/prestadoresController');
+const { caso } = require('./qase/qase');
 
 function crearRes() {
   const res = {};
@@ -30,7 +31,7 @@ describe('validaciones del perfil (RF-04)', () => {
     return res;
   }
 
-  it.each(['', '   '])('responde 400 si la descripción profesional está vacía (%j)', async (valor) => {
+  it.each(['', '   '])(caso('TC-PRE-016', 'responde 400 si la descripción profesional está vacía (%j)'), async (valor) => {
     const res = await actualizarConBody({ descripcionProfesional: valor });
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -45,7 +46,7 @@ describe('validaciones del perfil (RF-04)', () => {
     ['telefono', '123', 'El teléfono es inválido'],
     ['whatsapp', '11-22-ab', 'El WhatsApp es inválido'],
     ['whatsapp', '1'.repeat(30), 'El WhatsApp es inválido'],
-  ])('responde 400 si %s es %j', async (campo, valor, mensaje) => {
+  ])(caso('TC-PRE-017', 'responde 400 si %s es %j'), async (campo, valor, mensaje) => {
     const res = await actualizarConBody({ [campo]: valor });
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -54,7 +55,7 @@ describe('validaciones del perfil (RF-04)', () => {
   });
 
   it.each(['1122334455', '+54 11 2233-4455', '011 4444-5555'])(
-    'acepta el teléfono %s',
+    caso('TC-PRE-018', 'acepta el teléfono %s'),
     async (telefono) => {
       const res = await actualizarConBody({ telefono });
 
@@ -63,7 +64,7 @@ describe('validaciones del perfil (RF-04)', () => {
     }
   );
 
-  it('acepta una descripción con texto y la guarda sin espacios sobrantes', async () => {
+  it(caso('TC-PRE-019', 'acepta una descripción con texto y la guarda sin espacios sobrantes'), async () => {
     await actualizarConBody({ descripcionProfesional: '  Plomero con experiencia  ' });
 
     expect(prestadoresService.actualizarMiPerfil).toHaveBeenCalledWith('u1', {
@@ -81,7 +82,7 @@ describe('filtro por disponibilidad en el listado', () => {
     return res;
   }
 
-  it.each(['si', '1', 'TRUE', ''])('responde 400 con disponible=%j', async (disponible) => {
+  it.each(['si', '1', 'TRUE', ''])(caso('TC-PRE-020', 'responde 400 con disponible=%j'), async (disponible) => {
     const res = await listarConQuery({ disponible });
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -92,13 +93,13 @@ describe('filtro por disponibilidad en el listado', () => {
   it.each([
     ['true', true],
     ['false', false],
-  ])('pasa disponible=%s como %s', async (texto, valor) => {
+  ])(caso('TC-PRE-021', 'pasa disponible=%s como %s'), async (texto, valor) => {
     await listarConQuery({ disponible: texto });
 
     expect(prestadoresService.listarPrestadores).toHaveBeenCalledWith({ disponible: valor });
   });
 
-  it('sin el parámetro, no manda ningún filtro de disponibilidad', async () => {
+  it(caso('TC-PRE-022', 'sin el parámetro, no manda ningún filtro de disponibilidad'), async () => {
     await listarConQuery({});
 
     expect(prestadoresService.listarPrestadores).toHaveBeenCalledWith({});
