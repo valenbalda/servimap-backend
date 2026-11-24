@@ -1,6 +1,7 @@
 jest.mock('../src/config/prisma', () => ({
   oficio: {
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     findMany: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -49,7 +50,7 @@ describe('listarOficios', () => {
 
 describe('crearOficio', () => {
   it(caso('TC-OFI-020', 'rechaza un nombre que ya existe con 409'), async () => {
-    prisma.oficio.findUnique.mockResolvedValue(oficioBase);
+    prisma.oficio.findFirst.mockResolvedValue(oficioBase);
 
     await expect(
       oficiosService.crearOficio({ nombre: 'Plomería', categoria: 'Hogar' })
@@ -59,7 +60,7 @@ describe('crearOficio', () => {
   });
 
   it(caso('TC-OFI-021', 'crea el oficio si el nombre está libre'), async () => {
-    prisma.oficio.findUnique.mockResolvedValue(null);
+    prisma.oficio.findFirst.mockResolvedValue(null);
     prisma.oficio.create.mockResolvedValue(oficioBase);
 
     const oficio = await oficiosService.crearOficio({
@@ -71,6 +72,19 @@ describe('crearOficio', () => {
       data: { nombre: 'Plomería', categoria: 'Hogar' },
     });
     expect(oficio).toEqual(oficioBase);
+  });
+
+  it(caso('TC-OFI-028', 'rechaza con 409 un nombre que solo cambia en mayúsculas o minúsculas'), async () => {
+    prisma.oficio.findFirst.mockResolvedValue(oficioBase);
+
+    await expect(
+      oficiosService.crearOficio({ nombre: 'PLOMERÍA', categoria: 'Hogar' })
+    ).rejects.toMatchObject({ status: 409 });
+
+    expect(prisma.oficio.findFirst).toHaveBeenCalledWith({
+      where: { nombre: { equals: 'PLOMERÍA', mode: 'insensitive' } },
+    });
+    expect(prisma.oficio.create).not.toHaveBeenCalled();
   });
 });
 
@@ -86,9 +100,8 @@ describe('actualizarOficio', () => {
   });
 
   it(caso('TC-OFI-023', 'rechaza un nombre que ya usa otro oficio con 409'), async () => {
-    prisma.oficio.findUnique.mockImplementation(async ({ where }) =>
-      where.id ? oficioBase : { id: 'o2', nombre: where.nombre }
-    );
+    prisma.oficio.findUnique.mockResolvedValue(oficioBase);
+    prisma.oficio.findFirst.mockResolvedValue({ id: 'o2', nombre: 'Gas' });
 
     await expect(
       oficiosService.actualizarOficio('o1', { nombre: 'Gas' })
@@ -107,6 +120,7 @@ describe('actualizarOficio', () => {
     });
 
     expect(prisma.oficio.findUnique).toHaveBeenCalledTimes(1);
+    expect(prisma.oficio.findFirst).not.toHaveBeenCalled();
     expect(prisma.oficio.update).toHaveBeenCalledWith({
       where: { id: 'o1' },
       data: { nombre: 'Plomería', categoria: 'Obra' },
@@ -114,14 +128,38 @@ describe('actualizarOficio', () => {
   });
 
   it(caso('TC-OFI-025', 'actualiza el oficio con un nombre nuevo disponible'), async () => {
-    prisma.oficio.findUnique.mockImplementation(async ({ where }) =>
-      where.id ? oficioBase : null
-    );
+    prisma.oficio.findUnique.mockResolvedValue(oficioBase);
+    prisma.oficio.findFirst.mockResolvedValue(null);
     prisma.oficio.update.mockResolvedValue({ ...oficioBase, nombre: 'Gas' });
 
     const oficio = await oficiosService.actualizarOficio('o1', { nombre: 'Gas' });
 
     expect(oficio.nombre).toBe('Gas');
+    expect(prisma.oficio.update).toHaveBeenCalledTimes(1);
+  });
+
+  it(caso('TC-OFI-029', 'rechaza con 409 un nombre que solo cambia en mayúsculas respecto de otro oficio'), async () => {
+    prisma.oficio.findUnique.mockResolvedValue(oficioBase);
+    prisma.oficio.findFirst.mockResolvedValue({ id: 'o2', nombre: 'Gas' });
+
+    await expect(
+      oficiosService.actualizarOficio('o1', { nombre: 'GAS' })
+    ).rejects.toMatchObject({ status: 409 });
+
+    expect(prisma.oficio.findFirst).toHaveBeenCalledWith({
+      where: { nombre: { equals: 'GAS', mode: 'insensitive' }, NOT: { id: 'o1' } },
+    });
+    expect(prisma.oficio.update).not.toHaveBeenCalled();
+  });
+
+  it(caso('TC-OFI-030', 'permite cambiar solo las mayúsculas del nombre del propio oficio'), async () => {
+    prisma.oficio.findUnique.mockResolvedValue(oficioBase);
+    prisma.oficio.findFirst.mockResolvedValue(null);
+    prisma.oficio.update.mockResolvedValue({ ...oficioBase, nombre: 'PLOMERÍA' });
+
+    const oficio = await oficiosService.actualizarOficio('o1', { nombre: 'PLOMERÍA' });
+
+    expect(oficio.nombre).toBe('PLOMERÍA');
     expect(prisma.oficio.update).toHaveBeenCalledTimes(1);
   });
 });
