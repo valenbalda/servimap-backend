@@ -93,8 +93,22 @@ describe('listarMarcadores', () => {
     await mapaService.listarMarcadores();
 
     expect(prisma.calificacion.groupBy).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { prestadorId: { in: ['p1', 'p2'] } } })
+      expect.objectContaining({ where: { prestadorId: { in: ['p1', 'p2'] }, moderada: false } })
     );
+  });
+
+  it(caso('TC-MAPA-011', 'no cuenta las calificaciones moderadas en el promedio del marcador'), async () => {
+    prisma.prestador.findMany.mockResolvedValue([crearPrestador('p1', 'Ana')]);
+    prisma.calificacion.groupBy.mockResolvedValue([]);
+
+    const marcadores = await mapaService.listarMarcadores();
+
+    expect(prisma.calificacion.groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ moderada: false }),
+      })
+    );
+    expect(marcadores[0].promedio).toBeNull();
   });
 
   it(caso('TC-MAPA-010', 'devuelve una lista vacía sin consultar los promedios si no hay prestadores'), async () => {

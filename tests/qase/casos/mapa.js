@@ -15,6 +15,7 @@ module.exports = definirCasos(
     nuevo('TC-MAPA-007', 'Filtro por oficio', 'Con oficioId solo se muestran los que ofrecen ese oficio.', ['Llamar a listarMarcadores({ oficioId })'], 'La consulta filtra por ese oficio activo.', { precondiciones: PRE_SRV, rf: ['RF-05', 'RF-06'] }),
     nuevo('TC-MAPA-008', 'Promedio sin calificaciones', 'Un prestador sin calificaciones tiene promedio null.', ['Simular promedios vacíos', 'Llamar a listarMarcadores'], 'promedio null.', { precondiciones: PRE_SRV, rf: ['RF-05', 'RF-19'] }),
     nuevo('TC-MAPA-009', 'Promedios solo de los encontrados', 'Los promedios se piden en una sola consulta para los prestadores encontrados.', ['Llamar a listarMarcadores'], 'groupBy se llama con los ids de los prestadores devueltos.', { precondiciones: PRE_SRV }),
+    nuevo('TC-MAPA-011', 'Promedio del mapa sin calificaciones moderadas', 'El promedio del marcador no cuenta las calificaciones que el administrador ocultó.', ['Llamar a listarMarcadores'], 'groupBy filtra moderada = false.', { precondiciones: PRE_SRV, ...CENTRAL, rf: ['RF-05', 'RF-19', 'RF-23'] }),
     nuevo('TC-MAPA-010', 'Mapa vacío', 'Sin prestadores no se consultan los promedios.', ['Simular que no hay prestadores', 'Llamar a listarMarcadores'], 'Devuelve [] y no llama a groupBy.', { precondiciones: PRE_SRV }),
   ]
 );

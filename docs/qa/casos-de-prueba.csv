@@ -859,6 +859,11 @@ Test automatizado: tests/mapaService.test.js › devuelve promedio null si el pr
 Rol: Visitante. Requerimiento: RF-05. Capa: Unitario.
 
 Test automatizado: tests/mapaService.test.js › pide los promedios solo de los prestadores encontrados",mapaService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-MAPA-009,RF-05,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarMarcadores""","1. ""groupBy se llama con los ids de los prestadores devueltos.""",,,,19,,Mapa,,
+,TC-MAPA-011 Promedio del mapa sin calificaciones moderadas,"TC-MAPA-011 — El promedio del marcador no cuenta las calificaciones que el administrador ocultó.
+
+Rol: Visitante. Requerimiento: RF-05, RF-19, RF-23. Capa: Unitario.
+
+Test automatizado: tests/mapaService.test.js › no cuenta las calificaciones moderadas en el promedio del marcador",mapaService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-MAPA-011,RF-05,RF-19,RF-23,rol:Visitante,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarMarcadores""","1. ""groupBy filtra moderada = false.""",,,,19,,Mapa,,
 156,TC-MAPA-010 Mapa vacío,"TC-MAPA-010 — Sin prestadores no se consultan los promedios.
 
 Rol: Visitante. Requerimiento: RF-05. Capa: Unitario.
@@ -1303,6 +1308,18 @@ Rol: Visitante. Requerimiento: RF-19. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › devuelve promedio null si todavía no tiene calificaciones",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-030,RF-19,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular promedio null""
 2. ""Llamar a obtenerReputacion""","2. ""promedio null.""",,,,26,,Calificaciones: servicio,,
+,TC-CAL-037 Reputación sin calificaciones moderadas,"TC-CAL-037 — El promedio y el total de calificaciones no cuentan las que el administrador ocultó.
+
+Rol: Visitante. Requerimiento: RF-19, RF-23. Capa: Unitario.
+
+Test automatizado: tests/calificacionesService.test.js › no cuenta las calificaciones moderadas en el promedio ni en el total",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-037,RF-19,RF-23,rol:Visitante,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Simular un prestador existente""
+2. ""Llamar a obtenerReputacion""","2. ""La consulta de agregados filtra moderada = false.""",,,,26,,Calificaciones: servicio,,
+,TC-CAL-038 Reputación con todas las calificaciones moderadas,"TC-CAL-038 — Si todas las calificaciones del prestador están ocultas, el promedio es null y el total 0, pero se siguen contando los servicios finalizados.
+
+Rol: Visitante. Requerimiento: RF-19, RF-20, RF-23. Capa: Unitario.
+
+Test automatizado: tests/calificacionesService.test.js › devuelve promedio null y total 0 si todas sus calificaciones están moderadas",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-038,RF-19,RF-20,RF-23,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular agregados vacíos y solicitudes finalizadas""
+2. ""Llamar a obtenerReputacion""","2. ""Devuelve promedio null, totalCalificaciones 0 y los serviciosFinalizados.""",,,,26,,Calificaciones: servicio,,
 235,TC-CAL-031 Calificaciones de prestador inexistente,"TC-CAL-031 — Lanza 404 si el prestador no existe.
 
 Rol: Visitante. Requerimiento: RF-21. Capa: Unitario.

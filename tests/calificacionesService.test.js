@@ -197,6 +197,39 @@ describe('obtenerReputacion', () => {
     expect(reputacion.promedio).toBeNull();
     expect(reputacion.totalCalificaciones).toBe(0);
   });
+
+  it(caso('TC-CAL-037', 'no cuenta las calificaciones moderadas en el promedio ni en el total'), async () => {
+    prisma.prestador.findUnique.mockResolvedValue({ id: 'p1' });
+    prisma.calificacion.aggregate.mockResolvedValue({
+      _avg: { puntaje: 5 },
+      _count: { puntaje: 1 },
+    });
+    prisma.solicitud.count.mockResolvedValue(2);
+
+    await calificacionesService.obtenerReputacion('p1');
+
+    expect(prisma.calificacion.aggregate).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { prestadorId: 'p1', moderada: false } })
+    );
+  });
+
+  it(caso('TC-CAL-038', 'devuelve promedio null y total 0 si todas sus calificaciones están moderadas'), async () => {
+    prisma.prestador.findUnique.mockResolvedValue({ id: 'p1' });
+    prisma.calificacion.aggregate.mockResolvedValue({
+      _avg: { puntaje: null },
+      _count: { puntaje: 0 },
+    });
+    prisma.solicitud.count.mockResolvedValue(3);
+
+    const reputacion = await calificacionesService.obtenerReputacion('p1');
+
+    expect(reputacion).toEqual({
+      prestadorId: 'p1',
+      promedio: null,
+      totalCalificaciones: 0,
+      serviciosFinalizados: 3,
+    });
+  });
 });
 
 describe('listarCalificacionesPrestador', () => {

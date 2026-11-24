@@ -42,7 +42,10 @@ async function listarMarcadores({ oficioId } = {}) {
   // Un solo pedido a la base trae el promedio de todos los prestadores encontrados.
   const promedios = await prisma.calificacion.groupBy({
     by: ['prestadorId'],
-    where: { prestadorId: { in: prestadores.map((prestador) => prestador.id) } },
+    where: {
+      prestadorId: { in: prestadores.map((prestador) => prestador.id) },
+      moderada: false,
+    },
     _avg: { puntaje: true },
   });
   const promedioPorPrestador = new Map(
