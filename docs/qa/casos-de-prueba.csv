@@ -488,6 +488,24 @@ Test automatizado: tests/oficiosService.test.js › no busca duplicados si el no
 Rol: Administrador. Requerimiento: RF-22. Capa: Unitario.
 
 Test automatizado: tests/oficiosService.test.js › actualiza el oficio con un nombre nuevo disponible",oficiosService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-OFI-025,RF-22,rol:Administrador,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a actualizarOficio con un nombre libre""","1. ""Se llama a prisma.oficio.update.""",,,,10,,Oficios: servicio,,
+,TC-OFI-028 Alta sin distinguir mayúsculas,"TC-OFI-028 — No se crea un oficio cuyo nombre solo se diferencia en mayúsculas o minúsculas de uno existente (Plomería / PLOMERÍA).
+
+Rol: Administrador. Requerimiento: RF-22. Capa: Unitario.
+
+Test automatizado: tests/oficiosService.test.js › rechaza con 409 un nombre que solo cambia en mayúsculas o minúsculas",oficiosService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-OFI-028,RF-22,rol:Administrador,capa:unitario",high,major,functional,negative,automated,actual,no,unit,classic,"1. ""Simular un oficio existente""
+2. ""Llamar a crearOficio con el mismo nombre en mayúsculas""","2. ""Lanza 409, la búsqueda es insensible a mayúsculas y no crea.""",,,,10,,Oficios: servicio,,
+,TC-OFI-029 Edición sin distinguir mayúsculas,"TC-OFI-029 — No se puede renombrar un oficio con un nombre que solo se diferencia en mayúsculas del de otro.
+
+Rol: Administrador. Requerimiento: RF-22. Capa: Unitario.
+
+Test automatizado: tests/oficiosService.test.js › rechaza con 409 un nombre que solo cambia en mayúsculas respecto de otro oficio",oficiosService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-OFI-029,RF-22,rol:Administrador,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Simular otro oficio con ese nombre""
+2. ""Llamar a actualizarOficio con el nombre en mayúsculas""","2. ""Lanza 409, la búsqueda excluye al propio oficio y no actualiza.""",,,,10,,Oficios: servicio,,
+,TC-OFI-030 Cambiar solo mayúsculas del propio nombre,"TC-OFI-030 — El administrador puede corregir las mayúsculas del nombre de un oficio sin chocar consigo mismo.
+
+Rol: Administrador. Requerimiento: RF-22. Capa: Unitario.
+
+Test automatizado: tests/oficiosService.test.js › permite cambiar solo las mayúsculas del nombre del propio oficio",oficiosService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-OFI-030,RF-22,rol:Administrador,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular que no hay otro oficio con ese nombre""
+2. ""Llamar a actualizarOficio con el nombre en mayúsculas""","2. ""Se actualiza el oficio.""",,,,10,,Oficios: servicio,,
 87,TC-OFI-026 Cambiar estado de oficio inexistente,"TC-OFI-026 — cambiarEstadoOficio lanza 404 si no existe.
 
 Rol: Administrador. Requerimiento: RF-22. Capa: Unitario.
@@ -1576,6 +1594,12 @@ Test automatizado: tests/integration/administrador.integration.test.js › crea 
 Rol: Administrador. Requerimiento: RF-22. Capa: Integración.
 
 Test automatizado: tests/integration/administrador.integration.test.js › responde 409 si ya existe un oficio con ese nombre","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-002,RF-22,rol:Administrador,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""POST /api/oficios con el nombre de un oficio existente""","1. ""409 y sigue habiendo un solo oficio con ese nombre.""",,,,30,,Flujo del administrador,,
+,TC-INT-ADM-009 Oficio con nombre duplicado en minúsculas,"TC-INT-ADM-009 — No se pueden crear dos oficios que solo se diferencian en mayúsculas o minúsculas.
+
+Rol: Administrador. Requerimiento: RF-22. Capa: Integración.
+
+Test automatizado: tests/integration/administrador.integration.test.js › responde 409 si el nombre solo cambia en mayúsculas o minúsculas","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-009,RF-22,rol:Administrador,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""POST /api/oficios con el nombre de un oficio existente escrito en minúsculas""
+2. ""Contar los oficios con ese nombre""","2. ""409 y sigue habiendo un solo oficio con ese nombre, sin importar las mayúsculas.""",,,,30,,Flujo del administrador,,
 278,TC-INT-ADM-003 Editar oficio,"TC-INT-ADM-003 — El administrador cambia el nombre y la categoría de un oficio.
 
 Rol: Administrador. Requerimiento: RF-22. Capa: Integración.

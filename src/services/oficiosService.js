@@ -14,6 +14,17 @@ async function buscarOficio(id) {
   return oficio;
 }
 
+// Busca un oficio por nombre sin distinguir mayúsculas de minúsculas (Plomería = plomería).
+// Con excluirId se ignora el oficio que se está editando.
+async function buscarPorNombre(nombre, { excluirId } = {}) {
+  return prisma.oficio.findFirst({
+    where: {
+      nombre: { equals: nombre, mode: 'insensitive' },
+      ...(excluirId && { NOT: { id: excluirId } }),
+    },
+  });
+}
+
 async function listarOficios({ incluirInactivos = false } = {}) {
   return prisma.oficio.findMany({
     where: incluirInactivos ? {} : { activo: true },
@@ -22,7 +33,7 @@ async function listarOficios({ incluirInactivos = false } = {}) {
 }
 
 async function crearOficio({ nombre, categoria }) {
-  const existente = await prisma.oficio.findUnique({ where: { nombre } });
+  const existente = await buscarPorNombre(nombre);
   if (existente) {
     throw crearError('Ya existe un oficio con ese nombre', 409);
   }
@@ -34,7 +45,7 @@ async function actualizarOficio(id, { nombre, categoria }) {
   const oficio = await buscarOficio(id);
 
   if (nombre && nombre !== oficio.nombre) {
-    const existente = await prisma.oficio.findUnique({ where: { nombre } });
+    const existente = await buscarPorNombre(nombre, { excluirId: id });
     if (existente) {
       throw crearError('Ya existe un oficio con ese nombre', 409);
     }

@@ -2,7 +2,7 @@
 
 # Casos de prueba del backend
 
-Total: **292 casos** (243 unitarios y 49 de integración), todos automatizados.
+Total: **296 casos** (246 unitarios y 50 de integración), todos automatizados.
 Cada caso corresponde a un test real que lo referencia con `caso('TC-...', nombre)`.
 Un `it.each` es un solo caso con varios juegos de datos: cada uno se reporta como un resultado del mismo caso.
 
@@ -98,6 +98,9 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-OFI-023](#tc-ofi-023) | Nombre duplicado en la edición | Unitario | Oficios: servicio | Administrador | RF-22 | media | normal | funcional | Sí | 84 |
 | [TC-OFI-024](#tc-ofi-024) | Mismo nombre sin buscar duplicados | Unitario | Oficios: servicio | Administrador | RF-22 | media | normal | funcional | Sí | 85 |
 | [TC-OFI-025](#tc-ofi-025) | Edición con nombre nuevo | Unitario | Oficios: servicio | Administrador | RF-22 | media | normal | funcional | Sí | 86 |
+| [TC-OFI-028](#tc-ofi-028) | Alta sin distinguir mayúsculas | Unitario | Oficios: servicio | Administrador | RF-22 | alta | mayor | funcional | Sí |  |
+| [TC-OFI-029](#tc-ofi-029) | Edición sin distinguir mayúsculas | Unitario | Oficios: servicio | Administrador | RF-22 | media | normal | funcional | Sí |  |
+| [TC-OFI-030](#tc-ofi-030) | Cambiar solo mayúsculas del propio nombre | Unitario | Oficios: servicio | Administrador | RF-22 | media | normal | funcional | Sí |  |
 | [TC-OFI-026](#tc-ofi-026) | Cambiar estado de oficio inexistente | Unitario | Oficios: servicio | Administrador | RF-22 | media | normal | funcional | Sí | 87 |
 | [TC-OFI-027](#tc-ofi-027) | Desactivar sin borrar | Unitario | Oficios: servicio | Administrador | RF-22 | alta | mayor | funcional | Sí | 88 |
 | [TC-PRE-001](#tc-pre-001) | Consultar perfil propio | Unitario | Prestadores: perfil (controlador) | Prestador | RF-03 | media | normal | funcional | Sí | 89 |
@@ -292,6 +295,7 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-INT-PRE-013](#tc-int-pre-013) | Solicitud inexistente | Integración | Flujo del prestador | Prestador | RF-11 | baja | menor | integracion | Sí | 275 |
 | [TC-INT-ADM-001](#tc-int-adm-001) | Crear oficio | Integración | Flujo del administrador | Administrador | RF-22 | alta | mayor | integracion | Sí | 276 |
 | [TC-INT-ADM-002](#tc-int-adm-002) | Oficio con nombre duplicado | Integración | Flujo del administrador | Administrador | RF-22 | media | normal | integracion | Sí | 277 |
+| [TC-INT-ADM-009](#tc-int-adm-009) | Oficio con nombre duplicado en minúsculas | Integración | Flujo del administrador | Administrador | RF-22 | media | normal | integracion | Sí |  |
 | [TC-INT-ADM-003](#tc-int-adm-003) | Editar oficio | Integración | Flujo del administrador | Administrador | RF-22 | alta | mayor | integracion | Sí | 278 |
 | [TC-INT-ADM-004](#tc-int-adm-004) | Desactivar y activar oficio | Integración | Flujo del administrador | Administrador | RF-22 | alta | mayor | integracion | Sí | 279 |
 | [TC-INT-ADM-005](#tc-int-adm-005) | Oficio desactivado saca al prestador de la búsqueda | Integración | Flujo del administrador | Administrador | RF-22, RF-05, RF-07 | alta | mayor | integracion | Sí | 280 |
@@ -2198,6 +2202,72 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Archivo y test | `tests/oficiosService.test.js` › actualiza el oficio con un nombre nuevo disponible |
 | Automatizado | Sí |
 | qaseId | 86 |
+
+### TC-OFI-028
+
+**Alta sin distinguir mayúsculas**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No se crea un oficio cuyo nombre solo se diferencia en mayúsculas o minúsculas de uno existente (Plomería / PLOMERÍA). |
+| Precondiciones | oficiosService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular un oficio existente<br>2. Llamar a crearOficio con el mismo nombre en mayúsculas |
+| Resultado esperado | Lanza 409, la búsqueda es insensible a mayúsculas y no crea. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Oficios: servicio |
+| Rol | Administrador |
+| Requerimiento | RF-22 |
+| Archivo y test | `tests/oficiosService.test.js` › rechaza con 409 un nombre que solo cambia en mayúsculas o minúsculas |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-OFI-029
+
+**Edición sin distinguir mayúsculas**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No se puede renombrar un oficio con un nombre que solo se diferencia en mayúsculas del de otro. |
+| Precondiciones | oficiosService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular otro oficio con ese nombre<br>2. Llamar a actualizarOficio con el nombre en mayúsculas |
+| Resultado esperado | Lanza 409, la búsqueda excluye al propio oficio y no actualiza. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Oficios: servicio |
+| Rol | Administrador |
+| Requerimiento | RF-22 |
+| Archivo y test | `tests/oficiosService.test.js` › rechaza con 409 un nombre que solo cambia en mayúsculas respecto de otro oficio |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-OFI-030
+
+**Cambiar solo mayúsculas del propio nombre**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El administrador puede corregir las mayúsculas del nombre de un oficio sin chocar consigo mismo. |
+| Precondiciones | oficiosService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular que no hay otro oficio con ese nombre<br>2. Llamar a actualizarOficio con el nombre en mayúsculas |
+| Resultado esperado | Se actualiza el oficio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Oficios: servicio |
+| Rol | Administrador |
+| Requerimiento | RF-22 |
+| Archivo y test | `tests/oficiosService.test.js` › permite cambiar solo las mayúsculas del nombre del propio oficio |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
 
 ### TC-OFI-026
 
@@ -6466,6 +6536,28 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Archivo y test | `tests/integration/administrador.integration.test.js` › responde 409 si ya existe un oficio con ese nombre |
 | Automatizado | Sí |
 | qaseId | 277 |
+
+### TC-INT-ADM-009
+
+**Oficio con nombre duplicado en minúsculas**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No se pueden crear dos oficios que solo se diferencian en mayúsculas o minúsculas. |
+| Precondiciones | Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada. |
+| Pasos | 1. POST /api/oficios con el nombre de un oficio existente escrito en minúsculas<br>2. Contar los oficios con ese nombre |
+| Resultado esperado | 409 y sigue habiendo un solo oficio con ese nombre, sin importar las mayúsculas. |
+| Postcondiciones | Al terminar la suite se borran todos los datos que creó. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | integracion |
+| Capa | Integración |
+| Módulo | Flujo del administrador |
+| Rol | Administrador |
+| Requerimiento | RF-22 |
+| Archivo y test | `tests/integration/administrador.integration.test.js` › responde 409 si el nombre solo cambia en mayúsculas o minúsculas |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
 
 ### TC-INT-ADM-003
 

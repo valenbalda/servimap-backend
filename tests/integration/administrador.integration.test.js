@@ -50,6 +50,15 @@ describeConBase('Integración: flujo del administrador', () => {
     expect(await prisma.oficio.count({ where: { nombre: oficio.nombre } })).toBe(1);
   });
 
+  it(caso('TC-INT-ADM-009', 'responde 409 si el nombre solo cambia en mayúsculas o minúsculas'), async () => {
+    const res = await api(admin.token).post('/api/oficios', { nombre: oficio.nombre.toLowerCase() });
+
+    expect(res.status).toBe(409);
+    expect(
+      await prisma.oficio.count({ where: { nombre: { equals: oficio.nombre, mode: 'insensitive' } } })
+    ).toBe(1);
+  });
+
   it(caso('TC-INT-ADM-003', 'edita el nombre y la categoría de un oficio'), async () => {
     const aEditar = await escenario.crearOficio('Vidriería');
     const nuevoNombre = `Vidriería y aberturas ${escenario.prefijo}`;

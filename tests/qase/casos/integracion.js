@@ -382,6 +382,16 @@ const administrador = definirCasos(
       severidad: 'normal',
     },
     {
+      id: 'TC-INT-ADM-009',
+      titulo: 'Oficio con nombre duplicado en minúsculas',
+      descripcion: 'No se pueden crear dos oficios que solo se diferencian en mayúsculas o minúsculas.',
+      pasos: ['POST /api/oficios con el nombre de un oficio existente escrito en minúsculas', 'Contar los oficios con ese nombre'],
+      esperado: '409 y sigue habiendo un solo oficio con ese nombre, sin importar las mayúsculas.',
+      rf: ['RF-22'],
+      prioridad: 'media',
+      severidad: 'normal',
+    },
+    {
       id: 'TC-INT-ADM-003',
       titulo: 'Editar oficio',
       descripcion: 'El administrador cambia el nombre y la categoría de un oficio.',
