@@ -2,7 +2,7 @@
 
 # Casos de prueba del backend
 
-Total: **289 casos** (240 unitarios y 49 de integración), todos automatizados.
+Total: **292 casos** (243 unitarios y 49 de integración), todos automatizados.
 Cada caso corresponde a un test real que lo referencia con `caso('TC-...', nombre)`.
 Un `it.each` es un solo caso con varios juegos de datos: cada uno se reporta como un resultado del mismo caso.
 
@@ -167,6 +167,7 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-MAPA-007](#tc-mapa-007) | Filtro por oficio | Unitario | Mapa | Visitante | RF-05, RF-06 | media | normal | funcional | Sí | 153 |
 | [TC-MAPA-008](#tc-mapa-008) | Promedio sin calificaciones | Unitario | Mapa | Visitante | RF-05, RF-19 | media | normal | funcional | Sí | 154 |
 | [TC-MAPA-009](#tc-mapa-009) | Promedios solo de los encontrados | Unitario | Mapa | Visitante | RF-05 | media | normal | funcional | Sí | 155 |
+| [TC-MAPA-011](#tc-mapa-011) | Promedio del mapa sin calificaciones moderadas | Unitario | Mapa | Visitante | RF-05, RF-19, RF-23 | alta | mayor | funcional | Sí |  |
 | [TC-MAPA-010](#tc-mapa-010) | Mapa vacío | Unitario | Mapa | Visitante | RF-05 | media | normal | funcional | Sí | 156 |
 | [TC-SOL-001](#tc-sol-001) | prestadorId inválido | Unitario | Solicitudes: alta (controlador) | Cliente | RF-09, RF-10 | media | normal | funcional | Sí | 157 |
 | [TC-SOL-002](#tc-sol-002) | oficioId inválido | Unitario | Solicitudes: alta (controlador) | Cliente | RF-09, RF-10 | media | normal | funcional | Sí | 158 |
@@ -246,6 +247,8 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-CAL-028](#tc-cal-028) | Reputación de prestador inexistente | Unitario | Calificaciones: servicio | Visitante | RF-19, RF-20 | media | normal | funcional | Sí | 232 |
 | [TC-CAL-029](#tc-cal-029) | Promedio y servicios finalizados | Unitario | Calificaciones: servicio | Visitante | RF-19, RF-20 | alta | mayor | funcional | Sí | 233 |
 | [TC-CAL-030](#tc-cal-030) | Reputación sin calificaciones | Unitario | Calificaciones: servicio | Visitante | RF-19 | media | normal | funcional | Sí | 234 |
+| [TC-CAL-037](#tc-cal-037) | Reputación sin calificaciones moderadas | Unitario | Calificaciones: servicio | Visitante | RF-19, RF-23 | alta | mayor | funcional | Sí |  |
+| [TC-CAL-038](#tc-cal-038) | Reputación con todas las calificaciones moderadas | Unitario | Calificaciones: servicio | Visitante | RF-19, RF-20, RF-23 | media | normal | funcional | Sí |  |
 | [TC-CAL-031](#tc-cal-031) | Calificaciones de prestador inexistente | Unitario | Calificaciones: servicio | Visitante | RF-21 | media | normal | funcional | Sí | 235 |
 | [TC-CAL-032](#tc-cal-032) | Calificaciones públicas sin moderadas | Unitario | Calificaciones: servicio | Visitante | RF-21, RF-23 | alta | mayor | funcional | Sí | 236 |
 | [TC-CAL-033](#tc-cal-033) | Todas las calificaciones con moderadas | Unitario | Calificaciones: servicio | Administrador | RF-23 | media | normal | funcional | Sí | 237 |
@@ -3714,6 +3717,28 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Automatizado | Sí |
 | qaseId | 155 |
 
+### TC-MAPA-011
+
+**Promedio del mapa sin calificaciones moderadas**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El promedio del marcador no cuenta las calificaciones que el administrador ocultó. |
+| Precondiciones | mapaService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Llamar a listarMarcadores |
+| Resultado esperado | groupBy filtra moderada = false. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Mapa |
+| Rol | Visitante |
+| Requerimiento | RF-05, RF-19, RF-23 |
+| Archivo y test | `tests/mapaService.test.js` › no cuenta las calificaciones moderadas en el promedio del marcador |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
 ### TC-MAPA-010
 
 **Mapa vacío**
@@ -5451,6 +5476,50 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Archivo y test | `tests/calificacionesService.test.js` › devuelve promedio null si todavía no tiene calificaciones |
 | Automatizado | Sí |
 | qaseId | 234 |
+
+### TC-CAL-037
+
+**Reputación sin calificaciones moderadas**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El promedio y el total de calificaciones no cuentan las que el administrador ocultó. |
+| Precondiciones | calificacionesService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular un prestador existente<br>2. Llamar a obtenerReputacion |
+| Resultado esperado | La consulta de agregados filtra moderada = false. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Calificaciones: servicio |
+| Rol | Visitante |
+| Requerimiento | RF-19, RF-23 |
+| Archivo y test | `tests/calificacionesService.test.js` › no cuenta las calificaciones moderadas en el promedio ni en el total |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-CAL-038
+
+**Reputación con todas las calificaciones moderadas**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Si todas las calificaciones del prestador están ocultas, el promedio es null y el total 0, pero se siguen contando los servicios finalizados. |
+| Precondiciones | calificacionesService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular agregados vacíos y solicitudes finalizadas<br>2. Llamar a obtenerReputacion |
+| Resultado esperado | Devuelve promedio null, totalCalificaciones 0 y los serviciosFinalizados. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Calificaciones: servicio |
+| Rol | Visitante |
+| Requerimiento | RF-19, RF-20, RF-23 |
+| Archivo y test | `tests/calificacionesService.test.js` › devuelve promedio null y total 0 si todas sus calificaciones están moderadas |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
 
 ### TC-CAL-031
 

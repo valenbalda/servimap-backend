@@ -76,7 +76,7 @@ async function obtenerReputacion(prestadorId) {
 
   const [calificaciones, serviciosFinalizados] = await Promise.all([
     prisma.calificacion.aggregate({
-      where: { prestadorId },
+      where: { prestadorId, moderada: false },
       _avg: { puntaje: true },
       _count: { puntaje: true },
     }),
