@@ -2,7 +2,7 @@
 
 # Casos de prueba del backend
 
-Total: **296 casos** (246 unitarios y 50 de integración), todos automatizados.
+Total: **313 casos** (260 unitarios y 53 de integración), todos automatizados.
 Cada caso corresponde a un test real que lo referencia con `caso('TC-...', nombre)`.
 Un `it.each` es un solo caso con varios juegos de datos: cada uno se reporta como un resultado del mismo caso.
 
@@ -73,6 +73,20 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-AUTH-028](#tc-auth-028) | Perfil con DNI | Unitario | Autenticación: servicio | Cliente / Prestador | RF-01, RF-02 | alta | critica | seguridad | Sí | 59 |
 | [TC-AUTH-029](#tc-auth-029) | Perfil de usuario inexistente | Unitario | Autenticación: servicio | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí | 60 |
 | [TC-AUTH-030](#tc-auth-030) | Perfil de usuario desactivado | Unitario | Autenticación: servicio | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí | 61 |
+| [TC-AUTH-031](#tc-auth-031) | Editar nombre sin nombre válido | Unitario | Autenticación: edición de perfil y contraseña | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí |  |
+| [TC-AUTH-032](#tc-auth-032) | Editar nombre demasiado largo | Unitario | Autenticación: edición de perfil y contraseña | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí |  |
+| [TC-AUTH-033](#tc-auth-033) | Editar solo el nombre | Unitario | Autenticación: edición de perfil y contraseña | Cliente / Prestador | RF-01, RF-02 | alta | critica | seguridad | Sí |  |
+| [TC-AUTH-034](#tc-auth-034) | Error del servicio al editar el nombre | Unitario | Autenticación: edición de perfil y contraseña | Cliente / Prestador | RF-01, RF-02 | baja | menor | funcional | Sí |  |
+| [TC-AUTH-035](#tc-auth-035) | Cambiar contraseña sin datos | Unitario | Autenticación: edición de perfil y contraseña | Cliente / Prestador | RF-01, RF-02 | media | normal | seguridad | Sí |  |
+| [TC-AUTH-036](#tc-auth-036) | Contraseña nueva corta | Unitario | Autenticación: edición de perfil y contraseña | Cliente / Prestador | RF-01, RF-02 | media | normal | seguridad | Sí |  |
+| [TC-AUTH-037](#tc-auth-037) | Contraseña nueva igual a la actual | Unitario | Autenticación: edición de perfil y contraseña | Cliente / Prestador | RF-01, RF-02 | media | normal | seguridad | Sí |  |
+| [TC-AUTH-038](#tc-auth-038) | Cambio de contraseña correcto | Unitario | Autenticación: edición de perfil y contraseña | Cliente / Prestador | RF-01, RF-02 | alta | critica | seguridad | Sí |  |
+| [TC-AUTH-039](#tc-auth-039) | Error del servicio al cambiar la contraseña | Unitario | Autenticación: edición de perfil y contraseña | Cliente / Prestador | RF-01, RF-02 | baja | menor | funcional | Sí |  |
+| [TC-AUTH-040](#tc-auth-040) | Actualizar nombre | Unitario | Autenticación: edición de perfil y contraseña (servicio) | Cliente / Prestador | RF-01, RF-02 | alta | mayor | funcional | Sí |  |
+| [TC-AUTH-041](#tc-auth-041) | Actualizar nombre de usuario inexistente o desactivado | Unitario | Autenticación: edición de perfil y contraseña (servicio) | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí |  |
+| [TC-AUTH-042](#tc-auth-042) | Contraseña nueva hasheada | Unitario | Autenticación: edición de perfil y contraseña (servicio) | Cliente / Prestador | RF-01, RF-02 | alta | critica | seguridad | Sí |  |
+| [TC-AUTH-043](#tc-auth-043) | Contraseña actual incorrecta | Unitario | Autenticación: edición de perfil y contraseña (servicio) | Cliente / Prestador | RF-01, RF-02 | alta | critica | seguridad | Sí |  |
+| [TC-AUTH-044](#tc-auth-044) | Cambiar contraseña de usuario inexistente o desactivado | Unitario | Autenticación: edición de perfil y contraseña (servicio) | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí |  |
 | [TC-OFI-001](#tc-ofi-001) | Listado público de oficios | Unitario | Oficios: controlador | Visitante | RF-22, RF-04 | media | normal | funcional | Sí | 62 |
 | [TC-OFI-002](#tc-ofi-002) | Error en el listado público | Unitario | Oficios: controlador | Visitante | RF-22 | baja | menor | funcional | Sí | 63 |
 | [TC-OFI-003](#tc-ofi-003) | Listado completo para el administrador | Unitario | Oficios: controlador | Administrador | RF-22 | media | normal | funcional | Sí | 64 |
@@ -267,6 +281,9 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-INT-AUTH-007](#tc-int-auth-007) | DNI duplicado con otro formato | Integración | Autenticación | Visitante | RF-01 | alta | mayor | integracion | Sí | 247 |
 | [TC-INT-AUTH-008](#tc-int-auth-008) | Registro con datos inválidos no guarda nada | Integración | Autenticación | Visitante | RF-01 | media | normal | integracion | Sí | 248 |
 | [TC-INT-AUTH-009](#tc-int-auth-009) | Cuenta desactivada no puede iniciar sesión | Integración | Autenticación | Visitante | RF-02 | alta | mayor | seguridad | Sí | 249 |
+| [TC-INT-AUTH-010](#tc-int-auth-010) | Editar el nombre sin poder cambiar DNI, email ni rol | Integración | Autenticación | Cliente / Prestador | RF-01, RF-02 | alta | mayor | seguridad | Sí |  |
+| [TC-INT-AUTH-011](#tc-int-auth-011) | Cambiar la contraseña | Integración | Autenticación | Cliente / Prestador | RF-02 | alta | mayor | seguridad | Sí |  |
+| [TC-INT-AUTH-012](#tc-int-auth-012) | Cambio de contraseña rechazado | Integración | Autenticación | Cliente / Prestador | RF-02 | alta | mayor | seguridad | Sí |  |
 | [TC-INT-CLI-001](#tc-int-cli-001) | Búsqueda de prestadores por texto y oficio | Integración | Flujo del cliente | Visitante | RF-06, RF-07 | alta | mayor | integracion | Sí | 250 |
 | [TC-INT-CLI-002](#tc-int-cli-002) | Filtro por distancia | Integración | Flujo del cliente | Visitante | RF-06 | alta | mayor | integracion | Sí | 251 |
 | [TC-INT-CLI-003](#tc-int-cli-003) | Mapa con ubicación aproximada | Integración | Flujo del cliente | Visitante | RF-05 | alta | mayor | integracion | Sí | 252 |
@@ -1652,6 +1669,314 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Archivo y test | `tests/authService.test.js` › lanza 404 si el usuario está desactivado |
 | Automatizado | Sí |
 | qaseId | 61 |
+
+### TC-AUTH-031
+
+**Editar nombre sin nombre válido**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | PATCH /me exige un nombre de texto que no esté vacío. |
+| Precondiciones | Controlador de autenticación con authService simulado; request y response simulados. |
+| Pasos | 1. Invocar actualizarMe sin nombre, con espacios o con un número |
+| Resultado esperado | 400 sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authController.test.js` › responde 400 si el nombre %s |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-032
+
+**Editar nombre demasiado largo**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El nombre no puede superar los 100 caracteres. |
+| Precondiciones | Controlador de autenticación con authService simulado; request y response simulados. |
+| Pasos | 1. Invocar actualizarMe con un nombre de 101 caracteres |
+| Resultado esperado | 400 sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authController.test.js` › responde 400 si el nombre supera los 100 caracteres |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-033
+
+**Editar solo el nombre**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El controlador limpia el nombre y usa el id del token; ignora dni, email y rol. |
+| Precondiciones | Controlador de autenticación con authService simulado; request y response simulados. |
+| Pasos | 1. Invocar actualizarMe con nombre, dni, email y rol |
+| Resultado esperado | El servicio recibe solo el id del token y el nombre limpio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | critica |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authController.test.js` › edita solo el nombre del usuario del token e ignora dni, email y rol |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-034
+
+**Error del servicio al editar el nombre**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Un error del servicio se pasa al manejador de errores. |
+| Precondiciones | Controlador de autenticación con authService simulado; request y response simulados. |
+| Pasos | 1. Hacer fallar actualizarNombre<br>2. Invocar actualizarMe |
+| Resultado esperado | Se llama a next(error). |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | baja |
+| Severidad | menor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authController.test.js` › pasa el error del servicio al manejador de errores |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-035
+
+**Cambiar contraseña sin datos**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Hacen falta la contraseña actual y la nueva, ambas de texto. |
+| Precondiciones | Controlador de autenticación con authService simulado; request y response simulados. |
+| Pasos | 1. Invocar cambiarPassword sin alguna de las dos o con números |
+| Resultado esperado | 400 sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authController.test.js` › responde 400 %s |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-036
+
+**Contraseña nueva corta**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | La contraseña nueva tiene que tener al menos 8 caracteres. |
+| Precondiciones | Controlador de autenticación con authService simulado; request y response simulados. |
+| Pasos | 1. Invocar cambiarPassword con una nueva de 7 caracteres |
+| Resultado esperado | 400 sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authController.test.js` › responde 400 si la contraseña nueva tiene menos de 8 caracteres |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-037
+
+**Contraseña nueva igual a la actual**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No se acepta repetir la contraseña actual. |
+| Precondiciones | Controlador de autenticación con authService simulado; request y response simulados. |
+| Pasos | 1. Invocar cambiarPassword con la misma contraseña en los dos campos |
+| Resultado esperado | 400 sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authController.test.js` › responde 400 si la contraseña nueva es igual a la actual |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-038
+
+**Cambio de contraseña correcto**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Usa el id del token y responde sin ningún dato de la clave. |
+| Precondiciones | Controlador de autenticación con authService simulado; request y response simulados. |
+| Pasos | 1. Invocar cambiarPassword con datos válidos |
+| Resultado esperado | Responde { mensaje: "Contraseña actualizada" }. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | critica |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authController.test.js` › cambia la contraseña del usuario del token y no devuelve datos de la clave |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-039
+
+**Error del servicio al cambiar la contraseña**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Un error del servicio se pasa al manejador de errores. |
+| Precondiciones | Controlador de autenticación con authService simulado; request y response simulados. |
+| Pasos | 1. Hacer fallar cambiarPassword<br>2. Invocar cambiarPassword |
+| Resultado esperado | Se llama a next(error). |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | baja |
+| Severidad | menor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authController.test.js` › pasa el error del servicio al manejador de errores |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-040
+
+**Actualizar nombre**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | actualizarNombre cambia solo el nombre y devuelve el perfil sin la contraseña. |
+| Precondiciones | authService con Prisma simulado (sin base de datos real) y una clave JWT de test. |
+| Pasos | 1. Simular el usuario<br>2. Llamar a actualizarNombre |
+| Resultado esperado | prisma.usuario.update recibe solo el nombre y el perfil no incluye passwordHash. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña (servicio) |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authService.test.js` › actualiza solo el nombre y devuelve el perfil sin la contraseña |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-041
+
+**Actualizar nombre de usuario inexistente o desactivado**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No se edita a un usuario que no existe o está desactivado. |
+| Precondiciones | authService con Prisma simulado (sin base de datos real) y una clave JWT de test. |
+| Pasos | 1. Simular que no hay usuario o que está desactivado<br>2. Llamar a actualizarNombre |
+| Resultado esperado | Lanza 404 y no actualiza. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña (servicio) |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authService.test.js` › lanza 404 si el usuario %s |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-042
+
+**Contraseña nueva hasheada**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | cambiarPassword guarda la nueva contraseña con hash bcrypt y no devuelve nada. |
+| Precondiciones | authService con Prisma simulado (sin base de datos real) y una clave JWT de test. |
+| Pasos | 1. Simular un usuario con su contraseña actual<br>2. Llamar a cambiarPassword |
+| Resultado esperado | prisma.usuario.update recibe solo passwordHash, que valida contra la nueva y no es el texto plano. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | critica |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña (servicio) |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authService.test.js` › guarda la contraseña nueva hasheada y no devuelve nada |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-043
+
+**Contraseña actual incorrecta**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No se cambia la contraseña si la actual no coincide. |
+| Precondiciones | authService con Prisma simulado (sin base de datos real) y una clave JWT de test. |
+| Pasos | 1. Simular un usuario<br>2. Llamar a cambiarPassword con otra contraseña actual |
+| Resultado esperado | Lanza 400 y no actualiza. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | critica |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña (servicio) |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authService.test.js` › lanza 400 si la contraseña actual es incorrecta y no cambia nada |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-044
+
+**Cambiar contraseña de usuario inexistente o desactivado**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No se cambia la contraseña de un usuario que no existe o está desactivado. |
+| Precondiciones | authService con Prisma simulado (sin base de datos real) y una clave JWT de test. |
+| Pasos | 1. Simular que no hay usuario o que está desactivado<br>2. Llamar a cambiarPassword |
+| Resultado esperado | Lanza 404 y no actualiza. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: edición de perfil y contraseña (servicio) |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authService.test.js` › lanza 404 si el usuario %s |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
 
 ### TC-OFI-001
 
@@ -5920,6 +6245,72 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Archivo y test | `tests/integration/auth.integration.test.js` › rechaza el inicio de sesión de una cuenta desactivada con 403 |
 | Automatizado | Sí |
 | qaseId | 249 |
+
+### TC-INT-AUTH-010
+
+**Editar el nombre sin poder cambiar DNI, email ni rol**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | PATCH /api/auth/me cambia el nombre del usuario autenticado y descarta dni, email y rol si se envían. |
+| Precondiciones | Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Prestador registrado con sesión iniciada. |
+| Pasos | 1. PATCH /api/auth/me con nombre nuevo, dni, email y rol<br>2. Buscar el usuario en la base |
+| Resultado esperado | 200, el nombre cambia y el DNI, el email y el rol quedan como estaban. |
+| Postcondiciones | Al terminar la suite se borran todos los datos que creó. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | seguridad |
+| Capa | Integración |
+| Módulo | Autenticación |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/integration/auth.integration.test.js` › PATCH /me cambia el nombre y no deja editar el DNI, el email ni el rol |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-INT-AUTH-011
+
+**Cambiar la contraseña**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | PATCH /api/auth/me/password guarda la contraseña nueva hasheada; con la anterior ya no se puede iniciar sesión. |
+| Precondiciones | Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Cliente registrado con sesión iniciada. |
+| Pasos | 1. PATCH /api/auth/me/password con la actual y una nueva<br>2. Revisar el hash guardado<br>3. Iniciar sesión con la nueva y con la anterior |
+| Resultado esperado | 200 sin datos de la clave; login 200 con la nueva y 401 con la anterior. |
+| Postcondiciones | Al terminar la suite se borran todos los datos que creó. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | seguridad |
+| Capa | Integración |
+| Módulo | Autenticación |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-02 |
+| Archivo y test | `tests/integration/auth.integration.test.js` › PATCH /me/password cambia la contraseña y la anterior deja de servir |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-INT-AUTH-012
+
+**Cambio de contraseña rechazado**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Con la contraseña actual incorrecta o sin sesión no se cambia la contraseña. |
+| Precondiciones | Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Cliente registrado con sesión iniciada. |
+| Pasos | 1. PATCH /api/auth/me/password con la actual incorrecta<br>2. PATCH /api/auth/me/password sin token<br>3. Comprobar el hash guardado |
+| Resultado esperado | 400 con la actual incorrecta, 401 sin sesión, y la contraseña original sigue funcionando. |
+| Postcondiciones | Al terminar la suite se borran todos los datos que creó. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | seguridad |
+| Capa | Integración |
+| Módulo | Autenticación |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-02 |
+| Archivo y test | `tests/integration/auth.integration.test.js` › rechaza el cambio de contraseña con la actual incorrecta o sin sesión |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
 
 ### TC-INT-CLI-001
 

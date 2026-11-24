@@ -1,5 +1,5 @@
 jest.mock('../src/config/prisma', () => ({
-  usuario: { findUnique: jest.fn(), create: jest.fn() },
+  usuario: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
 }));
 
 jest.mock('../src/config/env', () => ({
@@ -220,5 +220,87 @@ describe('obtenerPerfil', () => {
     await expect(authService.obtenerPerfil('u1')).rejects.toMatchObject({
       status: 404,
     });
+  });
+});
+
+describe('actualizarNombre', () => {
+  const usuarioBase = {
+    id: 'u1',
+    nombre: 'Ana',
+    dni: '12345678',
+    email: 'ana@mail.com',
+    passwordHash: 'hash',
+    rol: 'CLIENTE',
+    activo: true,
+    fechaRegistro: new Date(),
+  };
+
+  it(caso('TC-AUTH-040', 'actualiza solo el nombre y devuelve el perfil sin la contraseña'), async () => {
+    prisma.usuario.findUnique.mockResolvedValue(usuarioBase);
+    prisma.usuario.update.mockResolvedValue({ ...usuarioBase, nombre: 'Ana Pérez' });
+
+    const perfil = await authService.actualizarNombre('u1', 'Ana Pérez');
+
+    expect(prisma.usuario.update).toHaveBeenCalledWith({
+      where: { id: 'u1' },
+      data: { nombre: 'Ana Pérez' },
+    });
+    expect(perfil).not.toHaveProperty('passwordHash');
+    expect(perfil).toMatchObject({ id: 'u1', nombre: 'Ana Pérez', dni: '12345678', rol: 'CLIENTE' });
+  });
+
+  it.each([
+    ['no existe', null],
+    ['está desactivado', { ...usuarioBase, activo: false }],
+  ])(caso('TC-AUTH-041', 'lanza 404 si el usuario %s'), async (_, usuario) => {
+    prisma.usuario.findUnique.mockResolvedValue(usuario);
+
+    await expect(authService.actualizarNombre('u1', 'Ana')).rejects.toMatchObject({ status: 404 });
+    expect(prisma.usuario.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('cambiarPassword', () => {
+  const datos = { passwordActual: 'clave-vieja-1', passwordNueva: 'clave-nueva-2' };
+
+  async function usuarioConClave() {
+    return {
+      id: 'u1',
+      passwordHash: await bcrypt.hash(datos.passwordActual, 4),
+      activo: true,
+    };
+  }
+
+  it(caso('TC-AUTH-042', 'guarda la contraseña nueva hasheada y no devuelve nada'), async () => {
+    prisma.usuario.findUnique.mockResolvedValue(await usuarioConClave());
+    prisma.usuario.update.mockResolvedValue({});
+
+    const resultado = await authService.cambiarPassword('u1', datos);
+
+    const { where, data } = prisma.usuario.update.mock.calls[0][0];
+    expect(where).toEqual({ id: 'u1' });
+    expect(Object.keys(data)).toEqual(['passwordHash']);
+    expect(data.passwordHash).not.toBe(datos.passwordNueva);
+    expect(await bcrypt.compare(datos.passwordNueva, data.passwordHash)).toBe(true);
+    expect(resultado).toBeUndefined();
+  });
+
+  it(caso('TC-AUTH-043', 'lanza 400 si la contraseña actual es incorrecta y no cambia nada'), async () => {
+    prisma.usuario.findUnique.mockResolvedValue(await usuarioConClave());
+
+    await expect(
+      authService.cambiarPassword('u1', { ...datos, passwordActual: 'otra-clave-9' })
+    ).rejects.toMatchObject({ status: 400 });
+    expect(prisma.usuario.update).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['no existe', null],
+    ['está desactivado', { id: 'u1', passwordHash: 'hash', activo: false }],
+  ])(caso('TC-AUTH-044', 'lanza 404 si el usuario %s'), async (_, usuario) => {
+    prisma.usuario.findUnique.mockResolvedValue(usuario);
+
+    await expect(authService.cambiarPassword('u1', datos)).rejects.toMatchObject({ status: 404 });
+    expect(prisma.usuario.update).not.toHaveBeenCalled();
   });
 });
