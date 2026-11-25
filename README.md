@@ -84,7 +84,7 @@ Para crear una cuenta hay que informar el **DNI** (7 u 8 números; se aceptan pu
 | Oficios | `POST /api/oficios` | Administrador |
 | Oficios | `PUT /api/oficios/:id` (nombre y categoría) | Administrador |
 | Oficios | `PATCH /api/oficios/:id/estado` (activa o desactiva, no borra) | Administrador |
-| Prestadores | `GET /api/prestadores` (búsqueda con filtros: `oficioId`, `q`, `lat`/`lng`/`radioKm`, `calificacionMin`, `limit`) | Público |
+| Prestadores | `GET /api/prestadores` (búsqueda con filtros: `oficioId`, `q`, `lat`/`lng`/`radioKm`, `calificacionMin`, `disponible`, `limit` y `page`; devuelve `{ registros, totalRegistros, pagina, limite, totalPaginas }`) | Público |
 | Prestadores | `GET /api/prestadores/mapa` (marcadores con ubicación aproximada) | Público |
 | Prestadores | `GET /api/prestadores/:id` (ficha con contacto, reputación y comentarios) | Público |
 | Prestadores | `GET /api/prestadores/me` | Prestador |

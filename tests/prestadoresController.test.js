@@ -248,6 +248,24 @@ describe('listar', () => {
     });
   });
 
+  it.each(['0', '-1', '1.5', 'abc'])(
+    caso('TC-PRE-059', 'rechaza la página inválida %j y acepta una válida'),
+    async (page) => {
+      const invalida = await listarConQuery({ page });
+
+      expect(invalida.res.status).toHaveBeenCalledWith(400);
+      expect(invalida.res.json).toHaveBeenCalledWith({
+        error: 'page debe ser un entero mayor o igual a 1',
+      });
+      expect(prestadoresService.listarPrestadores).not.toHaveBeenCalled();
+
+      prestadoresService.listarPrestadores.mockResolvedValue({ registros: [] });
+      await listarConQuery({ page: '2' });
+
+      expect(prestadoresService.listarPrestadores).toHaveBeenCalledWith({ page: 2 });
+    }
+  );
+
   it(caso('TC-PRE-015', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Falló la consulta');
     prestadoresService.listarPrestadores.mockRejectedValue(error);

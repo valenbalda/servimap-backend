@@ -48,7 +48,7 @@ describe('ubicación aproximada', () => {
   it(caso('TC-PRE-042', 'el listado devuelve las coordenadas redondeadas a 2 decimales'), async () => {
     prisma.prestador.findMany.mockResolvedValue([crearPrestador('p1', '-34.603722', '-58.381592')]);
 
-    const [prestador] = await prestadoresService.listarPrestadores();
+    const { registros: [prestador] } = await prestadoresService.listarPrestadores();
 
     expect(prestador.latitud).toBe(-34.6);
     expect(prestador.longitud).toBe(-58.38);
@@ -75,7 +75,7 @@ describe('ubicación aproximada', () => {
   it(caso('TC-PRE-045', 'un prestador sin coordenadas las sigue devolviendo como null'), async () => {
     prisma.prestador.findMany.mockResolvedValue([crearPrestador('p1', null, null)]);
 
-    const [prestador] = await prestadoresService.listarPrestadores();
+    const { registros: [prestador] } = await prestadoresService.listarPrestadores();
 
     expect(prestador.latitud).toBeNull();
     expect(prestador.longitud).toBeNull();
@@ -88,7 +88,7 @@ describe('ubicación aproximada', () => {
       crearPrestador('p2', '-34.6049', '-58.4'),
     ]);
 
-    const lista = await prestadoresService.listarPrestadores({
+    const { registros: lista } = await prestadoresService.listarPrestadores({
       lat: -34.5,
       lng: -58.4,
       radioKm: 50,

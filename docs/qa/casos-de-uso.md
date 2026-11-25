@@ -78,14 +78,14 @@ Casos de uso de ServiMap por actor, según el comportamiento de la API del backe
 - **Requerimiento:** RF-06, RF-07.
 - **Precondiciones:** Ninguna (ruta pública).
 - **Flujo principal:**
-  1. El actor pide `GET /api/prestadores` con filtros opcionales: `q` (texto), `oficioId`, `lat`/`lng`/`radioKm`, `calificacionMin`, `disponible` y `limit`.
+  1. El actor pide `GET /api/prestadores` con filtros opcionales: `q` (texto), `oficioId`, `lat`/`lng`/`radioKm`, `calificacionMin`, `disponible`, `limit` (máximo 50 por página) y `page`.
   2. El sistema devuelve los prestadores activos, con usuario activo y al menos un oficio activo, con su resumen público (sin datos de contacto), ubicación aproximada y reputación.
   3. Si se mandó ubicación, solo devuelve los que están dentro del radio (10 km por defecto), ordenados del más cerca al más lejos, con `distanciaKm`.
 - **Flujos alternativos:**
-  - 1a. Un filtro es inválido (lat sin lng, radio fuera de 0–100, calificación fuera de 1–5, limit fuera de 1–50, texto de más de 100 caracteres, `disponible` distinto de `true`/`false`): 400.
-  - 2a. Ningún prestador cumple los filtros: lista vacía.
+  - 1a. Un filtro es inválido (lat sin lng, radio fuera de 0–100, calificación fuera de 1–5, limit fuera de 1–50, page menor a 1 o no entera, texto de más de 100 caracteres, `disponible` distinto de `true`/`false`): 400.
+  - 2a. Ningún prestador cumple los filtros (o la página pedida no existe): `registros` vacío, con los totales correctos.
 - **Postcondiciones:** Ninguna (solo lectura).
-- **Casos de prueba:** TC-PRE-012..015, TC-PRE-020..022, TC-PRE-033..042, 045, 046, TC-SEG-021, 022, TC-INT-CLI-001, 002, TC-INT-ADM-005.
+- **Casos de prueba:** TC-PRE-012..015, TC-PRE-020..022, TC-PRE-033..042, 045, 046, TC-PRE-059..063, TC-SEG-021, 022, TC-INT-CLI-001, 002, TC-INT-ADM-005.
 
 ### CU-04 Ver el mapa de prestadores
 

@@ -2,7 +2,7 @@
 
 # Casos de prueba del backend
 
-Total: **296 casos** (246 unitarios y 50 de integración), todos automatizados.
+Total: **301 casos** (251 unitarios y 50 de integración), todos automatizados.
 Cada caso corresponde a un test real que lo referencia con `caso('TC-...', nombre)`.
 Un `it.each` es un solo caso con varios juegos de datos: cada uno se reporta como un resultado del mismo caso.
 
@@ -117,6 +117,7 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-PRE-012](#tc-pre-012) | Filtros de búsqueda inválidos | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | media | normal | funcional | Sí | 100 |
 | [TC-PRE-013](#tc-pre-013) | Búsqueda sin filtros | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | media | normal | funcional | Sí | 101 |
 | [TC-PRE-014](#tc-pre-014) | Filtros convertidos | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | alta | mayor | funcional | Sí | 102 |
+| [TC-PRE-059](#tc-pre-059) | Página inválida o válida | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | media | normal | funcional | Sí |  |
 | [TC-PRE-015](#tc-pre-015) | Error en la búsqueda | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | baja | menor | funcional | Sí | 103 |
 | [TC-PRE-016](#tc-pre-016) | Descripción profesional vacía | Unitario | Prestadores: validaciones | Prestador | RF-04 | media | normal | funcional | Sí | 104 |
 | [TC-PRE-017](#tc-pre-017) | Teléfono o WhatsApp inválido | Unitario | Prestadores: validaciones | Prestador | RF-04 | media | normal | funcional | Sí | 105 |
@@ -149,6 +150,10 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-PRE-044](#tc-pre-044) | Coordenada exacta en el perfil propio | Unitario | Prestadores: búsqueda (servicio) | Prestador | RF-03 | media | normal | funcional | Sí | 132 |
 | [TC-PRE-045](#tc-pre-045) | Prestador sin coordenadas | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-07 | media | normal | funcional | Sí | 133 |
 | [TC-PRE-046](#tc-pre-046) | Distancia con la coordenada aproximada | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-06 | alta | critica | seguridad | Sí | 134 |
+| [TC-PRE-060](#tc-pre-060) | Respuesta paginada | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-07 | media | normal | funcional | Sí |  |
+| [TC-PRE-061](#tc-pre-061) | Paginación por defecto y página vacía | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-07 | media | normal | funcional | Sí |  |
+| [TC-PRE-062](#tc-pre-062) | Filtro de calificación antes de paginar | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-07, RF-19 | media | normal | funcional | Sí |  |
+| [TC-PRE-063](#tc-pre-063) | Orden estable | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-07 | media | normal | funcional | Sí |  |
 | [TC-PRE-047](#tc-pre-047) | Ficha completa | Unitario | Prestadores: ficha | Visitante | RF-08, RF-19, RF-20, RF-21 | alta | mayor | funcional | Sí | 135 |
 | [TC-PRE-048](#tc-pre-048) | Sin datos internos | Unitario | Prestadores: ficha | Visitante | RF-08 | alta | critica | seguridad | Sí | 136 |
 | [TC-PRE-049](#tc-pre-049) | Solo prestadores activos | Unitario | Prestadores: ficha | Visitante | RF-08 | media | normal | funcional | Sí | 137 |
@@ -2621,6 +2626,28 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Automatizado | Sí |
 | qaseId | 102 |
 
+### TC-PRE-059
+
+**Página inválida o válida**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | page tiene que ser un entero mayor o igual a 1 y llega al servicio convertido a número. |
+| Precondiciones | Controlador de prestadores con prestadoresService simulado; request y response simulados. |
+| Pasos | 1. Invocar listar con page 0, -1, 1.5 y abc<br>2. Invocar listar con page "2" |
+| Resultado esperado | 400 "page debe ser un entero mayor o igual a 1" sin llamar al servicio; con page válida el servicio recibe page: 2. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Prestadores: búsqueda (controlador) |
+| Rol | Visitante |
+| Requerimiento | RF-06, RF-07 |
+| Archivo y test | `tests/prestadoresController.test.js` › rechaza la página inválida %j y acepta una válida |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
 ### TC-PRE-015
 
 **Error en la búsqueda**
@@ -3324,6 +3351,94 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Archivo y test | `tests/prestadoresCoordenadas.test.js` › la distancia se calcula con la coordenada aproximada y no con la exacta |
 | Automatizado | Sí |
 | qaseId | 134 |
+
+### TC-PRE-060
+
+**Respuesta paginada**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El listado devuelve la página pedida con el total de registros y de páginas. |
+| Precondiciones | prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real. |
+| Pasos | 1. Simular 5 prestadores<br>2. Llamar a listarPrestadores({ page: 2, limit: 2 }) |
+| Resultado esperado | registros con el 3.º y el 4.º prestador, totalRegistros 5, pagina 2, limite 2 y totalPaginas 3. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Prestadores: búsqueda (servicio) |
+| Rol | Visitante |
+| Requerimiento | RF-07 |
+| Archivo y test | `tests/prestadoresListar.test.js` › devuelve la página pedida con el total de registros y de páginas |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-PRE-061
+
+**Paginación por defecto y página vacía**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Sin page ni limit se devuelve la primera página de 50; una página fuera de rango devuelve registros vacíos. |
+| Precondiciones | prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real. |
+| Pasos | 1. Llamar a listarPrestadores() con 3 prestadores<br>2. Llamar a listarPrestadores({ page: 9 }) |
+| Resultado esperado | pagina 1, limite 50 y totalPaginas 1; con page 9, registros [] pero con los totales correctos. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Prestadores: búsqueda (servicio) |
+| Rol | Visitante |
+| Requerimiento | RF-07 |
+| Archivo y test | `tests/prestadoresListar.test.js` › por defecto devuelve la primera página de 50 y una página fuera de rango queda vacía |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-PRE-062
+
+**Filtro de calificación antes de paginar**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El total y las páginas se calculan después de filtrar por calificación mínima. |
+| Precondiciones | prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real. |
+| Pasos | 1. Simular 4 prestadores, 3 con promedio ≥ 4<br>2. Llamar a listarPrestadores({ calificacionMin: 4, limit: 2, page: 2 }) |
+| Resultado esperado | registros con 1 prestador, totalRegistros 3 y totalPaginas 2. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Prestadores: búsqueda (servicio) |
+| Rol | Visitante |
+| Requerimiento | RF-07, RF-19 |
+| Archivo y test | `tests/prestadoresListar.test.js` › filtra por calificación mínima antes de paginar |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-PRE-063
+
+**Orden estable**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Los prestadores se ordenan por nombre y, si hay nombres iguales, por id. |
+| Precondiciones | prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real. |
+| Pasos | 1. Llamar a listarPrestadores |
+| Resultado esperado | La consulta ordena por usuario.nombre y luego por id. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Prestadores: búsqueda (servicio) |
+| Rol | Visitante |
+| Requerimiento | RF-07 |
+| Archivo y test | `tests/prestadoresListar.test.js` › ordena por nombre y desempata por id para que las páginas sean estables |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
 
 ### TC-PRE-047
 
