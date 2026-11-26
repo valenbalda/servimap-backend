@@ -154,14 +154,18 @@ async function asignarMisOficios(usuarioId, oficioIds) {
 }
 
 // Busca prestadores (público): filtros por oficio, texto y cercanía, con su reputación.
+// Devuelve una página de resultados: los filtros se aplican antes de paginar.
 async function listarPrestadores({
   oficioId,
   q,
+  zona,
+  presupuesto,
   lat,
   lng,
   radioKm = 10,
   calificacionMin,
-  limit = 20,
+  limit = 50,
+  page = 1,
   disponible,
 } = {}) {
   const conUbicacion = lat !== undefined && lng !== undefined;
@@ -172,6 +176,10 @@ async function listarPrestadores({
     usuario: { activo: true },
     oficios: { some: { ...(oficioId && { oficioId }), oficio: { activo: true } } },
     ...(disponible !== undefined && { disponible }),
+    // Zona exacta, sin distinguir mayúsculas ni minúsculas.
+    ...(zona && { zonaCobertura: { equals: zona, mode: 'insensitive' } }),
+    // Presupuesto: solo los que cobran desde ese monto o menos (sin precio cargado, no entran).
+    ...(presupuesto !== undefined && { precioMin: { lte: presupuesto } }),
   };
 
   if (q) {
@@ -194,7 +202,8 @@ async function listarPrestadores({
       usuario: { select: { nombre: true } },
       oficios: { include: { oficio: true } },
     },
-    orderBy: { usuario: { nombre: 'asc' } },
+    // El id desempata nombres iguales para que el orden (y las páginas) sea siempre el mismo.
+    orderBy: [{ usuario: { nombre: 'asc' } }, { id: 'asc' }],
   });
 
   let resultados = prestadores.map((prestador) => {
@@ -220,19 +229,35 @@ async function listarPrestadores({
     return { ...prestador, reputacion: { promedio, totalCalificaciones, serviciosFinalizados } };
   };
 
-  // Sin filtro por calificación, la reputación se calcula solo para los que se devuelven.
-  if (calificacionMin === undefined) {
-    return Promise.all(resultados.slice(0, limit).map(conReputacion));
-  }
+  // Recorta la lista a la página pedida.
+  const pagina = (lista) => lista.slice((page - 1) * limit, page * limit);
 
-  const todos = await Promise.all(resultados.map(conReputacion));
-  return todos
-    .filter(
+  let registros;
+  let totalRegistros;
+
+  if (calificacionMin === undefined) {
+    // Sin filtro por calificación, la reputación se calcula solo para los que se devuelven.
+    totalRegistros = resultados.length;
+    registros = await Promise.all(pagina(resultados).map(conReputacion));
+  } else {
+    // Con filtro por calificación hay que conocer el promedio de todos antes de paginar.
+    const todos = await Promise.all(resultados.map(conReputacion));
+    const filtrados = todos.filter(
       (prestador) =>
         prestador.reputacion.promedio !== null &&
         prestador.reputacion.promedio >= calificacionMin
-    )
-    .slice(0, limit);
+    );
+    totalRegistros = filtrados.length;
+    registros = pagina(filtrados);
+  }
+
+  return {
+    registros,
+    totalRegistros,
+    pagina: page,
+    limite: limit,
+    totalPaginas: Math.ceil(totalRegistros / limit),
+  };
 }
 
 // Ficha pública de un prestador: datos de contacto, reputación y comentarios.

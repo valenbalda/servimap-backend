@@ -52,7 +52,7 @@ describe('listarPrestadores', () => {
     prisma.prestador.findMany.mockResolvedValue([prestador]);
     calificacionesService.obtenerReputacion.mockResolvedValue(reputacion('p1', 4.5, 2));
 
-    const lista = await prestadoresService.listarPrestadores();
+    const { registros: lista } = await prestadoresService.listarPrestadores();
 
     expect(prisma.prestador.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -108,7 +108,7 @@ describe('listarPrestadores', () => {
       reputacion(id, null, 0)
     );
 
-    const lista = await prestadoresService.listarPrestadores({
+    const { registros: lista } = await prestadoresService.listarPrestadores({
       lat: -34.6,
       lng: -58.4,
       radioKm: 10,
@@ -138,7 +138,7 @@ describe('listarPrestadores', () => {
       reputacion(id, promedios[id])
     );
 
-    const lista = await prestadoresService.listarPrestadores({ calificacionMin: 4 });
+    const { registros: lista } = await prestadoresService.listarPrestadores({ calificacionMin: 4 });
 
     expect(lista.map((p) => p.id)).toEqual(['p1']);
   });
@@ -153,7 +153,7 @@ describe('listarPrestadores', () => {
       reputacion(id, 5)
     );
 
-    const lista = await prestadoresService.listarPrestadores({ limit: 2 });
+    const { registros: lista } = await prestadoresService.listarPrestadores({ limit: 2 });
 
     expect(lista.map((p) => p.id)).toEqual(['p1', 'p2']);
     expect(calificacionesService.obtenerReputacion).toHaveBeenCalledTimes(2);
@@ -163,9 +163,109 @@ describe('listarPrestadores', () => {
     prisma.prestador.findMany.mockResolvedValue([crearPrestador('p1', 'Juan')]);
     calificacionesService.obtenerReputacion.mockResolvedValue(reputacion('p1', null, 0));
 
-    const lista = await prestadoresService.listarPrestadores();
+    const { registros: lista } = await prestadoresService.listarPrestadores();
 
     expect(lista[0].reputacion.promedio).toBeNull();
     expect(lista[0].reputacion.totalCalificaciones).toBe(0);
+  });
+
+  it(caso('TC-PRE-060', 'devuelve la página pedida con el total de registros y de páginas'), async () => {
+    prisma.prestador.findMany.mockResolvedValue(
+      ['p1', 'p2', 'p3', 'p4', 'p5'].map((id) => crearPrestador(id, `Nombre ${id}`))
+    );
+    calificacionesService.obtenerReputacion.mockImplementation(async (id) =>
+      reputacion(id, 5)
+    );
+
+    const respuesta = await prestadoresService.listarPrestadores({ page: 2, limit: 2 });
+
+    expect(respuesta.registros.map((p) => p.id)).toEqual(['p3', 'p4']);
+    expect(respuesta.totalRegistros).toBe(5);
+    expect(respuesta.pagina).toBe(2);
+    expect(respuesta.limite).toBe(2);
+    expect(respuesta.totalPaginas).toBe(3);
+    expect(calificacionesService.obtenerReputacion).toHaveBeenCalledTimes(2);
+  });
+
+  it(caso('TC-PRE-061', 'por defecto devuelve la primera página de 50 y una página fuera de rango queda vacía'), async () => {
+    prisma.prestador.findMany.mockResolvedValue([
+      crearPrestador('p1', 'Ana'),
+      crearPrestador('p2', 'Beto'),
+      crearPrestador('p3', 'Carla'),
+    ]);
+    calificacionesService.obtenerReputacion.mockImplementation(async (id) =>
+      reputacion(id, 5)
+    );
+
+    const porDefecto = await prestadoresService.listarPrestadores();
+    const fueraDeRango = await prestadoresService.listarPrestadores({ page: 9 });
+
+    expect(porDefecto.registros).toHaveLength(3);
+    expect(porDefecto.pagina).toBe(1);
+    expect(porDefecto.limite).toBe(50);
+    expect(porDefecto.totalPaginas).toBe(1);
+    expect(fueraDeRango.registros).toEqual([]);
+    expect(fueraDeRango.totalRegistros).toBe(3);
+    expect(fueraDeRango.totalPaginas).toBe(1);
+  });
+
+  it(caso('TC-PRE-062', 'filtra por calificación mínima antes de paginar'), async () => {
+    prisma.prestador.findMany.mockResolvedValue([
+      crearPrestador('p1', 'Ana'),
+      crearPrestador('p2', 'Beto'),
+      crearPrestador('p3', 'Carla'),
+      crearPrestador('p4', 'Diego'),
+    ]);
+    const promedios = { p1: 4.8, p2: 3, p3: 4.1, p4: 5 };
+    calificacionesService.obtenerReputacion.mockImplementation(async (id) =>
+      reputacion(id, promedios[id])
+    );
+
+    const respuesta = await prestadoresService.listarPrestadores({
+      calificacionMin: 4,
+      limit: 2,
+      page: 2,
+    });
+
+    expect(respuesta.registros.map((p) => p.id)).toEqual(['p4']);
+    expect(respuesta.totalRegistros).toBe(3);
+    expect(respuesta.totalPaginas).toBe(2);
+  });
+
+  it(caso('TC-PRE-063', 'ordena por nombre y desempata por id para que las páginas sean estables'), async () => {
+    prisma.prestador.findMany.mockResolvedValue([]);
+
+    await prestadoresService.listarPrestadores();
+
+    expect(prisma.prestador.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: [{ usuario: { nombre: 'asc' } }, { id: 'asc' }],
+      })
+    );
+  });
+  
+it(caso('TC-PRE-066', 'filtra por zona exacta sin distinguir mayúsculas'), async () => {
+    prisma.prestador.findMany.mockResolvedValue([]);
+
+    await prestadoresService.listarPrestadores({ zona: 'Palermo' });
+
+    const { where } = prisma.prestador.findMany.mock.calls[0][0];
+    expect(where.zonaCobertura).toEqual({ equals: 'Palermo', mode: 'insensitive' });
+  });
+
+  it(caso('TC-PRE-067', 'filtra por presupuesto y no filtra si no se pide'), async () => {
+    prisma.prestador.findMany.mockResolvedValue([]);
+
+    await prestadoresService.listarPrestadores({ presupuesto: 15000 });
+    await prestadoresService.listarPrestadores({ presupuesto: 0 });
+    await prestadoresService.listarPrestadores();
+
+    const [conMonto, conCero, sinFiltro] = prisma.prestador.findMany.mock.calls.map(
+      ([consulta]) => consulta.where
+    );
+    expect(conMonto.precioMin).toEqual({ lte: 15000 });
+    expect(conCero.precioMin).toEqual({ lte: 0 });
+    expect(sinFiltro).not.toHaveProperty('precioMin');
+    expect(sinFiltro).not.toHaveProperty('zonaCobertura');
   });
 });

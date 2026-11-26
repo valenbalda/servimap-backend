@@ -173,6 +173,37 @@ function leerLimit({ limit }) {
   return { filtros: { limit: tope } };
 }
 
+function leerZona({ zona }) {
+  if (zona === undefined) return { filtros: {} };
+
+  if (!esTextoNoVacio(zona) || zona.trim().length > 100) {
+    return { error: 'La zona es inválida (máximo 100 caracteres)' };
+  }
+
+  return { filtros: { zona: zona.trim() } };
+}
+
+function leerPresupuesto({ presupuesto }) {
+  if (presupuesto === undefined) return { filtros: {} };
+
+  const monto = aNumero(presupuesto);
+  if (!Number.isFinite(monto) || monto < 0) {
+    return { error: 'presupuesto debe ser un número mayor o igual a 0' };
+  }
+
+  return { filtros: { presupuesto: monto } };
+}
+function leerPagina({ page }) {
+  if (page === undefined) return { filtros: {} };
+
+  const numero = aNumero(page);
+  if (!Number.isInteger(numero) || numero < 1) {
+    return { error: 'page debe ser un entero mayor o igual a 1' };
+  }
+
+  return { filtros: { page: numero } };
+}
+
 function leerDisponible({ disponible }) {
   if (disponible === undefined) return { filtros: {} };
 
@@ -185,9 +216,12 @@ function leerDisponible({ disponible }) {
 
 const LECTORES_DE_FILTROS = [
   leerOficioYTexto,
+  leerZona,
+  leerPresupuesto,
   leerUbicacion,
   leerCalificacionMin,
   leerLimit,
+  leerPagina,
   leerDisponible,
 ];
 
