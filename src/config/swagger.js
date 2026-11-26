@@ -131,6 +131,11 @@ const swaggerSpec = {
         type: 'object',
         properties: {
           id: { type: 'string' },
+          numero: {
+            type: 'integer',
+            example: 12,
+            description: 'Número identificador autogenerado, único y de solo lectura. No reemplaza al id.',
+          },
           nombre: { type: 'string' },
           email: { type: 'string' },
           rol: { type: 'string', enum: ['CLIENTE', 'PRESTADOR', 'ADMINISTRADOR'] },
@@ -760,6 +765,11 @@ const solicitud = {
   type: 'object',
   properties: {
     id: { type: 'string' },
+    numero: {
+      type: 'integer',
+      example: 1042,
+      description: 'Número identificador autogenerado, único y de solo lectura. No reemplaza al id. Las solicitudes anteriores reciben su número en orden de creación.',
+    },
     descripcion: { type: 'string' },
     direccion: { type: 'string', nullable: true },
     contactoPreferido: { type: 'string', nullable: true },
@@ -913,7 +923,11 @@ swaggerSpec.paths['/api/solicitudes'].get = {
               },
               cliente: {
                 type: 'object',
-                properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+                properties: {
+                  id: { type: 'string' },
+                  numero: { type: 'integer', example: 12 },
+                  nombre: { type: 'string' },
+                },
               },
               prestador: {
                 type: 'object',

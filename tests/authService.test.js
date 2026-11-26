@@ -65,6 +65,7 @@ describe('registrarUsuario', () => {
     prisma.usuario.findUnique.mockResolvedValue(null);
     prisma.usuario.create.mockImplementation(async ({ data }) => ({
       id: 'u1',
+      numero: 5,
       fechaRegistro: new Date(),
       ...data,
     }));
@@ -106,6 +107,7 @@ describe('iniciarSesion', () => {
   const passwordHash = bcrypt.hashSync('12345678', 4);
   const usuarioBase = {
     id: 'u1',
+    numero: 5,
     nombre: 'Ana',
     dni: '12345678',
     email: 'ana@mail.com',
@@ -171,6 +173,7 @@ describe('iniciarSesion', () => {
     expect(payload).not.toHaveProperty('dni');
     expect(resultado.usuario).toEqual({
       id: 'u1',
+      numero: 5,
       nombre: 'Ana',
       email: 'ana@mail.com',
       rol: 'CLIENTE',
@@ -302,5 +305,53 @@ describe('cambiarPassword', () => {
 
     await expect(authService.cambiarPassword('u1', datos)).rejects.toMatchObject({ status: 404 });
     expect(prisma.usuario.update).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('número identificador del usuario', () => {
+  it(caso('TC-AUTH-045', 'el registro devuelve el número autogenerado y no lo deja elegir'), async () => {
+    prisma.usuario.findUnique.mockResolvedValue(null);
+    prisma.usuario.create.mockResolvedValue({
+      id: 'u1',
+      numero: 12,
+      nombre: 'Ana',
+      email: 'ana@mail.com',
+      rol: 'CLIENTE',
+      fechaRegistro: new Date(),
+    });
+
+    const usuario = await authService.registrarUsuario({
+      nombre: 'Ana',
+      dni: '12345678',
+      email: 'ana@mail.com',
+      password: '12345678',
+      rol: 'CLIENTE',
+      numero: 999,
+    });
+
+    const { data } = prisma.usuario.create.mock.calls[0][0];
+    expect(data).not.toHaveProperty('numero');
+    expect(usuario.id).toBe('u1');
+    expect(usuario.numero).toBe(12);
+  });
+
+  it(caso('TC-AUTH-046', 'el perfil incluye el número además del id'), async () => {
+    prisma.usuario.findUnique.mockResolvedValue({
+      id: 'u1',
+      numero: 12,
+      nombre: 'Ana',
+      dni: '12345678',
+      email: 'ana@mail.com',
+      passwordHash: 'hash',
+      rol: 'CLIENTE',
+      activo: true,
+      fechaRegistro: new Date(),
+    });
+
+    const perfil = await authService.obtenerPerfil('u1');
+
+    expect(perfil.id).toBe('u1');
+    expect(perfil.numero).toBe(12);
   });
 });

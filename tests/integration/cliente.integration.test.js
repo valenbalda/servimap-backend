@@ -202,6 +202,20 @@ describeConBase('Integración: flujo del cliente', () => {
     expect(guardada.comentario).toBe('Bien, aunque llegó tarde');
   });
 
+  it(caso('TC-INT-CLI-014', 'cada solicitud recibe un número único y distinto del id, visible en el listado'), async () => {
+    const primera = await escenario.crearSolicitud(cliente, prestador, oficio);
+    const segunda = await escenario.crearSolicitud(cliente, prestador, oficio);
+
+    const lista = await api(cliente.token).get('/api/solicitudes');
+
+    expect(Number.isInteger(primera.numero)).toBe(true);
+    expect(segunda.numero).toBeGreaterThan(primera.numero);
+    const propia = lista.body.find((s) => s.id === primera.id);
+    expect(propia.numero).toBe(primera.numero);
+    expect(propia.cliente.numero).toBe(cliente.numero);
+    expect(typeof propia.id).toBe('string');
+  });
+
   it(caso('TC-INT-CLI-013', 'no puede pedir un servicio a un prestador no disponible'), async () => {
     const otroOficio = await escenario.crearOficio('Gas');
     const noDisponible = await escenario.crearPrestadorCompleto(otroOficio, { disponible: false });

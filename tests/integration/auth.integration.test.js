@@ -125,6 +125,20 @@ describeConBase('Integración: registro, inicio de sesión y perfil', () => {
     expect(res.body).not.toHaveProperty('token');
   });
 
+  it(caso('TC-INT-AUTH-013', 'cada usuario recibe un número único y distinto del id, y GET /me lo devuelve'), async () => {
+    const primero = await escenario.registrar('CLIENTE');
+    const segundo = await escenario.registrar('CLIENTE');
+
+    const perfil = await api(primero.token).get('/api/auth/me');
+
+    expect(Number.isInteger(primero.numero)).toBe(true);
+    expect(Number.isInteger(segundo.numero)).toBe(true);
+    expect(segundo.numero).toBeGreaterThan(primero.numero);
+    expect(perfil.status).toBe(200);
+    expect(perfil.body).toMatchObject({ id: primero.id, numero: primero.numero });
+    expect(typeof perfil.body.id).toBe('string');
+  });
+
   it(caso('TC-INT-AUTH-010', 'PATCH /me cambia el nombre y no deja editar el DNI, el email ni el rol'), async () => {
     const prestador = await escenario.registrar('PRESTADOR');
 

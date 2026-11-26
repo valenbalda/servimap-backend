@@ -106,6 +106,16 @@ const auth = definirCasos(
       rf: ['RF-02'],
     },
     {
+      id: 'TC-INT-AUTH-013',
+      titulo: 'Número identificador del usuario',
+      descripcion: 'Cada usuario recibe un número autogenerado y único, distinto del id, que se ve en GET /api/auth/me.',
+      precondiciones: `${PRE_BASE} Dos clientes registrados.`,
+      pasos: ['Registrar dos clientes', 'GET /api/auth/me del primero'],
+      esperado: 'Los dos números son enteros y distintos, y el perfil devuelve el id y el número.',
+      rol: 'Cliente / Prestador',
+      rf: ['RF-01', 'RF-02'],
+    },
+    {
       id: 'TC-INT-AUTH-010',
       titulo: 'Editar el nombre sin poder cambiar DNI, email ni rol',
       descripcion: 'PATCH /api/auth/me cambia el nombre del usuario autenticado y descarta dni, email y rol si se envían.',
@@ -255,6 +265,14 @@ const cliente = definirCasos(
       rf: ['RF-16'],
       prioridad: 'media',
       severidad: 'normal',
+    },
+    {
+      id: 'TC-INT-CLI-014',
+      titulo: 'Número identificador de la solicitud',
+      descripcion: 'Cada solicitud recibe un número autogenerado y único, distinto del id, que aparece en el listado junto al número del cliente.',
+      pasos: ['Crear dos solicitudes', 'GET /api/solicitudes del cliente'],
+      esperado: 'Los números son enteros crecientes, el listado los devuelve y el id (UUID) sigue siendo el mismo.',
+      rf: ['RF-09', 'RF-14'],
     },
     {
       id: 'TC-INT-CLI-013',
