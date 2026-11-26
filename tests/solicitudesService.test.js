@@ -33,6 +33,7 @@ describe('crearSolicitud', () => {
     prisma.oficio.findUnique.mockResolvedValue({ id: 'o1', activo: true });
     prisma.solicitud.create.mockResolvedValue({
       id: 's1',
+      numero: 7,
       ...datos,
       estado: 'PENDIENTE',
       fechaCreacion: new Date('2026-10-19'),
@@ -53,6 +54,8 @@ describe('crearSolicitud', () => {
     });
     expect(solicitud.estado).toBe('PENDIENTE');
     expect(solicitud.clienteId).toBe('c1');
+    expect(solicitud.id).toBe('s1');
+    expect(solicitud.numero).toBe(7);
   });
 
   it(caso('TC-SOL-018', 'lanza 404 si el prestador no existe'), async () => {

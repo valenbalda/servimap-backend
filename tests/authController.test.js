@@ -2,6 +2,8 @@ jest.mock('../src/services/authService', ()=> ({
   registrarUsuario: jest.fn(),
   iniciarSesion: jest.fn(),
   obtenerPerfil: jest.fn(),
+  actualizarNombre: jest.fn(),
+  cambiarPassword: jest.fn(),
 }));
 
 const authService = require('../src/services/authService');
@@ -268,6 +270,128 @@ describe('me', () => {
     const next = jest.fn();
 
     await authController.me({ usuario: { id: 'u1' } }, crearRes(), next);
+
+    expect(next).toHaveBeenCalledWith(error);
+  });
+});
+
+describe('actualizarMe', () => {
+  it.each([
+    ['falta', {}],
+    ['está vacío', { nombre: '   ' }],
+    ['no es texto', { nombre: 123 }],
+  ])(caso('TC-AUTH-031', 'responde 400 si el nombre %s'), async (_, body) => {
+    const res = crearRes();
+
+    await authController.actualizarMe({ usuario: { id: 'u1' }, body }, res, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(authService.actualizarNombre).not.toHaveBeenCalled();
+  });
+
+  it(caso('TC-AUTH-032', 'responde 400 si el nombre supera los 100 caracteres'), async () => {
+    const res = crearRes();
+
+    await authController.actualizarMe(
+      { usuario: { id: 'u1' }, body: { nombre: 'a'.repeat(101) } },
+      res,
+      jest.fn()
+    );
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(authService.actualizarNombre).not.toHaveBeenCalled();
+  });
+
+  it(caso('TC-AUTH-033', 'edita solo el nombre del usuario del token e ignora dni, email y rol'), async () => {
+    authService.actualizarNombre.mockResolvedValue({ id: 'u1', nombre: 'Ana Pérez' });
+    const res = crearRes();
+
+    await authController.actualizarMe(
+      {
+        usuario: { id: 'u1' },
+        body: { nombre: '  Ana Pérez ', dni: '99999999', email: 'otro@mail.com', rol: 'ADMINISTRADOR' },
+      },
+      res,
+      jest.fn()
+    );
+
+    expect(authService.actualizarNombre).toHaveBeenCalledWith('u1', 'Ana Pérez');
+    expect(res.json).toHaveBeenCalledWith({ id: 'u1', nombre: 'Ana Pérez' });
+  });
+
+  it(caso('TC-AUTH-034', 'pasa el error del servicio al manejador de errores'), async () => {
+    const error = new Error('Usuario no encontrado');
+    authService.actualizarNombre.mockRejectedValue(error);
+    const next = jest.fn();
+
+    await authController.actualizarMe(
+      { usuario: { id: 'u1' }, body: { nombre: 'Ana' } },
+      crearRes(),
+      next
+    );
+
+    expect(next).toHaveBeenCalledWith(error);
+  });
+});
+
+describe('cambiarPassword', () => {
+  const bodyValido = { passwordActual: 'clave-vieja-1', passwordNueva: 'clave-nueva-2' };
+
+  it.each([
+    ['sin la contraseña actual', { passwordNueva: 'clave-nueva-2' }],
+    ['sin la contraseña nueva', { passwordActual: 'clave-vieja-1' }],
+    ['con datos que no son texto', { passwordActual: 1, passwordNueva: 2 }],
+  ])(caso('TC-AUTH-035', 'responde 400 %s'), async (_, body) => {
+    const res = crearRes();
+
+    await authController.cambiarPassword({ usuario: { id: 'u1' }, body }, res, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(authService.cambiarPassword).not.toHaveBeenCalled();
+  });
+
+  it(caso('TC-AUTH-036', 'responde 400 si la contraseña nueva tiene menos de 8 caracteres'), async () => {
+    const res = crearRes();
+
+    await authController.cambiarPassword(
+      { usuario: { id: 'u1' }, body: { passwordActual: 'clave-vieja-1', passwordNueva: '1234567' } },
+      res,
+      jest.fn()
+    );
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(authService.cambiarPassword).not.toHaveBeenCalled();
+  });
+
+  it(caso('TC-AUTH-037', 'responde 400 si la contraseña nueva es igual a la actual'), async () => {
+    const res = crearRes();
+
+    await authController.cambiarPassword(
+      { usuario: { id: 'u1' }, body: { passwordActual: 'misma-clave-1', passwordNueva: 'misma-clave-1' } },
+      res,
+      jest.fn()
+    );
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(authService.cambiarPassword).not.toHaveBeenCalled();
+  });
+
+  it(caso('TC-AUTH-038', 'cambia la contraseña del usuario del token y no devuelve datos de la clave'), async () => {
+    authService.cambiarPassword.mockResolvedValue(undefined);
+    const res = crearRes();
+
+    await authController.cambiarPassword({ usuario: { id: 'u1' }, body: bodyValido }, res, jest.fn());
+
+    expect(authService.cambiarPassword).toHaveBeenCalledWith('u1', bodyValido);
+    expect(res.json).toHaveBeenCalledWith({ mensaje: 'Contraseña actualizada' });
+  });
+
+  it(caso('TC-AUTH-039', 'pasa el error del servicio al manejador de errores'), async () => {
+    const error = new Error('La contraseña actual es incorrecta');
+    authService.cambiarPassword.mockRejectedValue(error);
+    const next = jest.fn();
+
+    await authController.cambiarPassword({ usuario: { id: 'u1' }, body: bodyValido }, crearRes(), next);
 
     expect(next).toHaveBeenCalledWith(error);
   });

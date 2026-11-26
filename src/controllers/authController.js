@@ -84,4 +84,61 @@ async function me(req, res, next) {
   }
 }
 
-module.exports = { register, login, me };
+const NOMBRE_MAX = 100;
+const PASSWORD_MIN = 8;
+
+// Solo se acepta el nombre: si mandan dni, email o rol, se ignoran.
+async function actualizarMe(req, res, next) {
+  try {
+    const { nombre } = req.body || {};
+
+    if (typeof nombre !== 'string' || !nombre.trim()) {
+      return res.status(400).json({ error: 'El nombre es obligatorio' });
+    }
+
+    if (nombre.trim().length > NOMBRE_MAX) {
+      return res
+        .status(400)
+        .json({ error: `El nombre no puede superar los ${NOMBRE_MAX} caracteres` });
+    }
+
+    const usuario = await authService.actualizarNombre(req.usuario.id, nombre.trim());
+    res.json(usuario);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function cambiarPassword(req, res, next) {
+  try {
+    const { passwordActual, passwordNueva } = req.body || {};
+
+    if (
+      typeof passwordActual !== 'string' ||
+      typeof passwordNueva !== 'string' ||
+      !passwordActual ||
+      !passwordNueva
+    ) {
+      return res.status(400).json({ error: 'Faltan datos obligatorios' });
+    }
+
+    if (passwordNueva.length < PASSWORD_MIN) {
+      return res
+        .status(400)
+        .json({ error: 'La contraseña nueva debe tener al menos 8 caracteres' });
+    }
+
+    if (passwordNueva === passwordActual) {
+      return res
+        .status(400)
+        .json({ error: 'La contraseña nueva debe ser distinta de la actual' });
+    }
+
+    await authService.cambiarPassword(req.usuario.id, { passwordActual, passwordNueva });
+    res.json({ mensaje: 'Contraseña actualizada' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { register, login, me, actualizarMe, cambiarPassword };

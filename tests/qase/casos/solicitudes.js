@@ -91,4 +91,11 @@ const fechas = definirCasos(
   ]
 );
 
-module.exports = [...crear, ...listarCtrl, ...crearSrv, ...listarSrv, ...estados, ...fechas];
+const numero = definirCasos(
+  { ...BASE_UNITARIA, modulo: 'Solicitudes: número identificador', rol: 'Cliente / Prestador', rf: ['RF-09', 'RF-14'], precondiciones: PRE_SRV },
+  [
+    nuevo('TC-SOL-053', 'Número en el listado', 'El listado devuelve el número de la solicitud y el número del cliente, y los pide a la base.', ['Simular una solicitud con numero y un cliente con numero', 'Llamar a listarMisSolicitudes'], 'La respuesta incluye numero en la solicitud y en cliente, y la consulta selecciona el numero del cliente.', { ...CENTRAL }),
+  ]
+);
+
+module.exports = [...crear, ...listarCtrl, ...crearSrv, ...listarSrv, ...estados, ...fechas, ...numero];
