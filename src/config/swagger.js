@@ -253,6 +253,20 @@ const swaggerSpec = {
             schema: { type: 'string', maxLength: 100 },
             description: 'Busca por nombre, zona de cobertura u oficio',
           },
+                    {
+            name: 'zona',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', maxLength: 100, example: 'Palermo' },
+            description: 'Zona de cobertura exacta (sin distinguir mayúsculas)',
+          },
+          {
+            name: 'presupuesto',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', minimum: 0, example: 15000 },
+            description: 'Presupuesto del cliente: solo prestadores cuyo precio mínimo es menor o igual a este monto (los que no cargaron precio no aparecen)',
+          },
           {
             name: 'lat',
             in: 'query',

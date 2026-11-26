@@ -243,4 +243,29 @@ describe('listarPrestadores', () => {
       })
     );
   });
+  
+it(caso('TC-PRE-066', 'filtra por zona exacta sin distinguir mayúsculas'), async () => {
+    prisma.prestador.findMany.mockResolvedValue([]);
+
+    await prestadoresService.listarPrestadores({ zona: 'Palermo' });
+
+    const { where } = prisma.prestador.findMany.mock.calls[0][0];
+    expect(where.zonaCobertura).toEqual({ equals: 'Palermo', mode: 'insensitive' });
+  });
+
+  it(caso('TC-PRE-067', 'filtra por presupuesto y no filtra si no se pide'), async () => {
+    prisma.prestador.findMany.mockResolvedValue([]);
+
+    await prestadoresService.listarPrestadores({ presupuesto: 15000 });
+    await prestadoresService.listarPrestadores({ presupuesto: 0 });
+    await prestadoresService.listarPrestadores();
+
+    const [conMonto, conCero, sinFiltro] = prisma.prestador.findMany.mock.calls.map(
+      ([consulta]) => consulta.where
+    );
+    expect(conMonto.precioMin).toEqual({ lte: 15000 });
+    expect(conCero.precioMin).toEqual({ lte: 0 });
+    expect(sinFiltro).not.toHaveProperty('precioMin');
+    expect(sinFiltro).not.toHaveProperty('zonaCobertura');
+  });
 });

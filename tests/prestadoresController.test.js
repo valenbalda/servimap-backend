@@ -266,6 +266,30 @@ describe('listar', () => {
     }
   );
 
+    it.each([
+    [{ zona: '   ' }, 'La zona es inválida (máximo 100 caracteres)'],
+    [{ zona: 'a'.repeat(101) }, 'La zona es inválida (máximo 100 caracteres)'],
+    [{ presupuesto: '-1' }, 'presupuesto debe ser un número mayor o igual a 0'],
+    [{ presupuesto: 'abc' }, 'presupuesto debe ser un número mayor o igual a 0'],
+    [{ presupuesto: '' }, 'presupuesto debe ser un número mayor o igual a 0'],
+  ])(caso('TC-PRE-064', 'responde 400 con el filtro inválido %j'), async (query, mensaje) => {
+    const { res } = await listarConQuery(query);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: mensaje });
+    expect(prestadoresService.listarPrestadores).not.toHaveBeenCalled();
+  });
+
+  it(caso('TC-PRE-065', 'pasa la zona sin espacios y el presupuesto convertido a número'), async () => {
+    prestadoresService.listarPrestadores.mockResolvedValue({ registros: [] });
+
+    await listarConQuery({ zona: ' Palermo ', presupuesto: '15000' });
+
+    expect(prestadoresService.listarPrestadores).toHaveBeenCalledWith({
+      zona: 'Palermo',
+      presupuesto: 15000,
+    });
+  });
   it(caso('TC-PRE-015', 'pasa el error del servicio al manejador de errores'), async () => {
     const error = new Error('Falló la consulta');
     prestadoresService.listarPrestadores.mockRejectedValue(error);
