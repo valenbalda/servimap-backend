@@ -2,7 +2,7 @@
 
 # Casos de prueba del backend
 
-Total: **313 casos** (260 unitarios y 53 de integración), todos automatizados.
+Total: **318 casos** (263 unitarios y 55 de integración), todos automatizados.
 Cada caso corresponde a un test real que lo referencia con `caso('TC-...', nombre)`.
 Un `it.each` es un solo caso con varios juegos de datos: cada uno se reporta como un resultado del mismo caso.
 
@@ -87,6 +87,8 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-AUTH-042](#tc-auth-042) | Contraseña nueva hasheada | Unitario | Autenticación: edición de perfil y contraseña (servicio) | Cliente / Prestador | RF-01, RF-02 | alta | critica | seguridad | Sí |  |
 | [TC-AUTH-043](#tc-auth-043) | Contraseña actual incorrecta | Unitario | Autenticación: edición de perfil y contraseña (servicio) | Cliente / Prestador | RF-01, RF-02 | alta | critica | seguridad | Sí |  |
 | [TC-AUTH-044](#tc-auth-044) | Cambiar contraseña de usuario inexistente o desactivado | Unitario | Autenticación: edición de perfil y contraseña (servicio) | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí |  |
+| [TC-AUTH-045](#tc-auth-045) | Número en el registro | Unitario | Autenticación: número identificador | Cliente / Prestador | RF-01, RF-02 | alta | mayor | funcional | Sí |  |
+| [TC-AUTH-046](#tc-auth-046) | Número en el perfil | Unitario | Autenticación: número identificador | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí |  |
 | [TC-OFI-001](#tc-ofi-001) | Listado público de oficios | Unitario | Oficios: controlador | Visitante | RF-22, RF-04 | media | normal | funcional | Sí | 62 |
 | [TC-OFI-002](#tc-ofi-002) | Error en el listado público | Unitario | Oficios: controlador | Visitante | RF-22 | baja | menor | funcional | Sí | 63 |
 | [TC-OFI-003](#tc-ofi-003) | Listado completo para el administrador | Unitario | Oficios: controlador | Administrador | RF-22 | media | normal | funcional | Sí | 64 |
@@ -234,6 +236,7 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-SOL-046](#tc-sol-046) | Finalizar solicitud ajena | Unitario | Solicitudes: estados (servicio) | Prestador | RF-13 | alta | critica | seguridad | Sí | 202 |
 | [TC-SOL-047](#tc-sol-047) | Finalizar sin perfil de prestador | Unitario | Solicitudes: estados (servicio) | Prestador | RF-13 | alta | critica | seguridad | Sí | 203 |
 | [TC-SOL-048](#tc-sol-048) | Finalizar solicitud no aceptada | Unitario | Solicitudes: estados (servicio) | Prestador | RF-13 | alta | mayor | funcional | Sí | 204 |
+| [TC-SOL-053](#tc-sol-053) | Número en el listado | Unitario | Solicitudes: número identificador | Cliente / Prestador | RF-09, RF-14 | alta | mayor | funcional | Sí |  |
 | [TC-CAL-001](#tc-cal-001) | Solicitud inválida | Unitario | Calificaciones: controlador | Cliente | RF-16 | media | normal | funcional | Sí | 205 |
 | [TC-CAL-002](#tc-cal-002) | Puntaje inválido | Unitario | Calificaciones: controlador | Cliente | RF-16 | alta | mayor | funcional | Sí | 206 |
 | [TC-CAL-003](#tc-cal-003) | Comentario inválido al calificar | Unitario | Calificaciones: controlador | Cliente | RF-16 | media | normal | funcional | Sí | 207 |
@@ -281,6 +284,7 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-INT-AUTH-007](#tc-int-auth-007) | DNI duplicado con otro formato | Integración | Autenticación | Visitante | RF-01 | alta | mayor | integracion | Sí | 247 |
 | [TC-INT-AUTH-008](#tc-int-auth-008) | Registro con datos inválidos no guarda nada | Integración | Autenticación | Visitante | RF-01 | media | normal | integracion | Sí | 248 |
 | [TC-INT-AUTH-009](#tc-int-auth-009) | Cuenta desactivada no puede iniciar sesión | Integración | Autenticación | Visitante | RF-02 | alta | mayor | seguridad | Sí | 249 |
+| [TC-INT-AUTH-013](#tc-int-auth-013) | Número identificador del usuario | Integración | Autenticación | Cliente / Prestador | RF-01, RF-02 | alta | mayor | integracion | Sí |  |
 | [TC-INT-AUTH-010](#tc-int-auth-010) | Editar el nombre sin poder cambiar DNI, email ni rol | Integración | Autenticación | Cliente / Prestador | RF-01, RF-02 | alta | mayor | seguridad | Sí |  |
 | [TC-INT-AUTH-011](#tc-int-auth-011) | Cambiar la contraseña | Integración | Autenticación | Cliente / Prestador | RF-02 | alta | mayor | seguridad | Sí |  |
 | [TC-INT-AUTH-012](#tc-int-auth-012) | Cambio de contraseña rechazado | Integración | Autenticación | Cliente / Prestador | RF-02 | alta | mayor | seguridad | Sí |  |
@@ -296,6 +300,7 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-INT-CLI-010](#tc-int-cli-010) | Una sola calificación por solicitud | Integración | Flujo del cliente | Cliente | RF-18 | alta | critica | integracion | Sí | 259 |
 | [TC-INT-CLI-011](#tc-int-cli-011) | No calificar solicitudes no finalizadas | Integración | Flujo del cliente | Cliente | RF-17 | alta | mayor | integracion | Sí | 260 |
 | [TC-INT-CLI-012](#tc-int-cli-012) | Editar comentario de una calificación propia | Integración | Flujo del cliente | Cliente | RF-16 | media | normal | integracion | Sí | 261 |
+| [TC-INT-CLI-014](#tc-int-cli-014) | Número identificador de la solicitud | Integración | Flujo del cliente | Cliente | RF-09, RF-14 | alta | mayor | integracion | Sí |  |
 | [TC-INT-CLI-013](#tc-int-cli-013) | No pedir servicio a un prestador no disponible | Integración | Flujo del cliente | Cliente | RF-09 | alta | mayor | integracion | Sí | 262 |
 | [TC-INT-PRE-001](#tc-int-pre-001) | Consultar perfil propio | Integración | Flujo del prestador | Prestador | RF-03 | media | mayor | integracion | Sí | 263 |
 | [TC-INT-PRE-002](#tc-int-pre-002) | Editar perfil | Integración | Flujo del prestador | Prestador | RF-03, RF-04 | alta | critica | integracion | Sí | 264 |
@@ -1975,6 +1980,50 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Rol | Cliente / Prestador |
 | Requerimiento | RF-01, RF-02 |
 | Archivo y test | `tests/authService.test.js` › lanza 404 si el usuario %s |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-045
+
+**Número en el registro**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El registro devuelve el número autogenerado del usuario y no acepta uno elegido por quien se registra. |
+| Precondiciones | authService con Prisma simulado (sin base de datos real) y una clave JWT de test. |
+| Pasos | 1. Simular el alta con un número en los datos<br>2. Llamar a registrarUsuario |
+| Resultado esperado | prisma.usuario.create no recibe número y la respuesta incluye id y numero. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: número identificador |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authService.test.js` › el registro devuelve el número autogenerado y no lo deja elegir |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-046
+
+**Número en el perfil**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El perfil del usuario incluye su número además del id. |
+| Precondiciones | authService con Prisma simulado (sin base de datos real) y una clave JWT de test. |
+| Pasos | 1. Simular el usuario con número<br>2. Llamar a obtenerPerfil |
+| Resultado esperado | La respuesta incluye id y numero. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: número identificador |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authService.test.js` › el perfil incluye el número además del id |
 | Automatizado | Sí |
 | qaseId | (pendiente) |
 
@@ -5212,6 +5261,28 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Automatizado | Sí |
 | qaseId | 204 |
 
+### TC-SOL-053
+
+**Número en el listado**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El listado devuelve el número de la solicitud y el número del cliente, y los pide a la base. |
+| Precondiciones | solicitudesService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular una solicitud con numero y un cliente con numero<br>2. Llamar a listarMisSolicitudes |
+| Resultado esperado | La respuesta incluye numero en la solicitud y en cliente, y la consulta selecciona el numero del cliente. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Solicitudes: número identificador |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-09, RF-14 |
+| Archivo y test | `tests/solicitudesListar.test.js` › devuelve el número de la solicitud y el del cliente, y los pide a la base |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
 ### TC-CAL-001
 
 **Solicitud inválida**
@@ -6246,6 +6317,28 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Automatizado | Sí |
 | qaseId | 249 |
 
+### TC-INT-AUTH-013
+
+**Número identificador del usuario**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Cada usuario recibe un número autogenerado y único, distinto del id, que se ve en GET /api/auth/me. |
+| Precondiciones | Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Dos clientes registrados. |
+| Pasos | 1. Registrar dos clientes<br>2. GET /api/auth/me del primero |
+| Resultado esperado | Los dos números son enteros y distintos, y el perfil devuelve el id y el número. |
+| Postcondiciones | Al terminar la suite se borran todos los datos que creó. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | integracion |
+| Capa | Integración |
+| Módulo | Autenticación |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/integration/auth.integration.test.js` › cada usuario recibe un número único y distinto del id, y GET /me lo devuelve |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
 ### TC-INT-AUTH-010
 
 **Editar el nombre sin poder cambiar DNI, email ni rol**
@@ -6575,6 +6668,28 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Archivo y test | `tests/integration/cliente.integration.test.js` › edita el comentario de su calificación |
 | Automatizado | Sí |
 | qaseId | 261 |
+
+### TC-INT-CLI-014
+
+**Número identificador de la solicitud**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Cada solicitud recibe un número autogenerado y único, distinto del id, que aparece en el listado junto al número del cliente. |
+| Precondiciones | Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada. |
+| Pasos | 1. Crear dos solicitudes<br>2. GET /api/solicitudes del cliente |
+| Resultado esperado | Los números son enteros crecientes, el listado los devuelve y el id (UUID) sigue siendo el mismo. |
+| Postcondiciones | Al terminar la suite se borran todos los datos que creó. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | integracion |
+| Capa | Integración |
+| Módulo | Flujo del cliente |
+| Rol | Cliente |
+| Requerimiento | RF-09, RF-14 |
+| Archivo y test | `tests/integration/cliente.integration.test.js` › cada solicitud recibe un número único y distinto del id, visible en el listado |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
 
 ### TC-INT-CLI-013
 

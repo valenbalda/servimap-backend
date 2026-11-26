@@ -79,4 +79,12 @@ const edicionServicio = definirCasos(
   ]
 );
 
-module.exports = [...registro, ...sesion, ...servicio, ...edicionPerfil, ...edicionServicio];
+const numeroUsuario = definirCasos(
+  { ...BASE_UNITARIA, modulo: 'Autenticación: número identificador', ...PERFIL, precondiciones: PRE_SRV },
+  [
+    nuevo('TC-AUTH-045', 'Número en el registro', 'El registro devuelve el número autogenerado del usuario y no acepta uno elegido por quien se registra.', ['Simular el alta con un número en los datos', 'Llamar a registrarUsuario'], 'prisma.usuario.create no recibe número y la respuesta incluye id y numero.', { ...CENTRAL }),
+    nuevo('TC-AUTH-046', 'Número en el perfil', 'El perfil del usuario incluye su número además del id.', ['Simular el usuario con número', 'Llamar a obtenerPerfil'], 'La respuesta incluye id y numero.'),
+  ]
+);
+
+module.exports = [...registro, ...sesion, ...servicio, ...edicionPerfil, ...edicionServicio, ...numeroUsuario];

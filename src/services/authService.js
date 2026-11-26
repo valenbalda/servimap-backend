@@ -42,6 +42,7 @@ async function registrarUsuario({ nombre, dni, email, password, rol }) {
 
   return {
     id: usuario.id,
+    numero: usuario.numero,
     nombre: usuario.nombre,
     email: usuario.email,
     rol: usuario.rol,
@@ -71,6 +72,7 @@ async function iniciarSesion({ email, password }) {
     token,
     usuario: {
       id: usuario.id,
+      numero: usuario.numero,
       nombre: usuario.nombre,
       email: usuario.email,
       rol: usuario.rol,
@@ -83,6 +85,7 @@ async function iniciarSesion({ email, password }) {
 function armarPerfil(usuario) {
   return {
     id: usuario.id,
+    numero: usuario.numero,
     nombre: usuario.nombre,
     dni: usuario.dni,
     email: usuario.email,
