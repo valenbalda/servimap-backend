@@ -131,6 +131,11 @@ const swaggerSpec = {
         type: 'object',
         properties: {
           id: { type: 'string' },
+          numero: {
+            type: 'integer',
+            example: 12,
+            description: 'Número identificador autogenerado, único y de solo lectura. No reemplaza al id.',
+          },
           nombre: { type: 'string' },
           email: { type: 'string' },
           rol: { type: 'string', enum: ['CLIENTE', 'PRESTADOR', 'ADMINISTRADOR'] },
@@ -459,6 +464,76 @@ const swaggerSpec = {
           404: respuestaError('Usuario no encontrado'),
         },
       },
+      patch: {
+        tags: ['Auth'],
+        summary: 'Editar el nombre del usuario autenticado (cliente o prestador)',
+        description:
+          'Solo se puede cambiar el nombre. Si se envían dni, email o rol se ignoran: esos datos no se pueden editar.',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['nombre'],
+                properties: {
+                  nombre: { type: 'string', maxLength: 100, example: 'Ana Pérez' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: respuestaJson('Perfil actualizado (el mismo formato que GET /api/auth/me)', {
+            allOf: [
+              { $ref: '#/components/schemas/Usuario' },
+              {
+                type: 'object',
+                properties: { dni: { type: 'string', example: '12345678' } },
+              },
+            ],
+          }),
+          400: respuestaError('El nombre falta, está vacío o supera los 100 caracteres'),
+          401: respuestaError('Token no proporcionado, inválido o vencido'),
+          404: respuestaError('Usuario no encontrado'),
+        },
+      },
+    },
+    '/api/auth/me/password': {
+      patch: {
+        tags: ['Auth'],
+        summary: 'Cambiar la contraseña del usuario autenticado',
+        description:
+          'Pide la contraseña actual. La nueva se guarda hasheada y nunca se devuelve. Las sesiones ya iniciadas siguen vigentes hasta que venza su token.',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['passwordActual', 'passwordNueva'],
+                properties: {
+                  passwordActual: { type: 'string', format: 'password' },
+                  passwordNueva: { type: 'string', format: 'password', minLength: 8 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: respuestaJson('Contraseña actualizada', {
+            type: 'object',
+            properties: { mensaje: { type: 'string', example: 'Contraseña actualizada' } },
+          }),
+          400: respuestaError(
+            'Faltan datos, la nueva tiene menos de 8 caracteres, es igual a la actual o la contraseña actual es incorrecta'
+          ),
+          401: respuestaError('Token no proporcionado, inválido o vencido'),
+          404: respuestaError('Usuario no encontrado'),
+        },
+      },
     },
     '/api/oficios': {
       get: {
@@ -713,6 +788,11 @@ const solicitud = {
   type: 'object',
   properties: {
     id: { type: 'string' },
+    numero: {
+      type: 'integer',
+      example: 1042,
+      description: 'Número identificador autogenerado, único y de solo lectura. No reemplaza al id. Las solicitudes anteriores reciben su número en orden de creación.',
+    },
     descripcion: { type: 'string' },
     direccion: { type: 'string', nullable: true },
     contactoPreferido: { type: 'string', nullable: true },
@@ -866,7 +946,11 @@ swaggerSpec.paths['/api/solicitudes'].get = {
               },
               cliente: {
                 type: 'object',
-                properties: { id: { type: 'string' }, nombre: { type: 'string' } },
+                properties: {
+                  id: { type: 'string' },
+                  numero: { type: 'integer', example: 12 },
+                  nombre: { type: 'string' },
+                },
               },
               prestador: {
                 type: 'object',

@@ -10,6 +10,7 @@ function crearError(mensaje, status) {
 function formatearSolicitud(solicitud) {
   return {
     id: solicitud.id,
+    numero: solicitud.numero,
     descripcion: solicitud.descripcion,
     direccion: solicitud.direccion,
     contactoPreferido: solicitud.contactoPreferido,
@@ -26,7 +27,7 @@ function formatearSolicitudDetallada(solicitud) {
   return {
     ...formatearSolicitud(solicitud),
     oficio: { id: solicitud.oficio.id, nombre: solicitud.oficio.nombre },
-    cliente: { id: solicitud.cliente.id, nombre: solicitud.cliente.nombre },
+    cliente: { id: solicitud.cliente.id, numero: solicitud.cliente.numero, nombre: solicitud.cliente.nombre },
     prestador: { id: solicitud.prestadorId, nombre: solicitud.prestador.usuario.nombre },
     calificada: Boolean(solicitud.calificacion),
   };
@@ -95,7 +96,7 @@ async function listarMisSolicitudes({ id: usuarioId, rol }, { estado } = {}) {
     orderBy: { fechaCreacion: 'desc' },
     include: {
       oficio: { select: { id: true, nombre: true } },
-      cliente: { select: { id: true, nombre: true } },
+      cliente: { select: { id: true, numero: true, nombre: true } },
       prestador: { include: { usuario: { select: { nombre: true } } } },
       calificacion: { select: { id: true } },
     },

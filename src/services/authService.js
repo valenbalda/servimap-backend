@@ -42,6 +42,7 @@ async function registrarUsuario({ nombre, dni, email, password, rol }) {
 
   return {
     id: usuario.id,
+    numero: usuario.numero,
     nombre: usuario.nombre,
     email: usuario.email,
     rol: usuario.rol,
@@ -71,6 +72,7 @@ async function iniciarSesion({ email, password }) {
     token,
     usuario: {
       id: usuario.id,
+      numero: usuario.numero,
       nombre: usuario.nombre,
       email: usuario.email,
       rol: usuario.rol,
@@ -80,15 +82,10 @@ async function iniciarSesion({ email, password }) {
 
 // El perfil es el único lugar donde se devuelve el DNI, y solo a su dueño
 // (el id sale del token, nunca de un dato que mande el usuario).
-async function obtenerPerfil(usuarioId) {
-  const usuario = await prisma.usuario.findUnique({ where: {id: usuarioId } });
-
-  if (!usuario?.activo) {
-    throw crearError('Usuario no encontrado', 404);
-  }
-
+function armarPerfil(usuario) {
   return {
     id: usuario.id,
+    numero: usuario.numero,
     nombre: usuario.nombre,
     dni: usuario.dni,
     email: usuario.email,
@@ -97,4 +94,52 @@ async function obtenerPerfil(usuarioId) {
   };
 }
 
-module.exports = { registrarUsuario, iniciarSesion, obtenerPerfil };
+async function buscarUsuarioActivo(usuarioId) {
+  const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
+
+  if (!usuario?.activo) {
+    throw crearError('Usuario no encontrado', 404);
+  }
+
+  return usuario;
+}
+
+async function obtenerPerfil(usuarioId) {
+  return armarPerfil(await buscarUsuarioActivo(usuarioId));
+}
+
+// Solo se puede editar el nombre. El DNI, el email y el rol no se tocan desde acá.
+async function actualizarNombre(usuarioId, nombre) {
+  await buscarUsuarioActivo(usuarioId);
+
+  const usuario = await prisma.usuario.update({
+    where: { id: usuarioId },
+    data: { nombre },
+  });
+
+  return armarPerfil(usuario);
+}
+
+// Pide la contraseña actual, guarda la nueva hasheada y no devuelve ningún dato de la clave.
+async function cambiarPassword(usuarioId, { passwordActual, passwordNueva }) {
+  const usuario = await buscarUsuarioActivo(usuarioId);
+
+  const actualValida = await bcrypt.compare(passwordActual, usuario.passwordHash);
+  if (!actualValida) {
+    throw crearError('La contraseña actual es incorrecta', 400);
+  }
+
+  const passwordHash = await bcrypt.hash(passwordNueva, 10);
+  await prisma.usuario.update({
+    where: { id: usuarioId },
+    data: { passwordHash },
+  });
+}
+
+module.exports = {
+  registrarUsuario,
+  iniciarSesion,
+  obtenerPerfil,
+  actualizarNombre,
+  cambiarPassword,
+};
