@@ -124,4 +124,82 @@ describeConBase('Integración: registro, inicio de sesión y perfil', () => {
     expect(res.status).toBe(403);
     expect(res.body).not.toHaveProperty('token');
   });
+
+  it(caso('TC-INT-AUTH-013', 'cada usuario recibe un número único y distinto del id, y GET /me lo devuelve'), async () => {
+    const primero = await escenario.registrar('CLIENTE');
+    const segundo = await escenario.registrar('CLIENTE');
+
+    const perfil = await api(primero.token).get('/api/auth/me');
+
+    expect(Number.isInteger(primero.numero)).toBe(true);
+    expect(Number.isInteger(segundo.numero)).toBe(true);
+    expect(segundo.numero).toBeGreaterThan(primero.numero);
+    expect(perfil.status).toBe(200);
+    expect(perfil.body).toMatchObject({ id: primero.id, numero: primero.numero });
+    expect(typeof perfil.body.id).toBe('string');
+  });
+
+  it(caso('TC-INT-AUTH-010', 'PATCH /me cambia el nombre y no deja editar el DNI, el email ni el rol'), async () => {
+    const prestador = await escenario.registrar('PRESTADOR');
+
+    const res = await api(prestador.token).patch('/api/auth/me', {
+      nombre: 'Nombre Nuevo',
+      dni: '99999999',
+      email: `${escenario.prefijo}-otro@servimap.test`,
+      rol: 'ADMINISTRADOR',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ id: prestador.id, nombre: 'Nombre Nuevo', rol: 'PRESTADOR' });
+    expect(res.body).not.toHaveProperty('passwordHash');
+
+    const guardado = await prisma.usuario.findUnique({ where: { id: prestador.id } });
+    expect(guardado).toMatchObject({
+      nombre: 'Nombre Nuevo',
+      dni: prestador.dni,
+      email: prestador.email,
+      rol: 'PRESTADOR',
+    });
+  });
+
+  it(caso('TC-INT-AUTH-011', 'PATCH /me/password cambia la contraseña y la anterior deja de servir'), async () => {
+    const cliente = await escenario.registrar('CLIENTE');
+    const passwordNueva = 'clave-nueva-456';
+
+    const res = await api(cliente.token).patch('/api/auth/me/password', {
+      passwordActual: PASSWORD,
+      passwordNueva,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).not.toHaveProperty('passwordHash');
+
+    const guardado = await prisma.usuario.findUnique({ where: { id: cliente.id } });
+    expect(guardado.passwordHash).not.toBe(passwordNueva);
+    expect(await bcrypt.compare(passwordNueva, guardado.passwordHash)).toBe(true);
+
+    const conLaNueva = await api().post('/api/auth/login', { email: cliente.email, password: passwordNueva });
+    const conLaAnterior = await api().post('/api/auth/login', { email: cliente.email, password: PASSWORD });
+    expect(conLaNueva.status).toBe(200);
+    expect(conLaAnterior.status).toBe(401);
+  });
+
+  it(caso('TC-INT-AUTH-012', 'rechaza el cambio de contraseña con la actual incorrecta o sin sesión'), async () => {
+    const cliente = await escenario.registrar('CLIENTE');
+
+    const incorrecta = await api(cliente.token).patch('/api/auth/me/password', {
+      passwordActual: 'no-es-la-clave-1',
+      passwordNueva: 'clave-nueva-456',
+    });
+    const sinSesion = await api().patch('/api/auth/me/password', {
+      passwordActual: PASSWORD,
+      passwordNueva: 'clave-nueva-456',
+    });
+
+    expect(incorrecta.status).toBe(400);
+    expect(sinSesion.status).toBe(401);
+
+    const guardado = await prisma.usuario.findUnique({ where: { id: cliente.id } });
+    expect(await bcrypt.compare(PASSWORD, guardado.passwordHash)).toBe(true);
+  });
 });

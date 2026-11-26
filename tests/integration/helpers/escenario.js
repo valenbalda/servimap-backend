@@ -58,7 +58,7 @@ function crearEscenario(nombreSuite) {
       rol === 'PRESTADOR'
         ? await prisma.prestador.findUnique({ where: { usuarioId: res.body.id } })
         : null;
-    return { ...datos, id: res.body.id, token, prestadorId: prestador?.id ?? null };
+    return { ...datos, id: res.body.id, numero: res.body.numero, token, prestadorId: prestador?.id ?? null };
   }
 
   // La API no permite registrar administradores: se crea directo en la base.

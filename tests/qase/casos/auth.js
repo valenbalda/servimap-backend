@@ -51,4 +51,40 @@ const servicio = definirCasos(
   ]
 );
 
-module.exports = [...registro, ...sesion, ...servicio];
+const PERFIL = { rol: 'Cliente / Prestador', rf: ['RF-01', 'RF-02'] };
+
+const edicionPerfil = definirCasos(
+  { ...BASE_UNITARIA, modulo: 'Autenticación: edición de perfil y contraseña', ...PERFIL, precondiciones: PRE_CTRL },
+  [
+    nuevo('TC-AUTH-031', 'Editar nombre sin nombre válido', 'PATCH /me exige un nombre de texto que no esté vacío.', ['Invocar actualizarMe sin nombre, con espacios o con un número'], '400 sin llamar al servicio.'),
+    nuevo('TC-AUTH-032', 'Editar nombre demasiado largo', 'El nombre no puede superar los 100 caracteres.', ['Invocar actualizarMe con un nombre de 101 caracteres'], '400 sin llamar al servicio.'),
+    nuevo('TC-AUTH-033', 'Editar solo el nombre', 'El controlador limpia el nombre y usa el id del token; ignora dni, email y rol.', ['Invocar actualizarMe con nombre, dni, email y rol'], 'El servicio recibe solo el id del token y el nombre limpio.', { ...SEGURIDAD }),
+    nuevo('TC-AUTH-034', 'Error del servicio al editar el nombre', 'Un error del servicio se pasa al manejador de errores.', ['Hacer fallar actualizarNombre', 'Invocar actualizarMe'], 'Se llama a next(error).', PROPAGA_ERROR),
+    nuevo('TC-AUTH-035', 'Cambiar contraseña sin datos', 'Hacen falta la contraseña actual y la nueva, ambas de texto.', ['Invocar cambiarPassword sin alguna de las dos o con números'], '400 sin llamar al servicio.', { tipo: 'seguridad' }),
+    nuevo('TC-AUTH-036', 'Contraseña nueva corta', 'La contraseña nueva tiene que tener al menos 8 caracteres.', ['Invocar cambiarPassword con una nueva de 7 caracteres'], '400 sin llamar al servicio.', { tipo: 'seguridad' }),
+    nuevo('TC-AUTH-037', 'Contraseña nueva igual a la actual', 'No se acepta repetir la contraseña actual.', ['Invocar cambiarPassword con la misma contraseña en los dos campos'], '400 sin llamar al servicio.', { tipo: 'seguridad' }),
+    nuevo('TC-AUTH-038', 'Cambio de contraseña correcto', 'Usa el id del token y responde sin ningún dato de la clave.', ['Invocar cambiarPassword con datos válidos'], 'Responde { mensaje: "Contraseña actualizada" }.', { ...SEGURIDAD }),
+    nuevo('TC-AUTH-039', 'Error del servicio al cambiar la contraseña', 'Un error del servicio se pasa al manejador de errores.', ['Hacer fallar cambiarPassword', 'Invocar cambiarPassword'], 'Se llama a next(error).', PROPAGA_ERROR),
+  ]
+);
+
+const edicionServicio = definirCasos(
+  { ...BASE_UNITARIA, modulo: 'Autenticación: edición de perfil y contraseña (servicio)', ...PERFIL, precondiciones: PRE_SRV },
+  [
+    nuevo('TC-AUTH-040', 'Actualizar nombre', 'actualizarNombre cambia solo el nombre y devuelve el perfil sin la contraseña.', ['Simular el usuario', 'Llamar a actualizarNombre'], 'prisma.usuario.update recibe solo el nombre y el perfil no incluye passwordHash.', { ...CENTRAL }),
+    nuevo('TC-AUTH-041', 'Actualizar nombre de usuario inexistente o desactivado', 'No se edita a un usuario que no existe o está desactivado.', ['Simular que no hay usuario o que está desactivado', 'Llamar a actualizarNombre'], 'Lanza 404 y no actualiza.'),
+    nuevo('TC-AUTH-042', 'Contraseña nueva hasheada', 'cambiarPassword guarda la nueva contraseña con hash bcrypt y no devuelve nada.', ['Simular un usuario con su contraseña actual', 'Llamar a cambiarPassword'], 'prisma.usuario.update recibe solo passwordHash, que valida contra la nueva y no es el texto plano.', { ...SEGURIDAD }),
+    nuevo('TC-AUTH-043', 'Contraseña actual incorrecta', 'No se cambia la contraseña si la actual no coincide.', ['Simular un usuario', 'Llamar a cambiarPassword con otra contraseña actual'], 'Lanza 400 y no actualiza.', { ...SEGURIDAD }),
+    nuevo('TC-AUTH-044', 'Cambiar contraseña de usuario inexistente o desactivado', 'No se cambia la contraseña de un usuario que no existe o está desactivado.', ['Simular que no hay usuario o que está desactivado', 'Llamar a cambiarPassword'], 'Lanza 404 y no actualiza.'),
+  ]
+);
+
+const numeroUsuario = definirCasos(
+  { ...BASE_UNITARIA, modulo: 'Autenticación: número identificador', ...PERFIL, precondiciones: PRE_SRV },
+  [
+    nuevo('TC-AUTH-045', 'Número en el registro', 'El registro devuelve el número autogenerado del usuario y no acepta uno elegido por quien se registra.', ['Simular el alta con un número en los datos', 'Llamar a registrarUsuario'], 'prisma.usuario.create no recibe número y la respuesta incluye id y numero.', { ...CENTRAL }),
+    nuevo('TC-AUTH-046', 'Número en el perfil', 'El perfil del usuario incluye su número además del id.', ['Simular el usuario con número', 'Llamar a obtenerPerfil'], 'La respuesta incluye id y numero.'),
+  ]
+);
+
+module.exports = [...registro, ...sesion, ...servicio, ...edicionPerfil, ...edicionServicio, ...numeroUsuario];

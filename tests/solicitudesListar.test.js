@@ -9,6 +9,7 @@ const { caso } = require('./qase/qase');
 
 const solicitudBase = {
   id: 's1',
+  numero: 1042,
   descripcion: 'Se rompió una canilla',
   direccion: null,
   contactoPreferido: null,
@@ -18,7 +19,7 @@ const solicitudBase = {
   prestadorId: 'p1',
   oficioId: 'o1',
   oficio: { id: 'o1', nombre: 'Plomería' },
-  cliente: { id: 'c1', nombre: 'Ana' },
+  cliente: { id: 'c1', numero: 12, nombre: 'Ana' },
   prestador: { id: 'p1', usuario: { nombre: 'Juan' } },
   calificacion: null,
 };
@@ -57,6 +58,23 @@ describe('listarMisSolicitudes', () => {
     expect(lista[0].cliente.nombre).toBe('Ana');
   });
 
+  it(caso('TC-SOL-053', 'devuelve el número de la solicitud y el del cliente, y los pide a la base'), async () => {
+    prisma.solicitud.findMany.mockResolvedValue([solicitudBase]);
+
+    const [solicitud] = await solicitudesService.listarMisSolicitudes({ id: 'c1', rol: 'CLIENTE' });
+
+    expect(solicitud.id).toBe('s1');
+    expect(solicitud.numero).toBe(1042);
+    expect(solicitud.cliente.numero).toBe(12);
+    expect(prisma.solicitud.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        include: expect.objectContaining({
+          cliente: { select: { id: true, numero: true, nombre: true } },
+        }),
+      })
+    );
+  });
+
   it(caso('TC-SOL-026', 'filtra por estado cuando se pide'), async () => {
     prisma.solicitud.findMany.mockResolvedValue([]);
 
@@ -86,7 +104,7 @@ describe('listarMisSolicitudes', () => {
 
     const [solicitud] = await solicitudesService.listarMisSolicitudes({ id: 'c1', rol: 'CLIENTE' });
 
-    expect(solicitud.cliente).toEqual({ id: 'c1', nombre: 'Ana' });
+    expect(solicitud.cliente).toEqual({ id: 'c1', numero: 12, nombre: 'Ana' });
     expect(solicitud.prestador).toEqual({ id: 'p1', nombre: 'Juan' });
   });
 
