@@ -87,4 +87,12 @@ const numeroUsuario = definirCasos(
   ]
 );
 
-module.exports = [...registro, ...sesion, ...servicio, ...edicionPerfil, ...edicionServicio, ...numeroUsuario];
+const fotoPerfil = definirCasos(
+  { ...BASE_UNITARIA, modulo: 'Autenticación: foto de perfil', ...PERFIL, precondiciones: PRE_SRV },
+  [
+    nuevo('TC-AUTH-047', 'Foto de perfil de un cliente', 'El perfil de un cliente incluye su foto, o null si no tiene.', ['Simular un cliente con foto y otro sin foto', 'Llamar a obtenerPerfil'], 'La respuesta incluye fotoPerfil con la URL o null.', { ...CENTRAL }),
+    nuevo('TC-AUTH-048', 'Foto de perfil de un prestador', 'El perfil de un prestador toma la foto del campo fotoPerfil de su perfil de prestador.', ['Simular un usuario prestador y su perfil con foto', 'Llamar a obtenerPerfil y actualizarNombre'], 'La respuesta incluye la foto del prestador (o null si no hay perfil) tanto al consultar como al editar el nombre.', { ...CENTRAL }),
+  ]
+);
+
+module.exports = [...registro, ...sesion, ...servicio, ...edicionPerfil, ...edicionServicio, ...numeroUsuario, ...fotoPerfil];

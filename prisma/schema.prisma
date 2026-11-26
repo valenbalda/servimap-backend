@@ -33,6 +33,7 @@ model Usuario {
   fechaRegistro       DateTime @default(now())
   latitudReferencia   Decimal? @db.Decimal(9, 6)
   longitudReferencia  Decimal? @db.Decimal(9, 6)
+  fotoPerfil          String?
 
   prestador           Prestador?
   solicitudes         Solicitud[]    @relation("SolicitudesDelCliente")

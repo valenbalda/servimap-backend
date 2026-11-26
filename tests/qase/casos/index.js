@@ -54,6 +54,7 @@ const MODULOS = [
   require('./sistema'),
   require('./seguridad'),
   require('./auth'),
+  require('./fotos'),
   require('./oficios'),
   require('./prestadores'),
   require('./mapa'),
