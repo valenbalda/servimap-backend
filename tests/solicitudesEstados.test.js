@@ -36,7 +36,7 @@ describe('aceptarSolicitud', () => {
     expect(prisma.prestador.findUnique).toHaveBeenCalledWith({ where: { usuarioId: 'u1' } });
     expect(prisma.solicitud.update).toHaveBeenCalledWith({
       where: { id: 's1' },
-      data: { estado: 'ACEPTADA' },
+      data: { estado: 'ACEPTADA', fechaAceptacion: expect.any(Date) },
     });
     expect(solicitud.estado).toBe('ACEPTADA');
   });
@@ -152,5 +152,27 @@ describe('cancelarSolicitud', () => {
       status: 409,
     });
     expect(prisma.solicitud.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('fechas de la solicitud', () => {
+  it(caso('TC-SOL-050', 'al aceptar guarda y devuelve la fecha de aceptación, y la de finalización sigue en null'), async () => {
+    const aceptadaEn = new Date('2026-11-26T15:30:00.000Z');
+    prisma.solicitud.findUnique.mockResolvedValue(solicitudBase);
+    prisma.prestador.findUnique.mockResolvedValue(prestadorDueno);
+    prisma.solicitud.update.mockResolvedValue({
+      ...solicitudBase,
+      estado: 'ACEPTADA',
+      fechaAceptacion: aceptadaEn,
+      fechaFinalizacion: null,
+    });
+
+    const solicitud = await solicitudesService.aceptarSolicitud('u1', 's1');
+
+    const { data } = prisma.solicitud.update.mock.calls[0][0];
+    expect(data.fechaAceptacion).toBeInstanceOf(Date);
+    expect(data).not.toHaveProperty('fechaFinalizacion');
+    expect(solicitud.fechaAceptacion).toEqual(aceptadaEn);
+    expect(solicitud.fechaFinalizacion).toBeNull();
   });
 });

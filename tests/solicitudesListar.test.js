@@ -131,4 +131,19 @@ describe('listarMisSolicitudes', () => {
     ).rejects.toMatchObject({ status: 403 });
     expect(prisma.solicitud.findMany).not.toHaveBeenCalled();
   });
+  
+  it(caso('TC-SOL-052', 'el listado incluye las fechas de aceptación y finalización'), async () => {
+    const aceptadaEn = new Date('2026-11-26T15:30:00.000Z');
+    prisma.solicitud.findMany.mockResolvedValue([
+      { ...solicitudBase, estado: 'ACEPTADA', fechaAceptacion: aceptadaEn },
+      solicitudBase,
+    ]);
+
+    const lista = await solicitudesService.listarMisSolicitudes({ id: 'c1', rol: 'CLIENTE' });
+
+    expect(lista[0].fechaAceptacion).toEqual(aceptadaEn);
+    expect(lista[0].fechaFinalizacion).toBeNull();
+    expect(lista[1].fechaAceptacion).toBeNull();
+    expect(lista[1].fechaFinalizacion).toBeNull();
+  });
 });

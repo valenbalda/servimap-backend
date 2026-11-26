@@ -112,4 +112,23 @@ describe('crearSolicitud', () => {
     });
     expect(prisma.solicitud.create).not.toHaveBeenCalled();
   });
+  
+  it(caso('TC-SOL-049', 'una solicitud nueva devuelve las fechas de aceptación y finalización en null'), async () => {
+    prisma.prestador.findUnique.mockResolvedValue(prestadorOk);
+    prisma.oficio.findUnique.mockResolvedValue({ id: 'o1', activo: true });
+    prisma.solicitud.create.mockResolvedValue({
+      id: 's1',
+      ...datos,
+      estado: 'PENDIENTE',
+      fechaCreacion: new Date('2026-10-19'),
+      fechaAceptacion: null,
+      fechaFinalizacion: null,
+      clienteId: 'c1',
+    });
+
+    const solicitud = await solicitudesService.crearSolicitud('c1', datos);
+
+    expect(solicitud.fechaAceptacion).toBeNull();
+    expect(solicitud.fechaFinalizacion).toBeNull();
+  });
 });

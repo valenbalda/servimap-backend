@@ -36,7 +36,7 @@ describe('finalizarSolicitud', () => {
     expect(prisma.prestador.findUnique).toHaveBeenCalledWith({ where: { usuarioId: 'u1' } });
     expect(prisma.solicitud.update).toHaveBeenCalledWith({
       where: { id: 's1' },
-      data: { estado: 'FINALIZADA' },
+      data: { estado: 'FINALIZADA', fechaFinalizacion: expect.any(Date) },
     });
     expect(solicitud.estado).toBe('FINALIZADA');
   });
@@ -83,4 +83,28 @@ describe('finalizarSolicitud', () => {
       expect(prisma.solicitud.update).not.toHaveBeenCalled();
     }
   );
+  
+  it(caso('TC-SOL-051', 'al finalizar guarda y devuelve la fecha de finalización sin tocar la de aceptación'), async () => {
+    const aceptadaEn = new Date('2026-11-26T15:30:00.000Z');
+    const finalizadaEn = new Date('2026-11-27T10:00:00.000Z');
+    prisma.solicitud.findUnique.mockResolvedValue({
+      ...solicitudAceptada,
+      fechaAceptacion: aceptadaEn,
+    });
+    prisma.prestador.findUnique.mockResolvedValue(prestadorDueno);
+    prisma.solicitud.update.mockResolvedValue({
+      ...solicitudAceptada,
+      estado: 'FINALIZADA',
+      fechaAceptacion: aceptadaEn,
+      fechaFinalizacion: finalizadaEn,
+    });
+
+    const solicitud = await solicitudesService.finalizarSolicitud('u1', 's1');
+
+    const { data } = prisma.solicitud.update.mock.calls[0][0];
+    expect(data.fechaFinalizacion).toBeInstanceOf(Date);
+    expect(data).not.toHaveProperty('fechaAceptacion');
+    expect(solicitud.fechaAceptacion).toEqual(aceptadaEn);
+    expect(solicitud.fechaFinalizacion).toEqual(finalizadaEn);
+  });
 });

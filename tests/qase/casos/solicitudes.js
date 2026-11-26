@@ -81,6 +81,16 @@ const estados = definirCasos(
   ]
 );
 
+const fechas = definirCasos(
+  { ...BASE_UNITARIA, modulo: 'Solicitudes: fechas de aceptación y finalización', rol: 'Prestador', rf: ['RF-11', 'RF-13'], precondiciones: PRE_SRV },
+  [
+    nuevo('TC-SOL-049', 'Solicitud nueva sin fechas', 'Una solicitud recién creada devuelve fechaAceptacion y fechaFinalizacion en null.', ['Simular la creación de una solicitud', 'Llamar a crearSolicitud'], 'fechaAceptacion y fechaFinalizacion son null.'),
+    nuevo('TC-SOL-050', 'Fecha de aceptación', 'Al aceptar se guarda y devuelve la fecha de aceptación; la de finalización sigue en null.', ['Simular solicitud PENDIENTE del prestador', 'Llamar a aceptarSolicitud'], 'Se guarda fechaAceptacion (Date), no se toca fechaFinalizacion y la respuesta las incluye.', { rf: ['RF-11'] }),
+    nuevo('TC-SOL-051', 'Fecha de finalización', 'Al finalizar se guarda y devuelve la fecha de finalización sin modificar la de aceptación.', ['Simular solicitud ACEPTADA con fecha de aceptación', 'Llamar a finalizarSolicitud'], 'Se guarda fechaFinalizacion (Date), no se toca fechaAceptacion y la respuesta incluye las dos.', { ...CENTRAL, rf: ['RF-13'] }),
+    nuevo('TC-SOL-052', 'Fechas en el listado', 'El listado de solicitudes incluye las dos fechas, en null mientras no ocurra el evento.', ['Simular una solicitud aceptada y una pendiente', 'Llamar a listarMisSolicitudes'], 'Cada solicitud trae fechaAceptacion y fechaFinalizacion (null si corresponde).', { rf: ['RF-11'] }),
+  ]
+);
+
 const numero = definirCasos(
   { ...BASE_UNITARIA, modulo: 'Solicitudes: número identificador', rol: 'Cliente / Prestador', rf: ['RF-09', 'RF-14'], precondiciones: PRE_SRV },
   [
@@ -88,4 +98,4 @@ const numero = definirCasos(
   ]
 );
 
-module.exports = [...crear, ...listarCtrl, ...crearSrv, ...listarSrv, ...estados, ...numero];
+module.exports = [...crear, ...listarCtrl, ...crearSrv, ...listarSrv, ...estados, ...fechas, ...numero];

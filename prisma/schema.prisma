@@ -90,6 +90,8 @@ model Solicitud {
   estado              EstadoSolicitud @default(PENDIENTE)
   fechaCreacion       DateTime        @default(now())
   fechaActualizacion  DateTime        @updatedAt
+  fechaAceptacion     DateTime?
+  fechaFinalizacion   DateTime?
 
   clienteId           String
   prestadorId         String
