@@ -26,9 +26,9 @@ describeConBase('Integración: flujo del cliente', () => {
     const porOficio = await api().get(`/api/prestadores?oficioId=${oficio.id}`);
 
     expect(porTexto.status).toBe(200);
-    expect(porTexto.body.map((p) => p.id)).toContain(prestador.prestadorId);
-    expect(porOficio.body.map((p) => p.id)).toEqual([prestador.prestadorId]);
-    const encontrado = porOficio.body[0];
+    expect(porTexto.body.registros.map((p) => p.id)).toContain(prestador.prestadorId);
+    expect(porOficio.body.registros.map((p) => p.id)).toEqual([prestador.prestadorId]);
+    const encontrado = porOficio.body.registros[0];
     expect(encontrado.oficios).toEqual([{ id: oficio.id, nombre: oficio.nombre }]);
     expect(encontrado).not.toHaveProperty('telefono');
     expect(encontrado.reputacion).toEqual({
@@ -47,9 +47,9 @@ describeConBase('Integración: flujo del cliente', () => {
     );
 
     expect(cerca.status).toBe(200);
-    expect(cerca.body).toHaveLength(1);
-    expect(cerca.body[0].distanciaKm).toBeLessThanOrEqual(5);
-    expect(lejos.body).toEqual([]);
+    expect(cerca.body.registros).toHaveLength(1);
+    expect(cerca.body.registros[0].distanciaKm).toBeLessThanOrEqual(5);
+    expect(lejos.body.registros).toEqual([]);
   });
 
   it(caso('TC-INT-CLI-003', 'el mapa muestra al prestador disponible con ubicación aproximada'), async () => {

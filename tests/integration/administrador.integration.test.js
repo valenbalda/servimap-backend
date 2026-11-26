@@ -102,7 +102,7 @@ describeConBase('Integración: flujo del administrador', () => {
     await api(admin.token).patch(`/api/oficios/${soloOficio.id}/estado`, { activo: false });
 
     const busqueda = await api().get(`/api/prestadores?q=${escenario.prefijo}`);
-    expect(busqueda.body.map((p) => p.id)).not.toContain(afectado.prestadorId);
+    expect(busqueda.body.registros.map((p) => p.id)).not.toContain(afectado.prestadorId);
     const mapa = await api().get('/api/prestadores/mapa');
     expect(mapa.body.map((p) => p.id)).not.toContain(afectado.prestadorId);
   });

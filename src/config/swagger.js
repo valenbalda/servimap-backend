@@ -290,8 +290,15 @@ const swaggerSpec = {
             name: 'limit',
             in: 'query',
             required: false,
-            schema: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
-            description: 'Cantidad máxima de resultados',
+            schema: { type: 'integer', minimum: 1, maximum: 50, default: 50 },
+            description: 'Cantidad de resultados por página (máximo 50)',
+          },
+          {
+            name: 'page',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 1, default: 1 },
+            description: 'Número de página, empezando en 1',
           },
           {
             name: 'disponible',
@@ -302,21 +309,37 @@ const swaggerSpec = {
           },
         ],
         responses: {
-          200: respuestaJson('Lista de prestadores (con distanciaKm si se envió lat y lng)', {
-            type: 'array',
-            items: {
-              allOf: [
-                resumenPrestador,
-                {
-                  type: 'object',
-                  properties: {
-                    distanciaKm: { type: 'number' },
-                    reputacion: reputacionPrestador,
+          200: respuestaJson(
+            'Página de prestadores (con distanciaKm si se envió lat y lng). Los filtros se aplican antes de paginar.',
+            {
+              type: 'object',
+              properties: {
+                registros: {
+                  type: 'array',
+                  items: {
+                    allOf: [
+                      resumenPrestador,
+                      {
+                        type: 'object',
+                        properties: {
+                          distanciaKm: { type: 'number' },
+                          reputacion: reputacionPrestador,
+                        },
+                      },
+                    ],
                   },
                 },
-              ],
-            },
-          }),
+                totalRegistros: {
+                  type: 'integer',
+                  example: 123,
+                  description: 'Cantidad total de prestadores que cumplen los filtros',
+                },
+                pagina: { type: 'integer', example: 1 },
+                limite: { type: 'integer', example: 50 },
+                totalPaginas: { type: 'integer', example: 3 },
+              },
+            }
+          ),
           400: respuestaError('Algún filtro es inválido'),
         },
       },

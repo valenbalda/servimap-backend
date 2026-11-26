@@ -173,6 +173,17 @@ function leerLimit({ limit }) {
   return { filtros: { limit: tope } };
 }
 
+function leerPagina({ page }) {
+  if (page === undefined) return { filtros: {} };
+
+  const numero = aNumero(page);
+  if (!Number.isInteger(numero) || numero < 1) {
+    return { error: 'page debe ser un entero mayor o igual a 1' };
+  }
+
+  return { filtros: { page: numero } };
+}
+
 function leerDisponible({ disponible }) {
   if (disponible === undefined) return { filtros: {} };
 
@@ -188,6 +199,7 @@ const LECTORES_DE_FILTROS = [
   leerUbicacion,
   leerCalificacionMin,
   leerLimit,
+  leerPagina,
   leerDisponible,
 ];
 

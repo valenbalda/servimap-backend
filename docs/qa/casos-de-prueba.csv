@@ -683,6 +683,12 @@ Test automatizado: tests/prestadoresController.test.js › sin filtros, busca co
 Rol: Visitante. Requerimiento: RF-06, RF-07. Capa: Unitario.
 
 Test automatizado: tests/prestadoresController.test.js › pasa los filtros ya convertidos a número y sin espacios",Controlador de prestadores con prestadoresService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-014,RF-06,RF-07,rol:Visitante,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar listar con todos los filtros como texto""","1. ""El servicio recibe números y textos limpios.""",,,,15,,Prestadores: búsqueda (controlador),,
+,TC-PRE-059 Página inválida o válida,"TC-PRE-059 — page tiene que ser un entero mayor o igual a 1 y llega al servicio convertido a número.
+
+Rol: Visitante. Requerimiento: RF-06, RF-07. Capa: Unitario.
+
+Test automatizado: tests/prestadoresController.test.js › rechaza la página inválida %j y acepta una válida",Controlador de prestadores con prestadoresService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-059,RF-06,RF-07,rol:Visitante,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar listar con page 0, -1, 1.5 y abc""
+2. ""Invocar listar con page \""2\""""","2. ""400 \""page debe ser un entero mayor o igual a 1\"" sin llamar al servicio; con page válida el servicio recibe page: 2.""",,,,15,,Prestadores: búsqueda (controlador),,
 103,TC-PRE-015 Error en la búsqueda,"TC-PRE-015 — Un error del servicio se pasa al manejador de errores.
 
 Rol: Visitante. Requerimiento: RF-06, RF-07. Capa: Unitario.
@@ -855,6 +861,29 @@ Test automatizado: tests/prestadoresCoordenadas.test.js › un prestador sin coo
 Rol: Visitante. Requerimiento: RF-06. Capa: Unitario.
 
 Test automatizado: tests/prestadoresCoordenadas.test.js › la distancia se calcula con la coordenada aproximada y no con la exacta","prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real.",Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-046,RF-06,rol:Visitante,capa:unitario",high,critical,security,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarPrestadores con lat y lng""","1. ""Dos prestadores a ~500 m que se redondean al mismo punto tienen la misma distanciaKm.""",,,,19,,Prestadores: búsqueda (servicio),,
+,TC-PRE-060 Respuesta paginada,"TC-PRE-060 — El listado devuelve la página pedida con el total de registros y de páginas.
+
+Rol: Visitante. Requerimiento: RF-07. Capa: Unitario.
+
+Test automatizado: tests/prestadoresListar.test.js › devuelve la página pedida con el total de registros y de páginas","prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real.",Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-060,RF-07,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular 5 prestadores""
+2. ""Llamar a listarPrestadores({ page: 2, limit: 2 })""","2. ""registros con el 3.º y el 4.º prestador, totalRegistros 5, pagina 2, limite 2 y totalPaginas 3.""",,,,19,,Prestadores: búsqueda (servicio),,
+,TC-PRE-061 Paginación por defecto y página vacía,"TC-PRE-061 — Sin page ni limit se devuelve la primera página de 50; una página fuera de rango devuelve registros vacíos.
+
+Rol: Visitante. Requerimiento: RF-07. Capa: Unitario.
+
+Test automatizado: tests/prestadoresListar.test.js › por defecto devuelve la primera página de 50 y una página fuera de rango queda vacía","prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real.",Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-061,RF-07,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarPrestadores() con 3 prestadores""
+2. ""Llamar a listarPrestadores({ page: 9 })""","2. ""pagina 1, limite 50 y totalPaginas 1; con page 9, registros [] pero con los totales correctos.""",,,,19,,Prestadores: búsqueda (servicio),,
+,TC-PRE-062 Filtro de calificación antes de paginar,"TC-PRE-062 — El total y las páginas se calculan después de filtrar por calificación mínima.
+
+Rol: Visitante. Requerimiento: RF-07, RF-19. Capa: Unitario.
+
+Test automatizado: tests/prestadoresListar.test.js › filtra por calificación mínima antes de paginar","prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real.",Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-062,RF-07,RF-19,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular 4 prestadores, 3 con promedio ≥ 4""
+2. ""Llamar a listarPrestadores({ calificacionMin: 4, limit: 2, page: 2 })""","2. ""registros con 1 prestador, totalRegistros 3 y totalPaginas 2.""",,,,19,,Prestadores: búsqueda (servicio),,
+,TC-PRE-063 Orden estable,"TC-PRE-063 — Los prestadores se ordenan por nombre y, si hay nombres iguales, por id.
+
+Rol: Visitante. Requerimiento: RF-07. Capa: Unitario.
+
+Test automatizado: tests/prestadoresListar.test.js › ordena por nombre y desempata por id para que las páginas sean estables","prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real.",Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-063,RF-07,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarPrestadores""","1. ""La consulta ordena por usuario.nombre y luego por id.""",,,,19,,Prestadores: búsqueda (servicio),,
 135,TC-PRE-047 Ficha completa,"TC-PRE-047 — La ficha incluye contacto, reputación y comentarios.
 
 Rol: Visitante. Requerimiento: RF-08, RF-19, RF-20, RF-21. Capa: Unitario.
