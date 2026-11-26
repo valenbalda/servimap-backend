@@ -689,6 +689,17 @@ Rol: Visitante. Requerimiento: RF-06, RF-07. Capa: Unitario.
 
 Test automatizado: tests/prestadoresController.test.js › rechaza la página inválida %j y acepta una válida",Controlador de prestadores con prestadoresService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-059,RF-06,RF-07,rol:Visitante,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar listar con page 0, -1, 1.5 y abc""
 2. ""Invocar listar con page \""2\""""","2. ""400 \""page debe ser un entero mayor o igual a 1\"" sin llamar al servicio; con page válida el servicio recibe page: 2.""",,,,15,,Prestadores: búsqueda (controlador),,
+,TC-PRE-064 Zona o presupuesto inválidos,"TC-PRE-064 — La zona tiene que ser texto de hasta 100 caracteres y el presupuesto un número mayor o igual a 0.
+
+Rol: Visitante. Requerimiento: RF-06, RF-07. Capa: Unitario.
+
+Test automatizado: tests/prestadoresController.test.js › responde 400 con el filtro inválido %j",Controlador de prestadores con prestadoresService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-064,RF-06,RF-07,rol:Visitante,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar listar con zona vacía o muy larga""
+2. ""Invocar listar con presupuesto negativo, texto o vacío""","2. ""400 con el mensaje de cada filtro, sin llamar al servicio.""",,,,15,,Prestadores: búsqueda (controlador),,
+,TC-PRE-065 Zona y presupuesto convertidos,"TC-PRE-065 — La zona llega al servicio sin espacios y el presupuesto convertido a número.
+
+Rol: Visitante. Requerimiento: RF-06, RF-07. Capa: Unitario.
+
+Test automatizado: tests/prestadoresController.test.js › pasa la zona sin espacios y el presupuesto convertido a número",Controlador de prestadores con prestadoresService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-065,RF-06,RF-07,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar listar con zona \"" Palermo \"" y presupuesto \""15000\""""","1. ""El servicio recibe zona \""Palermo\"" y presupuesto 15000.""",,,,15,,Prestadores: búsqueda (controlador),,
 103,TC-PRE-015 Error en la búsqueda,"TC-PRE-015 — Un error del servicio se pasa al manejador de errores.
 
 Rol: Visitante. Requerimiento: RF-06, RF-07. Capa: Unitario.
@@ -879,6 +890,16 @@ Rol: Visitante. Requerimiento: RF-07, RF-19. Capa: Unitario.
 
 Test automatizado: tests/prestadoresListar.test.js › filtra por calificación mínima antes de paginar","prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real.",Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-062,RF-07,RF-19,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular 4 prestadores, 3 con promedio ≥ 4""
 2. ""Llamar a listarPrestadores({ calificacionMin: 4, limit: 2, page: 2 })""","2. ""registros con 1 prestador, totalRegistros 3 y totalPaginas 2.""",,,,19,,Prestadores: búsqueda (servicio),,
+,TC-PRE-066 Filtro por zona,"TC-PRE-066 — Se filtra por zona exacta sin distinguir mayúsculas, antes de paginar.
+
+Rol: Visitante. Requerimiento: RF-06. Capa: Unitario.
+
+Test automatizado: tests/prestadoresListar.test.js › filtra por zona exacta sin distinguir mayúsculas","prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real.",Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-066,RF-06,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarPrestadores({ zona })""","1. ""La consulta filtra zonaCobertura con igualdad insensible a mayúsculas.""",,,,19,,Prestadores: búsqueda (servicio),,
+,TC-PRE-067 Filtro por presupuesto,"TC-PRE-067 — Con presupuesto se devuelven los prestadores cuyo precio mínimo no lo supera; sin presupuesto no se filtra.
+
+Rol: Visitante. Requerimiento: RF-06. Capa: Unitario.
+
+Test automatizado: tests/prestadoresListar.test.js › filtra por presupuesto y no filtra si no se pide","prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real.",Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-PRE-067,RF-06,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarPrestadores con presupuesto 15000, con 0 y sin presupuesto""","1. ""La consulta incluye precioMin <= presupuesto solo cuando se pide (también con 0).""",,,,19,,Prestadores: búsqueda (servicio),,
 ,TC-PRE-063 Orden estable,"TC-PRE-063 — Los prestadores se ordenan por nombre y, si hay nombres iguales, por id.
 
 Rol: Visitante. Requerimiento: RF-07. Capa: Unitario.

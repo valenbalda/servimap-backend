@@ -2,7 +2,7 @@
 
 # Casos de prueba del backend
 
-Total: **323 casos** (268 unitarios y 55 de integración), todos automatizados.
+Total: **327 casos** (272 unitarios y 55 de integración), todos automatizados.
 Cada caso corresponde a un test real que lo referencia con `caso('TC-...', nombre)`.
 Un `it.each` es un solo caso con varios juegos de datos: cada uno se reporta como un resultado del mismo caso.
 
@@ -134,6 +134,8 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-PRE-013](#tc-pre-013) | Búsqueda sin filtros | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | media | normal | funcional | Sí | 101 |
 | [TC-PRE-014](#tc-pre-014) | Filtros convertidos | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | alta | mayor | funcional | Sí | 102 |
 | [TC-PRE-059](#tc-pre-059) | Página inválida o válida | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | media | normal | funcional | Sí |  |
+| [TC-PRE-064](#tc-pre-064) | Zona o presupuesto inválidos | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | media | normal | funcional | Sí |  |
+| [TC-PRE-065](#tc-pre-065) | Zona y presupuesto convertidos | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | media | normal | funcional | Sí |  |
 | [TC-PRE-015](#tc-pre-015) | Error en la búsqueda | Unitario | Prestadores: búsqueda (controlador) | Visitante | RF-06, RF-07 | baja | menor | funcional | Sí | 103 |
 | [TC-PRE-016](#tc-pre-016) | Descripción profesional vacía | Unitario | Prestadores: validaciones | Prestador | RF-04 | media | normal | funcional | Sí | 104 |
 | [TC-PRE-017](#tc-pre-017) | Teléfono o WhatsApp inválido | Unitario | Prestadores: validaciones | Prestador | RF-04 | media | normal | funcional | Sí | 105 |
@@ -169,6 +171,8 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-PRE-060](#tc-pre-060) | Respuesta paginada | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-07 | media | normal | funcional | Sí |  |
 | [TC-PRE-061](#tc-pre-061) | Paginación por defecto y página vacía | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-07 | media | normal | funcional | Sí |  |
 | [TC-PRE-062](#tc-pre-062) | Filtro de calificación antes de paginar | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-07, RF-19 | media | normal | funcional | Sí |  |
+| [TC-PRE-066](#tc-pre-066) | Filtro por zona | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-06 | media | normal | funcional | Sí |  |
+| [TC-PRE-067](#tc-pre-067) | Filtro por presupuesto | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-06 | media | normal | funcional | Sí |  |
 | [TC-PRE-063](#tc-pre-063) | Orden estable | Unitario | Prestadores: búsqueda (servicio) | Visitante | RF-07 | media | normal | funcional | Sí |  |
 | [TC-PRE-047](#tc-pre-047) | Ficha completa | Unitario | Prestadores: ficha | Visitante | RF-08, RF-19, RF-20, RF-21 | alta | mayor | funcional | Sí | 135 |
 | [TC-PRE-048](#tc-pre-048) | Sin datos internos | Unitario | Prestadores: ficha | Visitante | RF-08 | alta | critica | seguridad | Sí | 136 |
@@ -3022,6 +3026,50 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Automatizado | Sí |
 | qaseId | (pendiente) |
 
+### TC-PRE-064
+
+**Zona o presupuesto inválidos**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | La zona tiene que ser texto de hasta 100 caracteres y el presupuesto un número mayor o igual a 0. |
+| Precondiciones | Controlador de prestadores con prestadoresService simulado; request y response simulados. |
+| Pasos | 1. Invocar listar con zona vacía o muy larga<br>2. Invocar listar con presupuesto negativo, texto o vacío |
+| Resultado esperado | 400 con el mensaje de cada filtro, sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Prestadores: búsqueda (controlador) |
+| Rol | Visitante |
+| Requerimiento | RF-06, RF-07 |
+| Archivo y test | `tests/prestadoresController.test.js` › responde 400 con el filtro inválido %j |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-PRE-065
+
+**Zona y presupuesto convertidos**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | La zona llega al servicio sin espacios y el presupuesto convertido a número. |
+| Precondiciones | Controlador de prestadores con prestadoresService simulado; request y response simulados. |
+| Pasos | 1. Invocar listar con zona " Palermo " y presupuesto "15000" |
+| Resultado esperado | El servicio recibe zona "Palermo" y presupuesto 15000. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Prestadores: búsqueda (controlador) |
+| Rol | Visitante |
+| Requerimiento | RF-06, RF-07 |
+| Archivo y test | `tests/prestadoresController.test.js` › pasa la zona sin espacios y el presupuesto convertido a número |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
 ### TC-PRE-015
 
 **Error en la búsqueda**
@@ -3789,6 +3837,50 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Rol | Visitante |
 | Requerimiento | RF-07, RF-19 |
 | Archivo y test | `tests/prestadoresListar.test.js` › filtra por calificación mínima antes de paginar |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-PRE-066
+
+**Filtro por zona**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Se filtra por zona exacta sin distinguir mayúsculas, antes de paginar. |
+| Precondiciones | prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real. |
+| Pasos | 1. Llamar a listarPrestadores({ zona }) |
+| Resultado esperado | La consulta filtra zonaCobertura con igualdad insensible a mayúsculas. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Prestadores: búsqueda (servicio) |
+| Rol | Visitante |
+| Requerimiento | RF-06 |
+| Archivo y test | `tests/prestadoresListar.test.js` › filtra por zona exacta sin distinguir mayúsculas |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-PRE-067
+
+**Filtro por presupuesto**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Con presupuesto se devuelven los prestadores cuyo precio mínimo no lo supera; sin presupuesto no se filtra. |
+| Precondiciones | prestadoresService con Prisma (y calificacionesService cuando corresponde) simulados, sin base de datos real. |
+| Pasos | 1. Llamar a listarPrestadores con presupuesto 15000, con 0 y sin presupuesto |
+| Resultado esperado | La consulta incluye precioMin <= presupuesto solo cuando se pide (también con 0). |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Prestadores: búsqueda (servicio) |
+| Rol | Visitante |
+| Requerimiento | RF-06 |
+| Archivo y test | `tests/prestadoresListar.test.js` › filtra por presupuesto y no filtra si no se pide |
 | Automatizado | Sí |
 | qaseId | (pendiente) |
 

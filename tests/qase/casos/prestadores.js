@@ -27,6 +27,8 @@ const busquedaControlador = definirCasos(
     nuevo('TC-PRE-013', 'Búsqueda sin filtros', 'Sin filtros se busca con la consulta vacía.', ['Invocar listar sin query'], 'El servicio recibe {} y se devuelve su resultado.'),
     nuevo('TC-PRE-014', 'Filtros convertidos', 'Los filtros llegan al servicio convertidos a número y sin espacios.', ['Invocar listar con todos los filtros como texto'], 'El servicio recibe números y textos limpios.', CENTRAL),
     nuevo('TC-PRE-059', 'Página inválida o válida', 'page tiene que ser un entero mayor o igual a 1 y llega al servicio convertido a número.', ['Invocar listar con page 0, -1, 1.5 y abc', 'Invocar listar con page "2"'], '400 "page debe ser un entero mayor o igual a 1" sin llamar al servicio; con page válida el servicio recibe page: 2.'),
+    nuevo('TC-PRE-064', 'Zona o presupuesto inválidos', 'La zona tiene que ser texto de hasta 100 caracteres y el presupuesto un número mayor o igual a 0.', ['Invocar listar con zona vacía o muy larga', 'Invocar listar con presupuesto negativo, texto o vacío'], '400 con el mensaje de cada filtro, sin llamar al servicio.'),
+    nuevo('TC-PRE-065', 'Zona y presupuesto convertidos', 'La zona llega al servicio sin espacios y el presupuesto convertido a número.', ['Invocar listar con zona " Palermo " y presupuesto "15000"'], 'El servicio recibe zona "Palermo" y presupuesto 15000.'),
     nuevo('TC-PRE-015', 'Error en la búsqueda', 'Un error del servicio se pasa al manejador de errores.', ['Hacer fallar listarPrestadores', 'Invocar listar'], 'Se llama a next(error).', PROPAGA_ERROR),
   ]
 );
@@ -86,6 +88,8 @@ const servicioBusqueda = definirCasos(
     nuevo('TC-PRE-060', 'Respuesta paginada', 'El listado devuelve la página pedida con el total de registros y de páginas.', ['Simular 5 prestadores', 'Llamar a listarPrestadores({ page: 2, limit: 2 })'], 'registros con el 3.º y el 4.º prestador, totalRegistros 5, pagina 2, limite 2 y totalPaginas 3.', { rf: ['RF-07'] }),
     nuevo('TC-PRE-061', 'Paginación por defecto y página vacía', 'Sin page ni limit se devuelve la primera página de 50; una página fuera de rango devuelve registros vacíos.', ['Llamar a listarPrestadores() con 3 prestadores', 'Llamar a listarPrestadores({ page: 9 })'], 'pagina 1, limite 50 y totalPaginas 1; con page 9, registros [] pero con los totales correctos.'),
     nuevo('TC-PRE-062', 'Filtro de calificación antes de paginar', 'El total y las páginas se calculan después de filtrar por calificación mínima.', ['Simular 4 prestadores, 3 con promedio ≥ 4', 'Llamar a listarPrestadores({ calificacionMin: 4, limit: 2, page: 2 })'], 'registros con 1 prestador, totalRegistros 3 y totalPaginas 2.', { rf: ['RF-07', 'RF-19'] }),
+    nuevo('TC-PRE-066', 'Filtro por zona', 'Se filtra por zona exacta sin distinguir mayúsculas, antes de paginar.', ['Llamar a listarPrestadores({ zona })'], 'La consulta filtra zonaCobertura con igualdad insensible a mayúsculas.', { rf: ['RF-06'] }),
+    nuevo('TC-PRE-067', 'Filtro por presupuesto', 'Con presupuesto se devuelven los prestadores cuyo precio mínimo no lo supera; sin presupuesto no se filtra.', ['Llamar a listarPrestadores con presupuesto 15000, con 0 y sin presupuesto'], 'La consulta incluye precioMin <= presupuesto solo cuando se pide (también con 0).', { rf: ['RF-06'] }),
     nuevo('TC-PRE-063', 'Orden estable', 'Los prestadores se ordenan por nombre y, si hay nombres iguales, por id.', ['Llamar a listarPrestadores'], 'La consulta ordena por usuario.nombre y luego por id.'),
   ]
 );

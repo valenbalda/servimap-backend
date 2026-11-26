@@ -158,6 +158,8 @@ async function asignarMisOficios(usuarioId, oficioIds) {
 async function listarPrestadores({
   oficioId,
   q,
+  zona,
+  presupuesto,
   lat,
   lng,
   radioKm = 10,
@@ -174,6 +176,10 @@ async function listarPrestadores({
     usuario: { activo: true },
     oficios: { some: { ...(oficioId && { oficioId }), oficio: { activo: true } } },
     ...(disponible !== undefined && { disponible }),
+    // Zona exacta, sin distinguir mayúsculas ni minúsculas.
+    ...(zona && { zonaCobertura: { equals: zona, mode: 'insensitive' } }),
+    // Presupuesto: solo los que cobran desde ese monto o menos (sin precio cargado, no entran).
+    ...(presupuesto !== undefined && { precioMin: { lte: presupuesto } }),
   };
 
   if (q) {
