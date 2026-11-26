@@ -2,7 +2,7 @@
 
 # Casos de prueba del backend
 
-Total: **296 casos** (246 unitarios y 50 de integración), todos automatizados.
+Total: **300 casos** (250 unitarios y 50 de integración), todos automatizados.
 Cada caso corresponde a un test real que lo referencia con `caso('TC-...', nombre)`.
 Un `it.each` es un solo caso con varios juegos de datos: cada uno se reporta como un resultado del mismo caso.
 
@@ -220,6 +220,10 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-SOL-046](#tc-sol-046) | Finalizar solicitud ajena | Unitario | Solicitudes: estados (servicio) | Prestador | RF-13 | alta | critica | seguridad | Sí | 202 |
 | [TC-SOL-047](#tc-sol-047) | Finalizar sin perfil de prestador | Unitario | Solicitudes: estados (servicio) | Prestador | RF-13 | alta | critica | seguridad | Sí | 203 |
 | [TC-SOL-048](#tc-sol-048) | Finalizar solicitud no aceptada | Unitario | Solicitudes: estados (servicio) | Prestador | RF-13 | alta | mayor | funcional | Sí | 204 |
+| [TC-SOL-049](#tc-sol-049) | Solicitud nueva sin fechas | Unitario | Solicitudes: fechas de aceptación y finalización | Prestador | RF-11, RF-13 | media | normal | funcional | Sí |  |
+| [TC-SOL-050](#tc-sol-050) | Fecha de aceptación | Unitario | Solicitudes: fechas de aceptación y finalización | Prestador | RF-11 | media | normal | funcional | Sí |  |
+| [TC-SOL-051](#tc-sol-051) | Fecha de finalización | Unitario | Solicitudes: fechas de aceptación y finalización | Prestador | RF-13 | alta | mayor | funcional | Sí |  |
+| [TC-SOL-052](#tc-sol-052) | Fechas en el listado | Unitario | Solicitudes: fechas de aceptación y finalización | Prestador | RF-11 | media | normal | funcional | Sí |  |
 | [TC-CAL-001](#tc-cal-001) | Solicitud inválida | Unitario | Calificaciones: controlador | Cliente | RF-16 | media | normal | funcional | Sí | 205 |
 | [TC-CAL-002](#tc-cal-002) | Puntaje inválido | Unitario | Calificaciones: controlador | Cliente | RF-16 | alta | mayor | funcional | Sí | 206 |
 | [TC-CAL-003](#tc-cal-003) | Comentario inválido al calificar | Unitario | Calificaciones: controlador | Cliente | RF-16 | media | normal | funcional | Sí | 207 |
@@ -4886,6 +4890,94 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Archivo y test | `tests/solicitudesFinalizar.test.js` › lanza 409 si la solicitud está %s y no aceptada |
 | Automatizado | Sí |
 | qaseId | 204 |
+
+### TC-SOL-049
+
+**Solicitud nueva sin fechas**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Una solicitud recién creada devuelve fechaAceptacion y fechaFinalizacion en null. |
+| Precondiciones | solicitudesService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular la creación de una solicitud<br>2. Llamar a crearSolicitud |
+| Resultado esperado | fechaAceptacion y fechaFinalizacion son null. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Solicitudes: fechas de aceptación y finalización |
+| Rol | Prestador |
+| Requerimiento | RF-11, RF-13 |
+| Archivo y test | `tests/solicitudesService.test.js` › una solicitud nueva devuelve las fechas de aceptación y finalización en null |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-SOL-050
+
+**Fecha de aceptación**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Al aceptar se guarda y devuelve la fecha de aceptación; la de finalización sigue en null. |
+| Precondiciones | solicitudesService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular solicitud PENDIENTE del prestador<br>2. Llamar a aceptarSolicitud |
+| Resultado esperado | Se guarda fechaAceptacion (Date), no se toca fechaFinalizacion y la respuesta las incluye. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Solicitudes: fechas de aceptación y finalización |
+| Rol | Prestador |
+| Requerimiento | RF-11 |
+| Archivo y test | `tests/solicitudesEstados.test.js` › al aceptar guarda y devuelve la fecha de aceptación, y la de finalización sigue en null |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-SOL-051
+
+**Fecha de finalización**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Al finalizar se guarda y devuelve la fecha de finalización sin modificar la de aceptación. |
+| Precondiciones | solicitudesService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular solicitud ACEPTADA con fecha de aceptación<br>2. Llamar a finalizarSolicitud |
+| Resultado esperado | Se guarda fechaFinalizacion (Date), no se toca fechaAceptacion y la respuesta incluye las dos. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Solicitudes: fechas de aceptación y finalización |
+| Rol | Prestador |
+| Requerimiento | RF-13 |
+| Archivo y test | `tests/solicitudesFinalizar.test.js` › al finalizar guarda y devuelve la fecha de finalización sin tocar la de aceptación |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-SOL-052
+
+**Fechas en el listado**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El listado de solicitudes incluye las dos fechas, en null mientras no ocurra el evento. |
+| Precondiciones | solicitudesService con Prisma simulado (sin base de datos real). |
+| Pasos | 1. Simular una solicitud aceptada y una pendiente<br>2. Llamar a listarMisSolicitudes |
+| Resultado esperado | Cada solicitud trae fechaAceptacion y fechaFinalizacion (null si corresponde). |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Solicitudes: fechas de aceptación y finalización |
+| Rol | Prestador |
+| Requerimiento | RF-11 |
+| Archivo y test | `tests/solicitudesListar.test.js` › el listado incluye las fechas de aceptación y finalización |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
 
 ### TC-CAL-001
 

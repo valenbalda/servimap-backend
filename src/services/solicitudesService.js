@@ -15,6 +15,9 @@ function formatearSolicitud(solicitud) {
     contactoPreferido: solicitud.contactoPreferido,
     estado: solicitud.estado,
     fechaCreacion: solicitud.fechaCreacion,
+    // null hasta que la solicitud se acepta o se finaliza.
+    fechaAceptacion: solicitud.fechaAceptacion ?? null,
+    fechaFinalizacion: solicitud.fechaFinalizacion ?? null,
     clienteId: solicitud.clienteId,
     prestadorId: solicitud.prestadorId,
     oficioId: solicitud.oficioId,
@@ -114,7 +117,11 @@ async function buscarSolicitud(id) {
 
 // Cambio de estado que solo puede hacer el prestador dueño de la solicitud.
 // Se revisa en este orden: existe (404), es suya (403), el estado lo permite (409).
-async function cambiarEstadoComoPrestador(usuarioId, solicitudId, { desde, hacia, mensajeConflicto }) {
+async function cambiarEstadoComoPrestador(
+  usuarioId,
+  solicitudId,
+  { desde, hacia, mensajeConflicto, campoFecha }
+) {
   const solicitud = await buscarSolicitud(solicitudId);
 
   // El prestador es otra tabla: se busca su perfil a partir del usuario.
@@ -129,7 +136,8 @@ async function cambiarEstadoComoPrestador(usuarioId, solicitudId, { desde, hacia
 
   const actualizada = await prisma.solicitud.update({
     where: { id: solicitudId },
-    data: { estado: hacia },
+      // Si el cambio tiene una fecha asociada (aceptar, finalizar), se guarda el momento real.
+    data: { estado: hacia, ...(campoFecha && { [campoFecha]: new Date() }) },
   });
 
   return formatearSolicitud(actualizada);
@@ -140,6 +148,7 @@ function aceptarSolicitud(usuarioId, solicitudId) {
     desde: 'PENDIENTE',
     hacia: 'ACEPTADA',
     mensajeConflicto: 'Solo se puede responder una solicitud pendiente',
+    campoFecha: 'fechaAceptacion',
   });
 }
 
@@ -157,6 +166,7 @@ function finalizarSolicitud(usuarioId, solicitudId) {
     desde: 'ACEPTADA',
     hacia: 'FINALIZADA',
     mensajeConflicto: 'Solo se puede finalizar una solicitud aceptada',
+    campoFecha: 'fechaFinalizacion',
   });
 }
 

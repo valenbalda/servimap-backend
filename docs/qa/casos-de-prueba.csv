@@ -23,13 +23,14 @@ v2.id,title,description,preconditions,postconditions,tags,priority,severity,type
 ,,,,,,,,,,,,,,,,,,,,22,1,Solicitudes: alta (servicio),1,
 ,,,,,,,,,,,,,,,,,,,,23,1,Solicitudes: listado (servicio),1,
 ,,,,,,,,,,,,,,,,,,,,24,1,Solicitudes: estados (servicio),1,
-,,,,,,,,,,,,,,,,,,,,25,1,Calificaciones: controlador,1,
-,,,,,,,,,,,,,,,,,,,,26,1,Calificaciones: servicio,1,
-,,,,,,,,,,,,,,,,,,,,27,2,Autenticación,1,
-,,,,,,,,,,,,,,,,,,,,28,2,Flujo del cliente,1,
-,,,,,,,,,,,,,,,,,,,,29,2,Flujo del prestador,1,
-,,,,,,,,,,,,,,,,,,,,30,2,Flujo del administrador,1,
-,,,,,,,,,,,,,,,,,,,,31,2,Seguridad y errores,1,
+,,,,,,,,,,,,,,,,,,,,25,1,Solicitudes: fechas de aceptación y finalización,1,
+,,,,,,,,,,,,,,,,,,,,26,1,Calificaciones: controlador,1,
+,,,,,,,,,,,,,,,,,,,,27,1,Calificaciones: servicio,1,
+,,,,,,,,,,,,,,,,,,,,28,2,Autenticación,1,
+,,,,,,,,,,,,,,,,,,,,29,2,Flujo del cliente,1,
+,,,,,,,,,,,,,,,,,,,,30,2,Flujo del prestador,1,
+,,,,,,,,,,,,,,,,,,,,31,2,Flujo del administrador,1,
+,,,,,,,,,,,,,,,,,,,,32,2,Seguridad y errores,1,
 1,TC-SIS-001 Health check,"TC-SIS-001 — GET /health indica que el servidor está funcionando.
 
 Rol: Todos. Requerimiento: Transversal. Capa: Unitario.
@@ -1158,394 +1159,418 @@ Rol: Prestador. Requerimiento: RF-13. Capa: Unitario.
 
 Test automatizado: tests/solicitudesFinalizar.test.js › lanza 409 si la solicitud está %s y no aceptada",solicitudesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-SOL-048,RF-13,rol:Prestador,capa:unitario",high,major,functional,negative,automated,actual,no,unit,classic,"1. ""Simular solicitud PENDIENTE, RECHAZADA, CANCELADA o FINALIZADA""
 2. ""Llamar a finalizarSolicitud""","2. ""Lanza 409.""",,,,24,,Solicitudes: estados (servicio),,
+,TC-SOL-049 Solicitud nueva sin fechas,"TC-SOL-049 — Una solicitud recién creada devuelve fechaAceptacion y fechaFinalizacion en null.
+
+Rol: Prestador. Requerimiento: RF-11, RF-13. Capa: Unitario.
+
+Test automatizado: tests/solicitudesService.test.js › una solicitud nueva devuelve las fechas de aceptación y finalización en null",solicitudesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-SOL-049,RF-11,RF-13,rol:Prestador,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular la creación de una solicitud""
+2. ""Llamar a crearSolicitud""","2. ""fechaAceptacion y fechaFinalizacion son null.""",,,,25,,Solicitudes: fechas de aceptación y finalización,,
+,TC-SOL-050 Fecha de aceptación,"TC-SOL-050 — Al aceptar se guarda y devuelve la fecha de aceptación; la de finalización sigue en null.
+
+Rol: Prestador. Requerimiento: RF-11. Capa: Unitario.
+
+Test automatizado: tests/solicitudesEstados.test.js › al aceptar guarda y devuelve la fecha de aceptación, y la de finalización sigue en null",solicitudesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-SOL-050,RF-11,rol:Prestador,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular solicitud PENDIENTE del prestador""
+2. ""Llamar a aceptarSolicitud""","2. ""Se guarda fechaAceptacion (Date), no se toca fechaFinalizacion y la respuesta las incluye.""",,,,25,,Solicitudes: fechas de aceptación y finalización,,
+,TC-SOL-051 Fecha de finalización,"TC-SOL-051 — Al finalizar se guarda y devuelve la fecha de finalización sin modificar la de aceptación.
+
+Rol: Prestador. Requerimiento: RF-13. Capa: Unitario.
+
+Test automatizado: tests/solicitudesFinalizar.test.js › al finalizar guarda y devuelve la fecha de finalización sin tocar la de aceptación",solicitudesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-SOL-051,RF-13,rol:Prestador,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Simular solicitud ACEPTADA con fecha de aceptación""
+2. ""Llamar a finalizarSolicitud""","2. ""Se guarda fechaFinalizacion (Date), no se toca fechaAceptacion y la respuesta incluye las dos.""",,,,25,,Solicitudes: fechas de aceptación y finalización,,
+,TC-SOL-052 Fechas en el listado,"TC-SOL-052 — El listado de solicitudes incluye las dos fechas, en null mientras no ocurra el evento.
+
+Rol: Prestador. Requerimiento: RF-11. Capa: Unitario.
+
+Test automatizado: tests/solicitudesListar.test.js › el listado incluye las fechas de aceptación y finalización",solicitudesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-SOL-052,RF-11,rol:Prestador,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular una solicitud aceptada y una pendiente""
+2. ""Llamar a listarMisSolicitudes""","2. ""Cada solicitud trae fechaAceptacion y fechaFinalizacion (null si corresponde).""",,,,25,,Solicitudes: fechas de aceptación y finalización,,
 205,TC-CAL-001 Solicitud inválida,"TC-CAL-001 — La solicitud a calificar es obligatoria y tiene que ser texto.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › responde 400 si la solicitud es %p",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-001,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar crear con solicitudId ausente, espacios o numérico""","1. ""400 sin llamar al servicio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › responde 400 si la solicitud es %p",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-001,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar crear con solicitudId ausente, espacios o numérico""","1. ""400 sin llamar al servicio.""",,,,26,,Calificaciones: controlador,,
 206,TC-CAL-002 Puntaje inválido,"TC-CAL-002 — El puntaje tiene que ser un entero entre 1 y 5.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › responde 400 con el puntaje %p",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-002,RF-16,rol:Cliente,capa:unitario",high,major,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar crear con 0, 6, 3.5, \""4\"" o sin puntaje""","1. ""400 sin llamar al servicio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › responde 400 con el puntaje %p",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-002,RF-16,rol:Cliente,capa:unitario",high,major,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar crear con 0, 6, 3.5, \""4\"" o sin puntaje""","1. ""400 sin llamar al servicio.""",,,,26,,Calificaciones: controlador,,
 207,TC-CAL-003 Comentario inválido al calificar,"TC-CAL-003 — El comentario, si se manda, tiene que ser texto de hasta 500 caracteres.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › responde 400 si el comentario %s",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-003,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar crear con un comentario numérico o de 501 caracteres""","1. ""400 sin llamar al servicio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › responde 400 si el comentario %s",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-003,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar crear con un comentario numérico o de 501 caracteres""","1. ""400 sin llamar al servicio.""",,,,26,,Calificaciones: controlador,,
 208,TC-CAL-004 Calificar con datos limpios,"TC-CAL-004 — Se crea la calificación con el cliente del token y el comentario sin espacios.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › crea la calificación con los datos limpios y responde 201",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-004,RF-16,rol:Cliente,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar crear con datos válidos""","1. ""El servicio recibe clienteId, solicitudId, puntaje y comentario limpio; se responde 201.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › crea la calificación con los datos limpios y responde 201",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-004,RF-16,rol:Cliente,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar crear con datos válidos""","1. ""El servicio recibe clienteId, solicitudId, puntaje y comentario limpio; se responde 201.""",,,,26,,Calificaciones: controlador,,
 209,TC-CAL-005 Calificar sin comentario,"TC-CAL-005 — El comentario es opcional.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › permite calificar sin comentario",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-005,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar crear sin comentario""","1. ""201 con comentario undefined.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › permite calificar sin comentario",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-005,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar crear sin comentario""","1. ""201 con comentario undefined.""",,,,26,,Calificaciones: controlador,,
 210,TC-CAL-006 Error al calificar,"TC-CAL-006 — Un error del servicio se pasa al manejador de errores.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
 Test automatizado: tests/calificacionesController.test.js › pasa el error del servicio al manejador de errores",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-006,RF-16,rol:Cliente,capa:unitario",low,minor,functional,positive,automated,actual,no,unit,classic,"1. ""Hacer fallar crearCalificacion""
-2. ""Invocar crear""","2. ""Se llama a next(error).""",,,,25,,Calificaciones: controlador,,
+2. ""Invocar crear""","2. ""Se llama a next(error).""",,,,26,,Calificaciones: controlador,,
 211,TC-CAL-007 Comentario inválido al editar,"TC-CAL-007 — Al editar, el comentario es obligatorio, no vacío y de hasta 500 caracteres.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › responde 400 si el comentario %s",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-007,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar editarComentario sin comentario, con espacios o con 501 caracteres""","1. ""400 sin llamar al servicio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › responde 400 si el comentario %s",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-007,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar editarComentario sin comentario, con espacios o con 501 caracteres""","1. ""400 sin llamar al servicio.""",,,,26,,Calificaciones: controlador,,
 212,TC-CAL-008 Editar comentario,"TC-CAL-008 — Se edita el comentario con el texto limpio.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › edita el comentario con los datos limpios",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-008,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar editarComentario con un comentario válido""","1. ""El servicio recibe clienteId, calificacionId y el comentario limpio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › edita el comentario con los datos limpios",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-008,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar editarComentario con un comentario válido""","1. ""El servicio recibe clienteId, calificacionId y el comentario limpio.""",,,,26,,Calificaciones: controlador,,
 213,TC-CAL-009 Error al editar el comentario,"TC-CAL-009 — Un error del servicio se pasa al manejador de errores.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
 Test automatizado: tests/calificacionesController.test.js › pasa el error del servicio al manejador de errores",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-009,RF-16,rol:Cliente,capa:unitario",low,minor,functional,positive,automated,actual,no,unit,classic,"1. ""Hacer fallar editarComentario""
-2. ""Invocar editarComentario""","2. ""Se llama a next(error).""",,,,25,,Calificaciones: controlador,,
+2. ""Invocar editarComentario""","2. ""Se llama a next(error).""",,,,26,,Calificaciones: controlador,,
 214,TC-CAL-010 Reputación del prestador,"TC-CAL-010 — Devuelve la reputación del prestador pedido.
 
 Rol: Visitante. Requerimiento: RF-19, RF-20. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › devuelve la reputación del prestador",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-010,RF-19,RF-20,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar reputacion con req.params.prestadorId""","1. ""Se devuelve el resultado del servicio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › devuelve la reputación del prestador",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-010,RF-19,RF-20,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar reputacion con req.params.prestadorId""","1. ""Se devuelve el resultado del servicio.""",,,,26,,Calificaciones: controlador,,
 215,TC-CAL-011 Error en la reputación,"TC-CAL-011 — Un error del servicio se pasa al manejador de errores.
 
 Rol: Visitante. Requerimiento: RF-19, RF-20. Capa: Unitario.
 
 Test automatizado: tests/calificacionesController.test.js › pasa el error del servicio al manejador de errores",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-011,RF-19,RF-20,rol:Visitante,capa:unitario",low,minor,functional,positive,automated,actual,no,unit,classic,"1. ""Hacer fallar obtenerReputacion""
-2. ""Invocar reputacion""","2. ""Se llama a next(error).""",,,,25,,Calificaciones: controlador,,
+2. ""Invocar reputacion""","2. ""Se llama a next(error).""",,,,26,,Calificaciones: controlador,,
 216,TC-CAL-012 Calificaciones públicas del prestador,"TC-CAL-012 — Devuelve las calificaciones públicas de un prestador.
 
 Rol: Visitante. Requerimiento: RF-08, RF-21. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › devuelve las calificaciones públicas del prestador",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-012,RF-08,RF-21,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar listarPorPrestador""","1. ""Se devuelve el resultado del servicio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › devuelve las calificaciones públicas del prestador",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-012,RF-08,RF-21,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar listarPorPrestador""","1. ""Se devuelve el resultado del servicio.""",,,,26,,Calificaciones: controlador,,
 217,TC-CAL-013 Error en las calificaciones públicas,"TC-CAL-013 — Un error del servicio se pasa al manejador de errores.
 
 Rol: Visitante. Requerimiento: RF-08, RF-21. Capa: Unitario.
 
 Test automatizado: tests/calificacionesController.test.js › pasa el error del servicio al manejador de errores",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-013,RF-08,RF-21,rol:Visitante,capa:unitario",low,minor,functional,positive,automated,actual,no,unit,classic,"1. ""Hacer fallar listarCalificacionesPrestador""
-2. ""Invocar listarPorPrestador""","2. ""Se llama a next(error).""",,,,25,,Calificaciones: controlador,,
+2. ""Invocar listarPorPrestador""","2. ""Se llama a next(error).""",,,,26,,Calificaciones: controlador,,
 218,TC-CAL-014 Todas las calificaciones,"TC-CAL-014 — El administrador obtiene todas las calificaciones.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › devuelve todas las calificaciones",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-014,RF-23,rol:Administrador,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar listarTodas""","1. ""Se devuelve el resultado del servicio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › devuelve todas las calificaciones",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-014,RF-23,rol:Administrador,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar listarTodas""","1. ""Se devuelve el resultado del servicio.""",,,,26,,Calificaciones: controlador,,
 219,TC-CAL-015 Error en el listado completo,"TC-CAL-015 — Un error del servicio se pasa al manejador de errores.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Unitario.
 
 Test automatizado: tests/calificacionesController.test.js › pasa el error del servicio al manejador de errores",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-015,RF-23,rol:Administrador,capa:unitario",low,minor,functional,positive,automated,actual,no,unit,classic,"1. ""Hacer fallar listarTodasLasCalificaciones""
-2. ""Invocar listarTodas""","2. ""Se llama a next(error).""",,,,25,,Calificaciones: controlador,,
+2. ""Invocar listarTodas""","2. ""Se llama a next(error).""",,,,26,,Calificaciones: controlador,,
 220,TC-CAL-016 Motivo de moderación inválido,"TC-CAL-016 — El motivo es obligatorio, no vacío y de hasta 200 caracteres.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › responde 400 si el motivo %s",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-016,RF-23,rol:Administrador,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar moderar sin motivo, con espacios o con 201 caracteres""","1. ""400 sin llamar al servicio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › responde 400 si el motivo %s",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-016,RF-23,rol:Administrador,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Invocar moderar sin motivo, con espacios o con 201 caracteres""","1. ""400 sin llamar al servicio.""",,,,26,,Calificaciones: controlador,,
 221,TC-CAL-017 Moderar calificación,"TC-CAL-017 — Se modera la calificación con el motivo limpio.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Unitario.
 
-Test automatizado: tests/calificacionesController.test.js › modera la calificación con el motivo limpio",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-017,RF-23,rol:Administrador,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar moderar con un motivo válido""","1. ""El servicio recibe el id y el motivo limpio.""",,,,25,,Calificaciones: controlador,,
+Test automatizado: tests/calificacionesController.test.js › modera la calificación con el motivo limpio",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-017,RF-23,rol:Administrador,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Invocar moderar con un motivo válido""","1. ""El servicio recibe el id y el motivo limpio.""",,,,26,,Calificaciones: controlador,,
 222,TC-CAL-018 Error al moderar,"TC-CAL-018 — Un error del servicio se pasa al manejador de errores.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Unitario.
 
 Test automatizado: tests/calificacionesController.test.js › pasa el error del servicio al manejador de errores",Controlador de calificaciones con calificacionesService simulado; request y response simulados.,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-018,RF-23,rol:Administrador,capa:unitario",low,minor,functional,positive,automated,actual,no,unit,classic,"1. ""Hacer fallar moderarCalificacion""
-2. ""Invocar moderar""","2. ""Se llama a next(error).""",,,,25,,Calificaciones: controlador,,
+2. ""Invocar moderar""","2. ""Se llama a next(error).""",,,,26,,Calificaciones: controlador,,
 223,TC-CAL-019 Calificar solicitud inexistente,"TC-CAL-019 — Lanza 404 si la solicitud no existe.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 404 si la solicitud no existe",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-019,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Simular que no existe""
-2. ""Llamar a crearCalificacion""","2. ""Lanza 404.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a crearCalificacion""","2. ""Lanza 404.""",,,,27,,Calificaciones: servicio,,
 224,TC-CAL-020 Calificar solicitud ajena,"TC-CAL-020 — Un cliente solo califica sus propias solicitudes.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 403 si la solicitud es de otro cliente",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-020,RF-16,rol:Cliente,capa:unitario",high,critical,security,negative,automated,actual,no,unit,classic,"1. ""Simular solicitud de otro cliente""
-2. ""Llamar a crearCalificacion""","2. ""Lanza 403 y no crea.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a crearCalificacion""","2. ""Lanza 403 y no crea.""",,,,27,,Calificaciones: servicio,,
 225,TC-CAL-021 Calificar solicitud no finalizada,"TC-CAL-021 — Solo se califica una solicitud FINALIZADA.
 
 Rol: Cliente. Requerimiento: RF-17. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 409 si la solicitud no está finalizada",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-021,RF-17,rol:Cliente,capa:unitario",high,major,functional,negative,automated,actual,no,unit,classic,"1. ""Simular solicitud ACEPTADA""
-2. ""Llamar a crearCalificacion""","2. ""Lanza 409 y no crea.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a crearCalificacion""","2. ""Lanza 409 y no crea.""",,,,27,,Calificaciones: servicio,,
 226,TC-CAL-022 Solicitud ya calificada,"TC-CAL-022 — Una solicitud se califica una sola vez.
 
 Rol: Cliente. Requerimiento: RF-18. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 409 si la solicitud ya fue calificada",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-022,RF-18,rol:Cliente,capa:unitario",high,major,functional,negative,automated,actual,no,unit,classic,"1. ""Simular solicitud con calificación""
-2. ""Llamar a crearCalificacion""","2. ""Lanza 409 y no crea.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a crearCalificacion""","2. ""Lanza 409 y no crea.""",,,,27,,Calificaciones: servicio,,
 227,TC-CAL-023 Crear calificación,"TC-CAL-023 — La calificación se guarda con el prestador de la solicitud.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › crea la calificación con el prestador de la solicitud",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-023,RF-16,rol:Cliente,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Simular solicitud FINALIZADA sin calificación""
-2. ""Llamar a crearCalificacion""","2. ""prisma.calificacion.create recibe el prestadorId de la solicitud.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a crearCalificacion""","2. ""prisma.calificacion.create recibe el prestadorId de la solicitud.""",,,,27,,Calificaciones: servicio,,
 228,TC-CAL-024 Editar calificación inexistente,"TC-CAL-024 — Lanza 404 si la calificación no existe.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 404 si la calificación no existe",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-024,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Simular que no existe""
-2. ""Llamar a editarComentario""","2. ""Lanza 404.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a editarComentario""","2. ""Lanza 404.""",,,,27,,Calificaciones: servicio,,
 229,TC-CAL-025 Editar calificación ajena,"TC-CAL-025 — Un cliente solo edita sus propias calificaciones.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 403 si la calificación es de otro cliente",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-025,RF-16,rol:Cliente,capa:unitario",high,critical,security,negative,automated,actual,no,unit,classic,"1. ""Simular calificación de otro cliente""
-2. ""Llamar a editarComentario""","2. ""Lanza 403 y no actualiza.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a editarComentario""","2. ""Lanza 403 y no actualiza.""",,,,27,,Calificaciones: servicio,,
 230,TC-CAL-026 Editar calificación moderada,"TC-CAL-026 — No se puede editar una calificación moderada.
 
 Rol: Cliente. Requerimiento: RF-16, RF-23. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 409 si la calificación está moderada",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-026,RF-16,RF-23,rol:Cliente,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Simular calificación moderada""
-2. ""Llamar a editarComentario""","2. ""Lanza 409 y no actualiza.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a editarComentario""","2. ""Lanza 409 y no actualiza.""",,,,27,,Calificaciones: servicio,,
 231,TC-CAL-027 Editar comentario propio,"TC-CAL-027 — Se actualiza el comentario de la propia calificación.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › actualiza el comentario de la propia calificación",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-027,RF-16,rol:Cliente,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular calificación propia no moderada""
-2. ""Llamar a editarComentario""","2. ""Se llama a update con el comentario nuevo.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a editarComentario""","2. ""Se llama a update con el comentario nuevo.""",,,,27,,Calificaciones: servicio,,
 232,TC-CAL-028 Reputación de prestador inexistente,"TC-CAL-028 — Lanza 404 si el prestador no existe.
 
 Rol: Visitante. Requerimiento: RF-19, RF-20. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 404 si el prestador no existe",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-028,RF-19,RF-20,rol:Visitante,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Simular que no existe""
-2. ""Llamar a obtenerReputacion""","2. ""Lanza 404.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a obtenerReputacion""","2. ""Lanza 404.""",,,,27,,Calificaciones: servicio,,
 233,TC-CAL-029 Promedio y servicios finalizados,"TC-CAL-029 — El promedio se redondea a un decimal y se cuentan los servicios finalizados.
 
 Rol: Visitante. Requerimiento: RF-19, RF-20. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › calcula el promedio redondeado a un decimal y los servicios finalizados",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-029,RF-19,RF-20,rol:Visitante,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Simular promedio, cantidad y solicitudes finalizadas""
-2. ""Llamar a obtenerReputacion""","2. ""Devuelve promedio con un decimal, totalCalificaciones y serviciosFinalizados.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a obtenerReputacion""","2. ""Devuelve promedio con un decimal, totalCalificaciones y serviciosFinalizados.""",,,,27,,Calificaciones: servicio,,
 234,TC-CAL-030 Reputación sin calificaciones,"TC-CAL-030 — Sin calificaciones el promedio es null.
 
 Rol: Visitante. Requerimiento: RF-19. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › devuelve promedio null si todavía no tiene calificaciones",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-030,RF-19,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular promedio null""
-2. ""Llamar a obtenerReputacion""","2. ""promedio null.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a obtenerReputacion""","2. ""promedio null.""",,,,27,,Calificaciones: servicio,,
 ,TC-CAL-037 Reputación sin calificaciones moderadas,"TC-CAL-037 — El promedio y el total de calificaciones no cuentan las que el administrador ocultó.
 
 Rol: Visitante. Requerimiento: RF-19, RF-23. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › no cuenta las calificaciones moderadas en el promedio ni en el total",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-037,RF-19,RF-23,rol:Visitante,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Simular un prestador existente""
-2. ""Llamar a obtenerReputacion""","2. ""La consulta de agregados filtra moderada = false.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a obtenerReputacion""","2. ""La consulta de agregados filtra moderada = false.""",,,,27,,Calificaciones: servicio,,
 ,TC-CAL-038 Reputación con todas las calificaciones moderadas,"TC-CAL-038 — Si todas las calificaciones del prestador están ocultas, el promedio es null y el total 0, pero se siguen contando los servicios finalizados.
 
 Rol: Visitante. Requerimiento: RF-19, RF-20, RF-23. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › devuelve promedio null y total 0 si todas sus calificaciones están moderadas",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-038,RF-19,RF-20,RF-23,rol:Visitante,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Simular agregados vacíos y solicitudes finalizadas""
-2. ""Llamar a obtenerReputacion""","2. ""Devuelve promedio null, totalCalificaciones 0 y los serviciosFinalizados.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a obtenerReputacion""","2. ""Devuelve promedio null, totalCalificaciones 0 y los serviciosFinalizados.""",,,,27,,Calificaciones: servicio,,
 235,TC-CAL-031 Calificaciones de prestador inexistente,"TC-CAL-031 — Lanza 404 si el prestador no existe.
 
 Rol: Visitante. Requerimiento: RF-21. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 404 si el prestador no existe",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-031,RF-21,rol:Visitante,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Simular que no existe""
-2. ""Llamar a listarCalificacionesPrestador""","2. ""Lanza 404.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a listarCalificacionesPrestador""","2. ""Lanza 404.""",,,,27,,Calificaciones: servicio,,
 236,TC-CAL-032 Calificaciones públicas sin moderadas,"TC-CAL-032 — Solo se listan las no moderadas, las más nuevas primero.
 
 Rol: Visitante. Requerimiento: RF-21, RF-23. Capa: Unitario.
 
-Test automatizado: tests/calificacionesService.test.js › lista solo las calificaciones no moderadas, las más nuevas primero",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-032,RF-21,RF-23,rol:Visitante,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarCalificacionesPrestador""","1. ""La consulta filtra moderada = false y ordena por fecha descendente.""",,,,26,,Calificaciones: servicio,,
+Test automatizado: tests/calificacionesService.test.js › lista solo las calificaciones no moderadas, las más nuevas primero",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-032,RF-21,RF-23,rol:Visitante,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarCalificacionesPrestador""","1. ""La consulta filtra moderada = false y ordena por fecha descendente.""",,,,27,,Calificaciones: servicio,,
 237,TC-CAL-033 Todas las calificaciones con moderadas,"TC-CAL-033 — El listado completo incluye las moderadas.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Unitario.
 
-Test automatizado: tests/calificacionesService.test.js › lista todas, incluidas las moderadas",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-033,RF-23,rol:Administrador,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarTodasLasCalificaciones""","1. ""La consulta no filtra por moderada.""",,,,26,,Calificaciones: servicio,,
+Test automatizado: tests/calificacionesService.test.js › lista todas, incluidas las moderadas",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-033,RF-23,rol:Administrador,capa:unitario",medium,normal,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a listarTodasLasCalificaciones""","1. ""La consulta no filtra por moderada.""",,,,27,,Calificaciones: servicio,,
 238,TC-CAL-034 Moderar calificación inexistente,"TC-CAL-034 — Lanza 404 si la calificación no existe.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 404 si la calificación no existe",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-034,RF-23,rol:Administrador,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Simular que no existe""
-2. ""Llamar a moderarCalificacion""","2. ""Lanza 404.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a moderarCalificacion""","2. ""Lanza 404.""",,,,27,,Calificaciones: servicio,,
 239,TC-CAL-035 Moderar dos veces,"TC-CAL-035 — No se puede moderar una calificación ya moderada.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Unitario.
 
 Test automatizado: tests/calificacionesService.test.js › lanza 409 si ya fue moderada",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-035,RF-23,rol:Administrador,capa:unitario",medium,normal,functional,negative,automated,actual,no,unit,classic,"1. ""Simular calificación moderada""
-2. ""Llamar a moderarCalificacion""","2. ""Lanza 409.""",,,,26,,Calificaciones: servicio,,
+2. ""Llamar a moderarCalificacion""","2. ""Lanza 409.""",,,,27,,Calificaciones: servicio,,
 240,TC-CAL-036 Registro de la moderación,"TC-CAL-036 — Se marca como moderada con fecha y motivo, sin borrar el comentario.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Unitario.
 
-Test automatizado: tests/calificacionesService.test.js › marca la calificación como moderada con fecha y motivo",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-036,RF-23,rol:Administrador,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a moderarCalificacion con un motivo""","1. ""update recibe moderada true, fechaModeracion y motivoModeracion.""",,,,26,,Calificaciones: servicio,,
+Test automatizado: tests/calificacionesService.test.js › marca la calificación como moderada con fecha y motivo",calificacionesService con Prisma simulado (sin base de datos real).,Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test.,"TC-CAL-036,RF-23,rol:Administrador,capa:unitario",high,major,functional,positive,automated,actual,no,unit,classic,"1. ""Llamar a moderarCalificacion con un motivo""","1. ""update recibe moderada true, fechaModeracion y motivoModeracion.""",,,,27,,Calificaciones: servicio,,
 241,TC-INT-AUTH-001 Registro de cliente con DNI guardado en la base,"TC-INT-AUTH-001 — El registro por la API persiste al usuario con el DNI normalizado y la contraseña hasheada.
 
 Rol: Visitante. Requerimiento: RF-01. Capa: Integración.
 
 Test automatizado: tests/integration/auth.integration.test.js › registra un cliente con DNI y lo guarda con la contraseña hasheada",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único.,Queda un usuario CLIENTE activo en la base. Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-001,RF-01,rol:Visitante,capa:integracion",high,critical,integration,positive,automated,actual,no,api,classic,"1. ""POST /api/auth/register con rol CLIENTE y el DNI escrito con puntos""
-2. ""Consultar el usuario creado con Prisma""","2. ""201 sin DNI ni hash en la respuesta; en la base el DNI queda solo con números y el hash valida la contraseña.""",,,,27,,Autenticación,,
+2. ""Consultar el usuario creado con Prisma""","2. ""201 sin DNI ni hash en la respuesta; en la base el DNI queda solo con números y el hash valida la contraseña.""",,,,28,,Autenticación,,
 242,TC-INT-AUTH-002 Registro de prestador con perfil creado,"TC-INT-AUTH-002 — Registrar un PRESTADOR crea también su perfil de prestador vacío, activo y disponible.
 
 Rol: Visitante. Requerimiento: RF-01, RF-03. Capa: Integración.
 
 Test automatizado: tests/integration/auth.integration.test.js › registra un prestador y crea su perfil de prestador en la base",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-002,RF-01,RF-03,rol:Visitante,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""Registrar un PRESTADOR por la API""
-2. ""Buscar su perfil en la tabla Prestador""","2. ""Existe el perfil vinculado al usuario, activo, disponible y sin descripción.""",,,,27,,Autenticación,,
+2. ""Buscar su perfil en la tabla Prestador""","2. ""Existe el perfil vinculado al usuario, activo, disponible y sin descripción.""",,,,28,,Autenticación,,
 243,TC-INT-AUTH-003 Inicio de sesión con token válido,"TC-INT-AUTH-003 — El login devuelve un JWT con el id y el rol del usuario, sin importar mayúsculas en el email.
 
 Rol: Visitante. Requerimiento: RF-02. Capa: Integración.
 
 Test automatizado: tests/integration/auth.integration.test.js › inicia sesión y devuelve un token con el id y el rol del usuario",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Cliente registrado.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-003,RF-02,rol:Visitante,capa:integracion",high,critical,integration,positive,automated,actual,no,api,classic,"1. ""POST /api/auth/login con el email en mayúsculas""
-2. ""Decodificar el token""","2. ""200 con usuario sin DNI; el token tiene sub = id del usuario y rol CLIENTE.""",,,,27,,Autenticación,,
+2. ""Decodificar el token""","2. ""200 con usuario sin DNI; el token tiene sub = id del usuario y rol CLIENTE.""",,,,28,,Autenticación,,
 244,TC-INT-AUTH-004 Credenciales incorrectas con mensaje único,"TC-INT-AUTH-004 — Una contraseña incorrecta y un email inexistente responden igual para no revelar qué emails existen.
 
 Rol: Visitante. Requerimiento: RF-02. Capa: Integración.
 
 Test automatizado: tests/integration/auth.integration.test.js › rechaza credenciales incorrectas con 401 y el mismo mensaje",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Cliente registrado.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-004,RF-02,rol:Visitante,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""Login con contraseña incorrecta""
-2. ""Login con un email que no existe""","2. ""Ambos responden 401 con el mismo mensaje.""",,,,27,,Autenticación,,
+2. ""Login con un email que no existe""","2. ""Ambos responden 401 con el mismo mensaje.""",,,,28,,Autenticación,,
 245,TC-INT-AUTH-005 Perfil propio con DNI,"TC-INT-AUTH-005 — GET /api/auth/me devuelve el perfil del dueño del token, incluido el DNI.
 
 Rol: Cliente. Requerimiento: RF-01, RF-02. Capa: Integración.
 
-Test automatizado: tests/integration/auth.integration.test.js › GET /me devuelve el perfil con el DNI solo a su dueño",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Cliente registrado y con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-005,RF-01,RF-02,rol:Cliente,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""GET /api/auth/me con el token del cliente""","1. ""200 con id, email y DNI; sin el hash de la contraseña.""",,,,27,,Autenticación,,
+Test automatizado: tests/integration/auth.integration.test.js › GET /me devuelve el perfil con el DNI solo a su dueño",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Cliente registrado y con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-005,RF-01,RF-02,rol:Cliente,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""GET /api/auth/me con el token del cliente""","1. ""200 con id, email y DNI; sin el hash de la contraseña.""",,,,28,,Autenticación,,
 246,TC-INT-AUTH-006 Email duplicado,"TC-INT-AUTH-006 — No se puede registrar dos cuentas con el mismo email.
 
 Rol: Visitante. Requerimiento: RF-01. Capa: Integración.
 
 Test automatizado: tests/integration/auth.integration.test.js › responde 409 si el email ya está registrado y no crea otra cuenta",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Cliente registrado.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-006,RF-01,rol:Visitante,capa:integracion",high,major,integration,negative,automated,actual,no,api,classic,"1. ""Registrar otra cuenta con el mismo email y otro DNI""
-2. ""Contar usuarios con ese email y ese DNI""","2. ""409; sigue habiendo un solo usuario con ese email y ninguno con el DNI nuevo.""",,,,27,,Autenticación,,
+2. ""Contar usuarios con ese email y ese DNI""","2. ""409; sigue habiendo un solo usuario con ese email y ninguno con el DNI nuevo.""",,,,28,,Autenticación,,
 247,TC-INT-AUTH-007 DNI duplicado con otro formato,"TC-INT-AUTH-007 — El DNI es único aunque se escriba con espacios o puntos.
 
 Rol: Visitante. Requerimiento: RF-01. Capa: Integración.
 
 Test automatizado: tests/integration/auth.integration.test.js › responde 409 si el DNI ya está registrado, aunque venga con otro formato",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Cliente registrado.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-007,RF-01,rol:Visitante,capa:integracion",high,major,integration,negative,automated,actual,no,api,classic,"1. ""Registrar otra cuenta con el mismo DNI escrito con espacios""
-2. ""Contar usuarios con ese DNI""","2. ""409; sigue habiendo un solo usuario con ese DNI.""",,,,27,,Autenticación,,
+2. ""Contar usuarios con ese DNI""","2. ""409; sigue habiendo un solo usuario con ese DNI.""",,,,28,,Autenticación,,
 248,TC-INT-AUTH-008 Registro con datos inválidos no guarda nada,"TC-INT-AUTH-008 — DNI corto, email inválido, contraseña corta o rol ADMINISTRADOR se rechazan sin crear el usuario.
 
 Rol: Visitante. Requerimiento: RF-01. Capa: Integración.
 
 Test automatizado: tests/integration/auth.integration.test.js › responde 400 con %s y no guarda nada",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-008,RF-01,rol:Visitante,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""POST /api/auth/register con el dato inválido""
-2. ""Buscar el email en la base""","2. ""400 y no existe ningún usuario con ese email.""",,,,27,,Autenticación,,
+2. ""Buscar el email en la base""","2. ""400 y no existe ningún usuario con ese email.""",,,,28,,Autenticación,,
 249,TC-INT-AUTH-009 Cuenta desactivada no puede iniciar sesión,"TC-INT-AUTH-009 — Un usuario con activo = false recibe 403 al iniciar sesión.
 
 Rol: Visitante. Requerimiento: RF-02. Capa: Integración.
 
 Test automatizado: tests/integration/auth.integration.test.js › rechaza el inicio de sesión de una cuenta desactivada con 403",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Cliente registrado y desactivado en la base.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-AUTH-009,RF-02,rol:Visitante,capa:integracion",high,major,security,negative,automated,actual,no,api,classic,"1. ""Desactivar el usuario con Prisma""
-2. ""POST /api/auth/login con sus credenciales""","2. ""403 y sin token.""",,,,27,,Autenticación,,
+2. ""POST /api/auth/login con sus credenciales""","2. ""403 y sin token.""",,,,28,,Autenticación,,
 250,TC-INT-CLI-001 Búsqueda de prestadores por texto y oficio,"TC-INT-CLI-001 — La búsqueda pública encuentra al prestador por texto (nombre/zona) y por oficio, sin datos de contacto.
 
 Rol: Visitante. Requerimiento: RF-06, RF-07. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › busca prestadores por texto y por oficio","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-001,RF-06,RF-07,rol:Visitante,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""GET /api/prestadores?q=<prefijo>""
-2. ""GET /api/prestadores?oficioId=<oficio>""","2. ""El prestador aparece en ambas búsquedas con su oficio y reputación vacía, sin teléfono.""",,,,28,,Flujo del cliente,,
+2. ""GET /api/prestadores?oficioId=<oficio>""","2. ""El prestador aparece en ambas búsquedas con su oficio y reputación vacía, sin teléfono.""",,,,29,,Flujo del cliente,,
 251,TC-INT-CLI-002 Filtro por distancia,"TC-INT-CLI-002 — Con lat/lng/radioKm solo aparecen los prestadores dentro del radio.
 
 Rol: Visitante. Requerimiento: RF-06. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › filtra prestadores por distancia a una ubicación","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-002,RF-06,rol:Visitante,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""Buscar cerca de la ubicación del prestador con radio 5 km""
-2. ""Buscar desde Córdoba con radio 10 km""","2. ""Cerca: aparece con distanciaKm ≤ 5. Lejos: lista vacía.""",,,,28,,Flujo del cliente,,
+2. ""Buscar desde Córdoba con radio 10 km""","2. ""Cerca: aparece con distanciaKm ≤ 5. Lejos: lista vacía.""",,,,29,,Flujo del cliente,,
 252,TC-INT-CLI-003 Mapa con ubicación aproximada,"TC-INT-CLI-003 — El mapa muestra al prestador disponible con coordenadas redondeadas a 2 decimales.
 
 Rol: Visitante. Requerimiento: RF-05. Capa: Integración.
 
-Test automatizado: tests/integration/cliente.integration.test.js › el mapa muestra al prestador disponible con ubicación aproximada","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-003,RF-05,rol:Visitante,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""GET /api/prestadores/mapa?oficioId=<oficio>""","1. ""Un marcador con latitud -34.6, longitud -58.38, oficio principal y promedio null.""",,,,28,,Flujo del cliente,,
+Test automatizado: tests/integration/cliente.integration.test.js › el mapa muestra al prestador disponible con ubicación aproximada","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-003,RF-05,rol:Visitante,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""GET /api/prestadores/mapa?oficioId=<oficio>""","1. ""Un marcador con latitud -34.6, longitud -58.38, oficio principal y promedio null.""",,,,29,,Flujo del cliente,,
 253,TC-INT-CLI-004 Ficha detallada del prestador,"TC-INT-CLI-004 — La ficha pública incluye datos de contacto, reputación y comentarios, sin el email de la cuenta.
 
 Rol: Visitante. Requerimiento: RF-08, RF-19, RF-20. Capa: Integración.
 
-Test automatizado: tests/integration/cliente.integration.test.js › la ficha del prestador muestra contacto, reputación y comentarios","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-004,RF-08,RF-19,RF-20,rol:Visitante,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""GET /api/prestadores/:id""","1. ""200 con teléfono, email de contacto y comentarios; sin el campo email.""",,,,28,,Flujo del cliente,,
+Test automatizado: tests/integration/cliente.integration.test.js › la ficha del prestador muestra contacto, reputación y comentarios","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-004,RF-08,RF-19,RF-20,rol:Visitante,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""GET /api/prestadores/:id""","1. ""200 con teléfono, email de contacto y comentarios; sin el campo email.""",,,,29,,Flujo del cliente,,
 254,TC-INT-CLI-005 Crear solicitud de servicio,"TC-INT-CLI-005 — El cliente crea una solicitud y queda guardada como PENDIENTE con los datos limpios.
 
 Rol: Cliente. Requerimiento: RF-09, RF-10. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › crea una solicitud y queda guardada como PENDIENTE","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Queda una solicitud PENDIENTE. Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-005,RF-09,RF-10,rol:Cliente,capa:integracion",high,critical,integration,positive,automated,actual,no,api,classic,"1. ""POST /api/solicitudes con prestador, oficio, descripción y dirección""
-2. ""Consultar la solicitud con Prisma""","2. ""201; en la base queda PENDIENTE, con el cliente del token y la descripción sin espacios sobrantes.""",,,,28,,Flujo del cliente,,
+2. ""Consultar la solicitud con Prisma""","2. ""201; en la base queda PENDIENTE, con el cliente del token y la descripción sin espacios sobrantes.""",,,,29,,Flujo del cliente,,
 255,TC-INT-CLI-006 Listado de solicitudes propias,"TC-INT-CLI-006 — El cliente solo ve sus propias solicitudes.
 
 Rol: Cliente. Requerimiento: RF-14. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › lista solo sus propias solicitudes","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-006,RF-14,rol:Cliente,capa:integracion",high,major,security,positive,automated,actual,no,api,classic,"1. ""Crear una solicitud del cliente y otra de otro cliente""
-2. ""GET /api/solicitudes con el token del cliente""","2. ""Aparece la propia y no la ajena.""",,,,28,,Flujo del cliente,,
+2. ""GET /api/solicitudes con el token del cliente""","2. ""Aparece la propia y no la ajena.""",,,,29,,Flujo del cliente,,
 256,TC-INT-CLI-007 Cancelar solicitud pendiente,"TC-INT-CLI-007 — El cliente dueño cancela su solicitud pendiente.
 
 Rol: Cliente. Requerimiento: RF-12. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › cancela su solicitud pendiente y queda CANCELADA en la base","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-007,RF-12,rol:Cliente,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""Crear una solicitud""
 2. ""PATCH /api/solicitudes/:id/cancelar""
-3. ""Consultar el estado en la base""","3. ""200 y la solicitud queda CANCELADA en la base.""",,,,28,,Flujo del cliente,,
+3. ""Consultar el estado en la base""","3. ""200 y la solicitud queda CANCELADA en la base.""",,,,29,,Flujo del cliente,,
 257,TC-INT-CLI-008 No cancelar solicitudes ajenas,"TC-INT-CLI-008 — Un cliente no puede cancelar la solicitud de otro cliente.
 
 Rol: Cliente. Requerimiento: RF-12. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › no puede cancelar la solicitud de otro cliente","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-008,RF-12,rol:Cliente,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""Crear una solicitud de otro cliente""
-2. ""Intentar cancelarla con el token del cliente""","2. ""403 y la solicitud sigue PENDIENTE.""",,,,28,,Flujo del cliente,,
+2. ""Intentar cancelarla con el token del cliente""","2. ""403 y la solicitud sigue PENDIENTE.""",,,,29,,Flujo del cliente,,
 258,TC-INT-CLI-009 Calificar solicitud finalizada,"TC-INT-CLI-009 — El cliente califica una solicitud finalizada y la reputación del prestador se actualiza.
 
 Rol: Cliente. Requerimiento: RF-16, RF-17, RF-19, RF-20. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › califica una solicitud finalizada y se actualiza la reputación","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Queda una calificación no moderada. Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-009,RF-16,RF-17,RF-19,RF-20,rol:Cliente,capa:integracion",high,critical,integration,positive,automated,actual,no,api,classic,"1. ""Crear una solicitud y llevarla a FINALIZADA""
 2. ""POST /api/calificaciones con puntaje y comentario""
-3. ""Consultar la calificación y la reputación""","3. ""201; la calificación queda guardada con el comentario limpio y la reputación suma la calificación y el servicio.""",,,,28,,Flujo del cliente,,
+3. ""Consultar la calificación y la reputación""","3. ""201; la calificación queda guardada con el comentario limpio y la reputación suma la calificación y el servicio.""",,,,29,,Flujo del cliente,,
 259,TC-INT-CLI-010 Una sola calificación por solicitud,"TC-INT-CLI-010 — Una solicitud no se puede calificar dos veces.
 
 Rol: Cliente. Requerimiento: RF-18. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › permite una sola calificación por solicitud","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-010,RF-18,rol:Cliente,capa:integracion",high,critical,integration,negative,automated,actual,no,api,classic,"1. ""Calificar una solicitud finalizada""
-2. ""Volver a calificarla""","2. ""La segunda responde 409 y en la base hay una sola calificación.""",,,,28,,Flujo del cliente,,
+2. ""Volver a calificarla""","2. ""La segunda responde 409 y en la base hay una sola calificación.""",,,,29,,Flujo del cliente,,
 260,TC-INT-CLI-011 No calificar solicitudes no finalizadas,"TC-INT-CLI-011 — Una solicitud ACEPTADA no se puede calificar.
 
 Rol: Cliente. Requerimiento: RF-17. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › no puede calificar una solicitud que no está finalizada","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-011,RF-17,rol:Cliente,capa:integracion",high,major,integration,negative,automated,actual,no,api,classic,"1. ""Crear una solicitud y aceptarla""
-2. ""Intentar calificarla""","2. ""409 y no se guarda ninguna calificación.""",,,,28,,Flujo del cliente,,
+2. ""Intentar calificarla""","2. ""409 y no se guarda ninguna calificación.""",,,,29,,Flujo del cliente,,
 261,TC-INT-CLI-012 Editar comentario de una calificación propia,"TC-INT-CLI-012 — El cliente puede cambiar el comentario de su calificación.
 
 Rol: Cliente. Requerimiento: RF-16. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › edita el comentario de su calificación","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-012,RF-16,rol:Cliente,capa:integracion",medium,normal,integration,positive,automated,actual,no,api,classic,"1. ""Calificar una solicitud finalizada""
-2. ""PATCH /api/calificaciones/:id/comentario""","2. ""200 y el comentario nuevo queda guardado.""",,,,28,,Flujo del cliente,,
+2. ""PATCH /api/calificaciones/:id/comentario""","2. ""200 y el comentario nuevo queda guardado.""",,,,29,,Flujo del cliente,,
 262,TC-INT-CLI-013 No pedir servicio a un prestador no disponible,"TC-INT-CLI-013 — No se puede crear una solicitud para un prestador con disponible = false.
 
 Rol: Cliente. Requerimiento: RF-09. Capa: Integración.
 
 Test automatizado: tests/integration/cliente.integration.test.js › no puede pedir un servicio a un prestador no disponible","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, prestador completo (ubicación, precios, contacto) y dos clientes con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-CLI-013,RF-09,rol:Cliente,capa:integracion",high,major,integration,negative,automated,actual,no,api,classic,"1. ""Crear un prestador no disponible""
-2. ""POST /api/solicitudes hacia ese prestador""","2. ""409 y no se guarda ninguna solicitud.""",,,,28,,Flujo del cliente,,
+2. ""POST /api/solicitudes hacia ese prestador""","2. ""409 y no se guarda ninguna solicitud.""",,,,29,,Flujo del cliente,,
 263,TC-INT-PRE-001 Consultar perfil propio,"TC-INT-PRE-001 — Un prestador recién registrado ve su perfil vacío.
 
 Rol: Prestador. Requerimiento: RF-03. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › consulta su perfil recién registrado","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-001,RF-03,rol:Prestador,capa:integracion",medium,major,integration,positive,automated,actual,no,api,classic,"1. ""Registrar un prestador""
-2. ""GET /api/prestadores/me""","2. ""200 con su email, sin descripción, disponible y sin oficios.""",,,,29,,Flujo del prestador,,
+2. ""GET /api/prestadores/me""","2. ""200 con su email, sin descripción, disponible y sin oficios.""",,,,30,,Flujo del prestador,,
 264,TC-INT-PRE-002 Editar perfil,"TC-INT-PRE-002 — El prestador edita su perfil y los cambios quedan guardados; los campos no editables se ignoran.
 
 Rol: Prestador. Requerimiento: RF-03, RF-04. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › edita su perfil y los cambios quedan guardados","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-002,RF-03,RF-04,rol:Prestador,capa:integracion",high,critical,integration,positive,automated,actual,no,api,classic,"1. ""PUT /api/prestadores/me con descripción, zona, precios, teléfono, ubicación, disponible y activo""
-2. ""Consultar el prestador con Prisma""","2. ""200; se guardan los datos limpios y \""activo\"" no cambia.""",,,,29,,Flujo del prestador,,
+2. ""Consultar el prestador con Prisma""","2. ""200; se guardan los datos limpios y \""activo\"" no cambia.""",,,,30,,Flujo del prestador,,
 265,TC-INT-PRE-003 Perfil con datos inválidos,"TC-INT-PRE-003 — Precio mínimo mayor al máximo, teléfono inválido o descripción vacía se rechazan.
 
 Rol: Prestador. Requerimiento: RF-04. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › rechaza %s con 400 sin modificar la base","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-003,RF-04,rol:Prestador,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""Leer el prestador de la base""
 2. ""PUT /api/prestadores/me con el dato inválido""
-3. ""Volver a leerlo""","3. ""400 y el prestador queda igual que antes.""",,,,29,,Flujo del prestador,,
+3. ""Volver a leerlo""","3. ""400 y el prestador queda igual que antes.""",,,,30,,Flujo del prestador,,
 266,TC-INT-PRE-004 Reemplazar oficios,"TC-INT-PRE-004 — El prestador reemplaza sus oficios; los ids repetidos cuentan una vez.
 
 Rol: Prestador. Requerimiento: RF-04. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › reemplaza sus oficios y quedan guardados","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-004,RF-04,rol:Prestador,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""PUT /api/prestadores/me/oficios con dos oficios (uno repetido)""
-2. ""Consultar PrestadorOficio""","2. ""200 y en la base quedan exactamente los dos oficios.""",,,,29,,Flujo del prestador,,
+2. ""Consultar PrestadorOficio""","2. ""200 y en la base quedan exactamente los dos oficios.""",,,,30,,Flujo del prestador,,
 267,TC-INT-PRE-005 Oficios desactivados o inexistentes,"TC-INT-PRE-005 — No se puede asignar un oficio desactivado o que no existe.
 
 Rol: Prestador. Requerimiento: RF-04. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › rechaza asignar un oficio desactivado o inexistente","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-005,RF-04,rol:Prestador,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""Asignar un oficio desactivado""
 2. ""Asignar un id que no existe""
-3. ""Consultar PrestadorOficio""","3. ""Ambos 400 y el prestador conserva su oficio original.""",,,,29,,Flujo del prestador,,
+3. ""Consultar PrestadorOficio""","3. ""Ambos 400 y el prestador conserva su oficio original.""",,,,30,,Flujo del prestador,,
 268,TC-INT-PRE-006 Aceptar solicitud,"TC-INT-PRE-006 — El prestador dueño acepta una solicitud pendiente.
 
 Rol: Prestador. Requerimiento: RF-11. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › acepta una solicitud pendiente","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-006,RF-11,rol:Prestador,capa:integracion",high,critical,integration,positive,automated,actual,no,api,classic,"1. ""Crear una solicitud hacia el prestador""
-2. ""PATCH /api/solicitudes/:id/aceptar""","2. ""200 y la solicitud queda ACEPTADA en la base.""",,,,29,,Flujo del prestador,,
+2. ""PATCH /api/solicitudes/:id/aceptar""","2. ""200 y la solicitud queda ACEPTADA en la base.""",,,,30,,Flujo del prestador,,
 269,TC-INT-PRE-007 Rechazar solicitud,"TC-INT-PRE-007 — El prestador dueño rechaza una solicitud pendiente.
 
 Rol: Prestador. Requerimiento: RF-11. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › rechaza una solicitud pendiente","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-007,RF-11,rol:Prestador,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""Crear una solicitud hacia el prestador""
-2. ""PATCH /api/solicitudes/:id/rechazar""","2. ""200 y la solicitud queda RECHAZADA en la base.""",,,,29,,Flujo del prestador,,
+2. ""PATCH /api/solicitudes/:id/rechazar""","2. ""200 y la solicitud queda RECHAZADA en la base.""",,,,30,,Flujo del prestador,,
 270,TC-INT-PRE-008 Finalizar solicitud,"TC-INT-PRE-008 — El prestador finaliza una solicitud aceptada y suma un servicio finalizado.
 
 Rol: Prestador. Requerimiento: RF-13, RF-20. Capa: Integración.
@@ -1553,79 +1578,79 @@ Rol: Prestador. Requerimiento: RF-13, RF-20. Capa: Integración.
 Test automatizado: tests/integration/prestador.integration.test.js › finaliza una solicitud aceptada y suma un servicio finalizado","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-008,RF-13,RF-20,rol:Prestador,capa:integracion",high,critical,integration,positive,automated,actual,no,api,classic,"1. ""Crear una solicitud y aceptarla""
 2. ""Leer la reputación""
 3. ""PATCH /api/solicitudes/:id/finalizar""
-4. ""Volver a leer la reputación""","4. ""200, la solicitud queda FINALIZADA y serviciosFinalizados aumenta en 1.""",,,,29,,Flujo del prestador,,
+4. ""Volver a leer la reputación""","4. ""200, la solicitud queda FINALIZADA y serviciosFinalizados aumenta en 1.""",,,,30,,Flujo del prestador,,
 271,TC-INT-PRE-009 Transición de estado inválida,"TC-INT-PRE-009 — No se puede finalizar una pendiente ni responder una ya aceptada.
 
 Rol: Prestador. Requerimiento: RF-11, RF-13. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › responde 409 al intentar %s una solicitud %s","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-009,RF-11,RF-13,rol:Prestador,capa:integracion",high,major,integration,negative,automated,actual,no,api,classic,"1. ""Llevar la solicitud al estado inicial del caso""
-2. ""Intentar la acción no permitida""","2. ""409 y el estado guardado no cambia.""",,,,29,,Flujo del prestador,,
+2. ""Intentar la acción no permitida""","2. ""409 y el estado guardado no cambia.""",,,,30,,Flujo del prestador,,
 272,TC-INT-PRE-010 No operar sobre solicitudes de otro prestador,"TC-INT-PRE-010 — Un prestador no puede aceptar, rechazar ni finalizar solicitudes de otro.
 
 Rol: Prestador. Requerimiento: RF-11, RF-13. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › no puede %s una solicitud de otro prestador","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-010,RF-11,RF-13,rol:Prestador,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""Crear una solicitud hacia otro prestador""
-2. ""Intentar la acción con el token del prestador""","2. ""403 y la solicitud sigue PENDIENTE.""",,,,29,,Flujo del prestador,,
+2. ""Intentar la acción con el token del prestador""","2. ""403 y la solicitud sigue PENDIENTE.""",,,,30,,Flujo del prestador,,
 273,TC-INT-PRE-011 Listado de solicitudes recibidas,"TC-INT-PRE-011 — El prestador ve solo las solicitudes que recibió y puede filtrar por estado.
 
 Rol: Prestador. Requerimiento: RF-15. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › lista solo las solicitudes que recibió, con filtro por estado","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-011,RF-15,rol:Prestador,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""Crear una solicitud aceptada propia y otra de otro prestador""
-2. ""GET /api/solicitudes?estado=ACEPTADA""","2. ""Aparece la propia, no la ajena, y todas están ACEPTADA.""",,,,29,,Flujo del prestador,,
+2. ""GET /api/solicitudes?estado=ACEPTADA""","2. ""Aparece la propia, no la ajena, y todas están ACEPTADA.""",,,,30,,Flujo del prestador,,
 274,TC-INT-PRE-012 Calificaciones recibidas sin las moderadas,"TC-INT-PRE-012 — El prestador ve sus calificaciones y comentarios, sin los moderados.
 
 Rol: Prestador. Requerimiento: RF-21, RF-23. Capa: Integración.
 
 Test automatizado: tests/integration/prestador.integration.test.js › ve las calificaciones recibidas sin las moderadas","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-012,RF-21,RF-23,rol:Prestador,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""Crear dos calificaciones y moderar una""
-2. ""GET /api/prestadores/me/calificaciones""","2. ""Aparece la calificación visible y no la moderada.""",,,,29,,Flujo del prestador,,
+2. ""GET /api/prestadores/me/calificaciones""","2. ""Aparece la calificación visible y no la moderada.""",,,,30,,Flujo del prestador,,
 275,TC-INT-PRE-013 Solicitud inexistente,"TC-INT-PRE-013 — Operar sobre una solicitud que no existe responde 404.
 
 Rol: Prestador. Requerimiento: RF-11. Capa: Integración.
 
-Test automatizado: tests/integration/prestador.integration.test.js › responde 404 al operar sobre una solicitud que no existe","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-013,RF-11,rol:Prestador,capa:integracion",low,minor,integration,negative,automated,actual,no,api,classic,"1. ""PATCH /api/solicitudes/<uuid al azar>/aceptar""","1. ""404.""",,,,29,,Flujo del prestador,,
+Test automatizado: tests/integration/prestador.integration.test.js › responde 404 al operar sobre una solicitud que no existe","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Oficio activo, dos prestadores completos y un cliente, todos con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-PRE-013,RF-11,rol:Prestador,capa:integracion",low,minor,integration,negative,automated,actual,no,api,classic,"1. ""PATCH /api/solicitudes/<uuid al azar>/aceptar""","1. ""404.""",,,,30,,Flujo del prestador,,
 276,TC-INT-ADM-001 Crear oficio,"TC-INT-ADM-001 — El administrador crea un oficio y queda guardado activo con el nombre limpio.
 
 Rol: Administrador. Requerimiento: RF-22. Capa: Integración.
 
 Test automatizado: tests/integration/administrador.integration.test.js › crea un oficio y queda guardado activo","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-001,RF-22,rol:Administrador,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""POST /api/oficios con nombre y categoría""
-2. ""Consultar el oficio con Prisma""","2. ""201 y el oficio queda activo con el nombre sin espacios sobrantes.""",,,,30,,Flujo del administrador,,
+2. ""Consultar el oficio con Prisma""","2. ""201 y el oficio queda activo con el nombre sin espacios sobrantes.""",,,,31,,Flujo del administrador,,
 277,TC-INT-ADM-002 Oficio con nombre duplicado,"TC-INT-ADM-002 — No se pueden crear dos oficios con el mismo nombre.
 
 Rol: Administrador. Requerimiento: RF-22. Capa: Integración.
 
-Test automatizado: tests/integration/administrador.integration.test.js › responde 409 si ya existe un oficio con ese nombre","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-002,RF-22,rol:Administrador,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""POST /api/oficios con el nombre de un oficio existente""","1. ""409 y sigue habiendo un solo oficio con ese nombre.""",,,,30,,Flujo del administrador,,
+Test automatizado: tests/integration/administrador.integration.test.js › responde 409 si ya existe un oficio con ese nombre","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-002,RF-22,rol:Administrador,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""POST /api/oficios con el nombre de un oficio existente""","1. ""409 y sigue habiendo un solo oficio con ese nombre.""",,,,31,,Flujo del administrador,,
 ,TC-INT-ADM-009 Oficio con nombre duplicado en minúsculas,"TC-INT-ADM-009 — No se pueden crear dos oficios que solo se diferencian en mayúsculas o minúsculas.
 
 Rol: Administrador. Requerimiento: RF-22. Capa: Integración.
 
 Test automatizado: tests/integration/administrador.integration.test.js › responde 409 si el nombre solo cambia en mayúsculas o minúsculas","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-009,RF-22,rol:Administrador,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""POST /api/oficios con el nombre de un oficio existente escrito en minúsculas""
-2. ""Contar los oficios con ese nombre""","2. ""409 y sigue habiendo un solo oficio con ese nombre, sin importar las mayúsculas.""",,,,30,,Flujo del administrador,,
+2. ""Contar los oficios con ese nombre""","2. ""409 y sigue habiendo un solo oficio con ese nombre, sin importar las mayúsculas.""",,,,31,,Flujo del administrador,,
 278,TC-INT-ADM-003 Editar oficio,"TC-INT-ADM-003 — El administrador cambia el nombre y la categoría de un oficio.
 
 Rol: Administrador. Requerimiento: RF-22. Capa: Integración.
 
 Test automatizado: tests/integration/administrador.integration.test.js › edita el nombre y la categoría de un oficio","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-003,RF-22,rol:Administrador,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""PUT /api/oficios/:id con nombre y categoría nuevos""
-2. ""Consultar el oficio""","2. ""200 y los datos nuevos quedan guardados.""",,,,30,,Flujo del administrador,,
+2. ""Consultar el oficio""","2. ""200 y los datos nuevos quedan guardados.""",,,,31,,Flujo del administrador,,
 279,TC-INT-ADM-004 Desactivar y activar oficio,"TC-INT-ADM-004 — Desactivar un oficio no lo borra: sale del listado público y sigue en el del administrador.
 
 Rol: Administrador. Requerimiento: RF-22. Capa: Integración.
 
 Test automatizado: tests/integration/administrador.integration.test.js › desactiva un oficio sin borrarlo y lo vuelve a activar","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-004,RF-22,rol:Administrador,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""PATCH /api/oficios/:id/estado con activo false""
 2. ""Comparar GET /api/oficios y GET /api/oficios/todos""
-3. ""Volver a activarlo""","3. ""El oficio queda inactivo en la base, solo aparece en /todos y después vuelve a activo.""",,,,30,,Flujo del administrador,,
+3. ""Volver a activarlo""","3. ""El oficio queda inactivo en la base, solo aparece en /todos y después vuelve a activo.""",,,,31,,Flujo del administrador,,
 280,TC-INT-ADM-005 Oficio desactivado saca al prestador de la búsqueda,"TC-INT-ADM-005 — Un prestador cuyo único oficio se desactiva no aparece en la búsqueda ni en el mapa.
 
 Rol: Administrador. Requerimiento: RF-22, RF-05, RF-07. Capa: Integración.
 
 Test automatizado: tests/integration/administrador.integration.test.js › al desactivar el único oficio de un prestador, deja de aparecer en la búsqueda","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-005,RF-22,RF-05,RF-07,rol:Administrador,capa:integracion",high,major,integration,positive,automated,actual,no,api,classic,"1. ""Crear un prestador con un solo oficio""
 2. ""Desactivar ese oficio""
-3. ""Buscar en /api/prestadores y /api/prestadores/mapa""","3. ""El prestador no aparece en ninguno de los dos.""",,,,30,,Flujo del administrador,,
+3. ""Buscar en /api/prestadores y /api/prestadores/mapa""","3. ""El prestador no aparece en ninguno de los dos.""",,,,31,,Flujo del administrador,,
 281,TC-INT-ADM-006 Listar todas las calificaciones,"TC-INT-ADM-006 — El administrador ve todas las calificaciones, incluidas las moderadas.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Integración.
 
 Test automatizado: tests/integration/administrador.integration.test.js › lista todas las calificaciones, incluidas las moderadas","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-006,RF-23,rol:Administrador,capa:integracion",medium,major,integration,positive,automated,actual,no,api,classic,"1. ""Crear una calificación normal y otra moderada""
-2. ""GET /api/calificaciones""","2. ""Aparecen las dos.""",,,,30,,Flujo del administrador,,
+2. ""GET /api/calificaciones""","2. ""Aparecen las dos.""",,,,31,,Flujo del administrador,,
 282,TC-INT-ADM-007 Moderar comentario,"TC-INT-ADM-007 — Moderar conserva el comentario, registra motivo y fecha, y lo saca del listado público.
 
 Rol: Administrador. Requerimiento: RF-23. Capa: Integración.
@@ -1633,42 +1658,42 @@ Rol: Administrador. Requerimiento: RF-23. Capa: Integración.
 Test automatizado: tests/integration/administrador.integration.test.js › modera un comentario: queda registrado y sale del listado público","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-007,RF-23,rol:Administrador,capa:integracion",high,critical,integration,negative,automated,actual,no,api,classic,"1. ""Crear una calificación""
 2. ""PATCH /api/calificaciones/:id/moderacion con un motivo""
 3. ""Consultar la base y el listado público""
-4. ""Moderarla otra vez""","4. ""200; queda moderada con motivo y fecha, el comentario se conserva, no aparece en el listado público y la segunda moderación da 409.""",,,,30,,Flujo del administrador,,
+4. ""Moderarla otra vez""","4. ""200; queda moderada con motivo y fecha, el comentario se conserva, no aparece en el listado público y la segunda moderación da 409.""",,,,31,,Flujo del administrador,,
 283,TC-INT-ADM-008 Rutas de administrador prohibidas para otros roles,"TC-INT-ADM-008 — Cliente y prestador reciben 403 en la gestión de oficios y la moderación, sin cambios en la base.
 
 Rol: Cliente / Prestador. Requerimiento: RF-22, RF-23. Capa: Integración.
 
 Test automatizado: tests/integration/administrador.integration.test.js › un %s recibe 403 en %s %s y no cambia nada","Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Administrador creado con Prisma (la API no permite registrarlo), un cliente y un prestador con sesión iniciada.",Al terminar la suite se borran todos los datos que creó.,"TC-INT-ADM-008,RF-22,RF-23,rol:Cliente / Prestador,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""Pedir cada ruta de administrador con token de CLIENTE y de PRESTADOR""
-2. ""Revisar oficios y calificaciones en la base""","2. ""403 y nada cambia.""",,,,30,,Flujo del administrador,,
+2. ""Revisar oficios y calificaciones en la base""","2. ""403 y nada cambia.""",,,,31,,Flujo del administrador,,
 284,TC-INT-SEG-001 Rutas protegidas sin token,"TC-INT-SEG-001 — Toda ruta que requiere sesión responde 401 si no se manda token.
 
 Rol: Todos. Requerimiento: RF-02. Capa: Integración.
 
-Test automatizado: tests/integration/seguridad.integration.test.js › %s %s responde 401 sin token",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-001,RF-02,rol:Todos,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""Pedir cada ruta protegida sin el header Authorization""","1. ""401.""",,,,31,,Seguridad y errores,,
+Test automatizado: tests/integration/seguridad.integration.test.js › %s %s responde 401 sin token",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-001,RF-02,rol:Todos,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""Pedir cada ruta protegida sin el header Authorization""","1. ""401.""",,,,32,,Seguridad y errores,,
 285,"TC-INT-SEG-002 Token inválido, vencido o firmado con otra clave","TC-INT-SEG-002 — Un token que no se puede verificar responde 401.
 
 Rol: Todos. Requerimiento: RF-02. Capa: Integración.
 
-Test automatizado: tests/integration/seguridad.integration.test.js › responde 401 con un token %s",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-002,RF-02,rol:Todos,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""GET /api/auth/me con el token del caso""","1. ""401 con \""Token inválido o vencido\"".""",,,,31,,Seguridad y errores,,
+Test automatizado: tests/integration/seguridad.integration.test.js › responde 401 con un token %s",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-002,RF-02,rol:Todos,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""GET /api/auth/me con el token del caso""","1. ""401 con \""Token inválido o vencido\"".""",,,,32,,Seguridad y errores,,
 286,TC-INT-SEG-003 Rol sin permiso,"TC-INT-SEG-003 — Un cliente no puede usar rutas de prestador y viceversa.
 
 Rol: Todos. Requerimiento: RF-03, RF-09, RF-11, RF-12, RF-16. Capa: Integración.
 
-Test automatizado: tests/integration/seguridad.integration.test.js › un %s recibe 403 en %s %s",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-003,RF-03,RF-09,RF-11,RF-12,RF-16,rol:Todos,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""Pedir la ruta con el token del rol sin permiso""","1. ""403.""",,,,31,,Seguridad y errores,,
+Test automatizado: tests/integration/seguridad.integration.test.js › un %s recibe 403 en %s %s",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-003,RF-03,RF-09,RF-11,RF-12,RF-16,rol:Todos,capa:integracion",high,critical,security,negative,automated,actual,no,api,classic,"1. ""Pedir la ruta con el token del rol sin permiso""","1. ""403.""",,,,32,,Seguridad y errores,,
 287,TC-INT-SEG-004 Recursos y rutas inexistentes,"TC-INT-SEG-004 — Rutas y recursos que no existen responden 404.
 
 Rol: Todos. Requerimiento: RF-08, RF-12, RF-16, RF-19. Capa: Integración.
 
-Test automatizado: tests/integration/seguridad.integration.test.js › responde 404 para %s",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-004,RF-08,RF-12,RF-16,RF-19,rol:Todos,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""Pedir la ruta o el recurso con un id al azar""","1. ""404.""",,,,31,,Seguridad y errores,,
+Test automatizado: tests/integration/seguridad.integration.test.js › responde 404 para %s",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-004,RF-08,RF-12,RF-16,RF-19,rol:Todos,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""Pedir la ruta o el recurso con un id al azar""","1. ""404.""",,,,32,,Seguridad y errores,,
 288,TC-INT-SEG-005 JSON mal formado,"TC-INT-SEG-005 — Un cuerpo que no es JSON válido responde 400 con un mensaje claro.
 
 Rol: Todos. Requerimiento: RF-02. Capa: Integración.
 
-Test automatizado: tests/integration/seguridad.integration.test.js › responde 400 si el cuerpo no es un JSON válido",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-005,RF-02,rol:Todos,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""POST /api/auth/login con un JSON roto""","1. ""400 con \""El cuerpo del pedido no es un JSON válido\"".""",,,,31,,Seguridad y errores,,
+Test automatizado: tests/integration/seguridad.integration.test.js › responde 400 si el cuerpo no es un JSON válido",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-005,RF-02,rol:Todos,capa:integracion",medium,normal,integration,negative,automated,actual,no,api,classic,"1. ""POST /api/auth/login con un JSON roto""","1. ""400 con \""El cuerpo del pedido no es un JSON válido\"".""",,,,32,,Seguridad y errores,,
 289,TC-INT-SEG-006 Token de una cuenta desactivada,"TC-INT-SEG-006 — Si la cuenta se desactiva, su token ya no permite ver el perfil.
 
 Rol: Todos. Requerimiento: RF-02. Capa: Integración.
 
 Test automatizado: tests/integration/seguridad.integration.test.js › el token de una cuenta desactivada ya no permite ver el perfil",Base de datos de test (DATABASE_URL_TEST) con las migraciones aplicadas. La suite crea sus propios datos con un prefijo único. Un cliente y un prestador con sesión iniciada.,Al terminar la suite se borran todos los datos que creó.,"TC-INT-SEG-006,RF-02,rol:Todos,capa:integracion",high,major,security,negative,automated,actual,no,api,classic,"1. ""Registrar un cliente e iniciar sesión""
 2. ""Desactivarlo en la base""
-3. ""GET /api/auth/me con su token""","3. ""404.""",,,,31,,Seguridad y errores,,
+3. ""GET /api/auth/me con su token""","3. ""404.""",,,,32,,Seguridad y errores,,

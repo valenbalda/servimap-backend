@@ -121,6 +121,8 @@ describeConBase('Integración: flujo del prestador', () => {
 
     expect(res.status).toBe(200);
     expect(await estadoGuardado(solicitud.id)).toBe('ACEPTADA');
+    expect(new Date(res.body.fechaAceptacion).toISOString()).toBe(res.body.fechaAceptacion);
+    expect(res.body.fechaFinalizacion).toBeNull();
   });
 
   it(caso('TC-INT-PRE-007', 'rechaza una solicitud pendiente'), async () => {
@@ -132,7 +134,7 @@ describeConBase('Integración: flujo del prestador', () => {
     expect(await estadoGuardado(solicitud.id)).toBe('RECHAZADA');
   });
 
-  it(caso('TC-INT-PRE-008', 'finaliza una solicitud aceptada y suma un servicio finalizado'), async () => {
+    it(caso('TC-INT-PRE-008', 'finaliza una solicitud aceptada y suma un servicio finalizado'), async () => {
     const solicitud = await escenario.crearSolicitud(cliente, prestador, oficio, 'ACEPTADA');
     const antes = await api().get(`/api/calificaciones/prestador/${prestador.prestadorId}/reputacion`);
 
@@ -140,6 +142,7 @@ describeConBase('Integración: flujo del prestador', () => {
 
     expect(res.status).toBe(200);
     expect(await estadoGuardado(solicitud.id)).toBe('FINALIZADA');
+    expect(new Date(res.body.fechaFinalizacion).toISOString()).toBe(res.body.fechaFinalizacion);
     const despues = await api().get(`/api/calificaciones/prestador/${prestador.prestadorId}/reputacion`);
     expect(despues.body.serviciosFinalizados).toBe(antes.body.serviciosFinalizados + 1);
   });

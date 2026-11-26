@@ -698,6 +698,18 @@ const solicitud = {
       enum: ['PENDIENTE', 'ACEPTADA', 'RECHAZADA', 'CANCELADA', 'FINALIZADA'],
     },
     fechaCreacion: { type: 'string', format: 'date-time' },
+    fechaAceptacion: {
+      type: 'string',
+      format: 'date-time',
+      nullable: true,
+      description: 'Momento en que el prestador aceptó la solicitud (ISO 8601 UTC); null si todavía no la aceptó',
+    },
+    fechaFinalizacion: {
+      type: 'string',
+      format: 'date-time',
+      nullable: true,
+      description: 'Momento en que el prestador finalizó la solicitud (ISO 8601 UTC); null si todavía no la finalizó',
+    },
     clienteId: { type: 'string' },
     prestadorId: { type: 'string' },
     oficioId: { type: 'string' },
