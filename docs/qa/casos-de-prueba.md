@@ -2,7 +2,7 @@
 
 # Casos de prueba del backend
 
-Total: **331 casos** (276 unitarios y 55 de integración), todos automatizados.
+Total: **358 casos** (303 unitarios y 55 de integración), todos automatizados.
 Cada caso corresponde a un test real que lo referencia con `caso('TC-...', nombre)`.
 Un `it.each` es un solo caso con varios juegos de datos: cada uno se reporta como un resultado del mismo caso.
 
@@ -89,6 +89,33 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | [TC-AUTH-044](#tc-auth-044) | Cambiar contraseña de usuario inexistente o desactivado | Unitario | Autenticación: edición de perfil y contraseña (servicio) | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí |  |
 | [TC-AUTH-045](#tc-auth-045) | Número en el registro | Unitario | Autenticación: número identificador | Cliente / Prestador | RF-01, RF-02 | alta | mayor | funcional | Sí |  |
 | [TC-AUTH-046](#tc-auth-046) | Número en el perfil | Unitario | Autenticación: número identificador | Cliente / Prestador | RF-01, RF-02 | media | normal | funcional | Sí |  |
+| [TC-AUTH-047](#tc-auth-047) | Foto de perfil de un cliente | Unitario | Autenticación: foto de perfil | Cliente / Prestador | RF-01, RF-02 | alta | mayor | funcional | Sí |  |
+| [TC-AUTH-048](#tc-auth-048) | Foto de perfil de un prestador | Unitario | Autenticación: foto de perfil | Cliente / Prestador | RF-01, RF-02 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-001](#tc-fot-001) | Subida sin imagen o con tipo no permitido | Unitario | Foto de perfil: controlador | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-002](#tc-fot-002) | Archivo que no es lo que dice ser | Unitario | Foto de perfil: controlador | Cliente / Prestador | RF-01, RF-03 | alta | critica | seguridad | Sí |  |
+| [TC-FOT-003](#tc-fot-003) | Subida válida | Unitario | Foto de perfil: controlador | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-004](#tc-fot-004) | Error del servicio al subir la foto | Unitario | Foto de perfil: controlador | Cliente / Prestador | RF-01, RF-03 | baja | menor | funcional | Sí |  |
+| [TC-FOT-005](#tc-fot-005) | Eliminar la foto propia | Unitario | Foto de perfil: controlador | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-006](#tc-fot-006) | Error del servicio al eliminar la foto | Unitario | Foto de perfil: controlador | Cliente / Prestador | RF-01, RF-03 | baja | menor | funcional | Sí |  |
+| [TC-FOT-007](#tc-fot-007) | Subir la foto de un cliente | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-008](#tc-fot-008) | Subir la foto de un prestador | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-009](#tc-fot-009) | Reemplazar la foto | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-010](#tc-fot-010) | No borrar fotos que no son del store | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | media | normal | funcional | Sí |  |
+| [TC-FOT-011](#tc-fot-011) | Falla el borrado de la foto anterior | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | baja | menor | funcional | Sí |  |
+| [TC-FOT-012](#tc-fot-012) | Falla el guardado en la base | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-013](#tc-fot-013) | Falla la subida al store | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | baja | menor | funcional | Sí |  |
+| [TC-FOT-014](#tc-fot-014) | Subir foto de un usuario inexistente o desactivado | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | media | normal | funcional | Sí |  |
+| [TC-FOT-015](#tc-fot-015) | Eliminar la foto | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-016](#tc-fot-016) | Eliminar una foto externa | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | media | normal | funcional | Sí |  |
+| [TC-FOT-017](#tc-fot-017) | Eliminar sin tener foto | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | media | normal | funcional | Sí |  |
+| [TC-FOT-018](#tc-fot-018) | Eliminar la foto de un usuario desactivado | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | media | normal | funcional | Sí |  |
+| [TC-FOT-019](#tc-fot-019) | Reconocer las fotos del store | Unitario | Foto de perfil: servicio | Cliente / Prestador | RF-01, RF-03 | alta | critica | seguridad | Sí |  |
+| [TC-FOT-020](#tc-fot-020) | Foto de perfil sin token | Unitario | Foto de perfil: API | Cliente / Prestador | RF-01, RF-03 | alta | critica | seguridad | Sí |  |
+| [TC-FOT-021](#tc-fot-021) | Foto de perfil como administrador | Unitario | Foto de perfil: API | Cliente / Prestador | RF-01, RF-03 | alta | critica | seguridad | Sí |  |
+| [TC-FOT-022](#tc-fot-022) | Subir la foto con el cuerpo crudo | Unitario | Foto de perfil: API | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-023](#tc-fot-023) | Imagen de más de 2 MB | Unitario | Foto de perfil: API | Cliente / Prestador | RF-01, RF-03 | alta | mayor | funcional | Sí |  |
+| [TC-FOT-024](#tc-fot-024) | JSON en lugar de la imagen | Unitario | Foto de perfil: API | Cliente / Prestador | RF-01, RF-03 | media | normal | funcional | Sí |  |
+| [TC-FOT-025](#tc-fot-025) | Eliminar la foto por HTTP | Unitario | Foto de perfil: API | Cliente / Prestador | RF-01, RF-03 | media | normal | funcional | Sí |  |
 | [TC-OFI-001](#tc-ofi-001) | Listado público de oficios | Unitario | Oficios: controlador | Visitante | RF-22, RF-04 | media | normal | funcional | Sí | 62 |
 | [TC-OFI-002](#tc-ofi-002) | Error en el listado público | Unitario | Oficios: controlador | Visitante | RF-22 | baja | menor | funcional | Sí | 63 |
 | [TC-OFI-003](#tc-ofi-003) | Listado completo para el administrador | Unitario | Oficios: controlador | Administrador | RF-22 | media | normal | funcional | Sí | 64 |
@@ -2037,6 +2064,600 @@ La columna **qaseId** se completa cuando los casos existen en Qase (ver [README]
 | Rol | Cliente / Prestador |
 | Requerimiento | RF-01, RF-02 |
 | Archivo y test | `tests/authService.test.js` › el perfil incluye el número además del id |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-047
+
+**Foto de perfil de un cliente**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El perfil de un cliente incluye su foto, o null si no tiene. |
+| Precondiciones | authService con Prisma simulado (sin base de datos real) y una clave JWT de test. |
+| Pasos | 1. Simular un cliente con foto y otro sin foto<br>2. Llamar a obtenerPerfil |
+| Resultado esperado | La respuesta incluye fotoPerfil con la URL o null. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: foto de perfil |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authService.test.js` › el perfil de un cliente %s incluye fotoPerfil |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-AUTH-048
+
+**Foto de perfil de un prestador**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | El perfil de un prestador toma la foto del campo fotoPerfil de su perfil de prestador. |
+| Precondiciones | authService con Prisma simulado (sin base de datos real) y una clave JWT de test. |
+| Pasos | 1. Simular un usuario prestador y su perfil con foto<br>2. Llamar a obtenerPerfil y actualizarNombre |
+| Resultado esperado | La respuesta incluye la foto del prestador (o null si no hay perfil) tanto al consultar como al editar el nombre. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Autenticación: foto de perfil |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-02 |
+| Archivo y test | `tests/authService.test.js` › el perfil de un prestador toma la foto de su perfil de prestador |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-001
+
+**Subida sin imagen o con tipo no permitido**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Solo se acepta una imagen JPG, PNG o WebP en el cuerpo del pedido. |
+| Precondiciones | Controlador de fotos con fotosService simulado; request y response simulados. |
+| Pasos | 1. Invocar subir sin Content-Type, con un tipo que no es imagen, con gif, sin cuerpo, con cuerpo vacío o con un cuerpo que no es una imagen cruda |
+| Resultado esperado | 400 "Enviá la imagen como JPG, PNG o WebP en el cuerpo del pedido" sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: controlador |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosController.test.js` › responde 400 %s |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-002
+
+**Archivo que no es lo que dice ser**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Se comprueban los primeros bytes del archivo: un texto con la etiqueta image/png, o un formato distinto al declarado, se rechaza. |
+| Precondiciones | Controlador de fotos con fotosService simulado; request y response simulados. |
+| Pasos | 1. Invocar subir con un texto como image/png<br>2. Invocar subir con un PNG como image/jpeg, un JPG como image/webp y un RIFF que no es WebP |
+| Resultado esperado | 400 "El archivo no es una imagen válida o no coincide con su tipo" sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | critica |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Foto de perfil: controlador |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosController.test.js` › responde 400 con %s |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-003
+
+**Subida válida**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Una imagen JPG, PNG o WebP válida llega al servicio con el usuario y el rol del token. |
+| Precondiciones | Controlador de fotos con fotosService simulado; request y response simulados. |
+| Pasos | 1. Invocar subir con cada formato válido, incluso con parámetros en el Content-Type |
+| Resultado esperado | El servicio recibe el id y el rol del token, la imagen y su tipo, y se responde con la URL. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: controlador |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosController.test.js` › acepta una imagen %s y usa el usuario del token |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-004
+
+**Error del servicio al subir la foto**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Un error del servicio se pasa al manejador de errores. |
+| Precondiciones | Controlador de fotos con fotosService simulado; request y response simulados. |
+| Pasos | 1. Hacer fallar subirFoto<br>2. Invocar subir |
+| Resultado esperado | Se llama a next(error). |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | baja |
+| Severidad | menor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: controlador |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosController.test.js` › pasa el error del servicio al manejador de errores |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-005
+
+**Eliminar la foto propia**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Se elimina la foto del usuario del token. |
+| Precondiciones | Controlador de fotos con fotosService simulado; request y response simulados. |
+| Pasos | 1. Invocar eliminar con req.usuario |
+| Resultado esperado | El servicio recibe el id y el rol del token y se responde { fotoPerfil: null }. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: controlador |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosController.test.js` › elimina la foto del usuario del token |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-006
+
+**Error del servicio al eliminar la foto**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Un error del servicio se pasa al manejador de errores. |
+| Precondiciones | Controlador de fotos con fotosService simulado; request y response simulados. |
+| Pasos | 1. Hacer fallar eliminarFoto<br>2. Invocar eliminar |
+| Resultado esperado | Se llama a next(error). |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | baja |
+| Severidad | menor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: controlador |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosController.test.js` › pasa el error del servicio al manejador de errores |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-007
+
+**Subir la foto de un cliente**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | La imagen se sube al store público con una URL única y la URL se guarda en el usuario. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Llamar a subirFoto con rol CLIENTE |
+| Resultado esperado | put recibe access público, el tipo de la imagen y addRandomSuffix; el usuario guarda la URL y se devuelve. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › sube la imagen al store y guarda la URL en el usuario cliente |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-008
+
+**Subir la foto de un prestador**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | La URL se guarda en el campo fotoPerfil del prestador, el mismo que usan los listados y la ficha. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Llamar a subirFoto con rol PRESTADOR |
+| Resultado esperado | El prestador guarda la URL y no se modifica la tabla de usuarios. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › guarda la URL en el perfil cuando es un prestador |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-009
+
+**Reemplazar la foto**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Al subir una foto nueva se borra la anterior del store. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular un usuario con una foto del store<br>2. Llamar a subirFoto |
+| Resultado esperado | del recibe la URL de la foto anterior. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › al reemplazar la foto borra la anterior del store |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-010
+
+**No borrar fotos que no son del store**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Si no había foto, o era una URL externa cargada a mano, no se intenta borrar nada. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular un usuario sin foto y otro con una URL externa<br>2. Llamar a subirFoto |
+| Resultado esperado | del no se llama y la foto nueva se guarda igual. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › no borra nada del store si %s |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-011
+
+**Falla el borrado de la foto anterior**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Si el store no puede borrar la foto vieja, el usuario igual conserva su foto nueva. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular que del falla<br>2. Llamar a subirFoto |
+| Resultado esperado | Se devuelve la URL nueva sin error. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | baja |
+| Severidad | menor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › responde bien aunque falle el borrado de la foto anterior |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-012
+
+**Falla el guardado en la base**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Si no se puede guardar la URL, la foto recién subida se borra para no dejarla huérfana. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular que update falla<br>2. Llamar a subirFoto |
+| Resultado esperado | Lanza el error y del recibe la URL de la foto nueva. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › si falla el guardado en la base, borra la foto recién subida |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-013
+
+**Falla la subida al store**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Si el store falla, no se modifica la base. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular que put falla<br>2. Llamar a subirFoto |
+| Resultado esperado | Lanza el error sin actualizar la base ni borrar nada. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | baja |
+| Severidad | menor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › si falla la subida al store, no toca la base |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-014
+
+**Subir foto de un usuario inexistente o desactivado**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No se sube nada para un usuario o prestador que no existe o está desactivado. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular que no hay usuario, que está desactivado, o lo mismo para el perfil de prestador<br>2. Llamar a subirFoto |
+| Resultado esperado | Lanza 404 y no sube nada. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › lanza 404 con %s y no sube nada |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-015
+
+**Eliminar la foto**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Se quita la foto del perfil y se borra del store. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular un usuario con una foto del store<br>2. Llamar a eliminarFoto |
+| Resultado esperado | El usuario queda con fotoPerfil null, del recibe la URL y se devuelve { fotoPerfil: null }. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › quita la foto del perfil y la borra del store |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-016
+
+**Eliminar una foto externa**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Si la foto era una URL externa, solo se quita del perfil. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular un prestador con una URL externa<br>2. Llamar a eliminarFoto |
+| Resultado esperado | El prestador queda con fotoPerfil null y del no se llama. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › si la foto era una URL externa, solo la quita del perfil |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-017
+
+**Eliminar sin tener foto**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No hay nada que eliminar. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular un usuario sin foto<br>2. Llamar a eliminarFoto |
+| Resultado esperado | Lanza 404 "No tenés una foto de perfil" sin modificar nada. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › lanza 404 si no tiene foto de perfil |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-018
+
+**Eliminar la foto de un usuario desactivado**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | No se modifica a un usuario desactivado. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Simular un usuario desactivado<br>2. Llamar a eliminarFoto |
+| Resultado esperado | Lanza 404 y no actualiza. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › lanza 404 si el usuario no existe o está desactivado |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-019
+
+**Reconocer las fotos del store**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Solo se consideran propias las URL del dominio de Vercel Blob; no se confunden dominios parecidos ni textos que no son URL. |
+| Precondiciones | fotosService con Prisma y el SDK de Vercel Blob simulados, sin base de datos ni almacenamiento reales. |
+| Pasos | 1. Llamar a esFotoDelStore con URL del store, URL externas, un dominio parecido, un texto y null |
+| Resultado esperado | Devuelve true solo para las URL del store. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | critica |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Foto de perfil: servicio |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosService.test.js` › reconoce si %s es una foto del store |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-020
+
+**Foto de perfil sin token**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Subir y eliminar la foto exigen estar logueado. |
+| Precondiciones | API completa con supertest y fotosService simulado; token JWT firmado con la clave de test. |
+| Pasos | 1. Llamar a PUT y DELETE /api/auth/me/foto sin token |
+| Resultado esperado | 401 sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | critica |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Foto de perfil: API |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosHttp.test.js` › %s /api/auth/me/foto sin token responde 401 |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-021
+
+**Foto de perfil como administrador**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Solo clientes y prestadores tienen foto de perfil. |
+| Precondiciones | API completa con supertest y fotosService simulado; token JWT firmado con la clave de test. |
+| Pasos | 1. Llamar a PUT y DELETE /api/auth/me/foto con un token de administrador |
+| Resultado esperado | 403 sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | critica |
+| Tipo | seguridad |
+| Capa | Unitario |
+| Módulo | Foto de perfil: API |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosHttp.test.js` › %s /api/auth/me/foto como administrador responde 403 |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-022
+
+**Subir la foto con el cuerpo crudo**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Un cliente y un prestador pueden subir su foto enviando la imagen como cuerpo del pedido. |
+| Precondiciones | API completa con supertest y fotosService simulado; token JWT firmado con la clave de test. |
+| Pasos | 1. Llamar a PUT /api/auth/me/foto con un PNG y el Content-Type image/png |
+| Resultado esperado | 200 con la URL; el servicio recibe el id y el rol del token y la imagen completa. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: API |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosHttp.test.js` › un %s sube su foto con el cuerpo crudo y recibe la URL |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-023
+
+**Imagen de más de 2 MB**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Se rechaza una imagen que supera los 2 MB antes de procesarla. |
+| Precondiciones | API completa con supertest y fotosService simulado; token JWT firmado con la clave de test. |
+| Pasos | 1. Llamar a PUT /api/auth/me/foto con una imagen de más de 2 MB |
+| Resultado esperado | 413 sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | alta |
+| Severidad | mayor |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: API |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosHttp.test.js` › responde 413 si la imagen pesa más de 2 MB |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-024
+
+**JSON en lugar de la imagen**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Si el cuerpo es JSON y no una imagen, se rechaza. |
+| Precondiciones | API completa con supertest y fotosService simulado; token JWT firmado con la clave de test. |
+| Pasos | 1. Llamar a PUT /api/auth/me/foto con un cuerpo JSON |
+| Resultado esperado | 400 sin llamar al servicio. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: API |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosHttp.test.js` › responde 400 si se envía JSON en lugar de la imagen |
+| Automatizado | Sí |
+| qaseId | (pendiente) |
+
+### TC-FOT-025
+
+**Eliminar la foto por HTTP**
+
+| Campo | Valor |
+| --- | --- |
+| Descripción | Un cliente elimina su foto con DELETE /api/auth/me/foto. |
+| Precondiciones | API completa con supertest y fotosService simulado; token JWT firmado con la clave de test. |
+| Pasos | 1. Llamar a DELETE /api/auth/me/foto con un token de cliente |
+| Resultado esperado | 200 { fotoPerfil: null }; el servicio recibe el id y el rol del token. |
+| Postcondiciones | Sin efectos persistentes: no se usa base de datos real y los mocks se limpian antes de cada test. |
+| Prioridad | media |
+| Severidad | normal |
+| Tipo | funcional |
+| Capa | Unitario |
+| Módulo | Foto de perfil: API |
+| Rol | Cliente / Prestador |
+| Requerimiento | RF-01, RF-03 |
+| Archivo y test | `tests/fotosHttp.test.js` › un cliente elimina su foto |
 | Automatizado | Sí |
 | qaseId | (pendiente) |
 

@@ -1,5 +1,6 @@
 jest.mock('../src/config/prisma', () => ({
   usuario: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
+  prestador: { findUnique: jest.fn() },
 }));
 
 jest.mock('../src/config/env', () => ({
@@ -209,6 +210,35 @@ describe('obtenerPerfil', () => {
     });
   });
 
+    it.each([
+    ['con foto', 'https://x/foto.jpg', 'https://x/foto.jpg'],
+    ['sin foto', undefined, null],
+  ])(caso('TC-AUTH-047', 'el perfil de un cliente %s incluye fotoPerfil'), async (_, guardada, esperada) => {
+    prisma.usuario.findUnique.mockResolvedValue({ ...usuarioBase, fotoPerfil: guardada });
+
+    const perfil = await authService.obtenerPerfil('u1');
+
+    expect(perfil.fotoPerfil).toBe(esperada);
+    expect(prisma.prestador.findUnique).not.toHaveBeenCalled();
+  });
+
+  it(caso('TC-AUTH-048', 'el perfil de un prestador toma la foto de su perfil de prestador'), async () => {
+    const prestador = { ...usuarioBase, rol: 'PRESTADOR', fotoPerfil: 'https://x/no-se-usa.jpg' };
+    prisma.usuario.findUnique.mockResolvedValue(prestador);
+    prisma.usuario.update.mockResolvedValue(prestador);
+    prisma.prestador.findUnique.mockResolvedValueOnce({ fotoPerfil: 'https://x/prestador.jpg' });
+    prisma.prestador.findUnique.mockResolvedValueOnce(null);
+
+    const consultado = await authService.obtenerPerfil('u1');
+    const editado = await authService.actualizarNombre('u1', 'Ana');
+
+    expect(prisma.prestador.findUnique).toHaveBeenCalledWith({
+      where: { usuarioId: 'u1' },
+      select: { fotoPerfil: true },
+    });
+    expect(consultado.fotoPerfil).toBe('https://x/prestador.jpg');
+    expect(editado.fotoPerfil).toBeNull();
+  });
   it(caso('TC-AUTH-029', 'lanza 404 si el usuario no existe'), async () => {
     prisma.usuario.findUnique.mockResolvedValue(null);
 

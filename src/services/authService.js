@@ -104,8 +104,27 @@ async function buscarUsuarioActivo(usuarioId) {
   return usuario;
 }
 
+// Los clientes guardan la foto en Usuario.fotoPerfil; los prestadores, en
+// Prestador.fotoPerfil (el campo que ya usaban los listados y la ficha).
+async function buscarFotoPerfil(usuario) {
+  if (usuario.rol !== 'PRESTADOR') {
+    return usuario.fotoPerfil ?? null;
+  }
+
+  const prestador = await prisma.prestador.findUnique({
+    where: { usuarioId: usuario.id },
+    select: { fotoPerfil: true },
+  });
+
+  return prestador?.fotoPerfil ?? null;
+}
+
+async function armarPerfilConFoto(usuario) {
+  return { ...armarPerfil(usuario), fotoPerfil: await buscarFotoPerfil(usuario) };
+}
+
 async function obtenerPerfil(usuarioId) {
-  return armarPerfil(await buscarUsuarioActivo(usuarioId));
+  return armarPerfilConFoto(await buscarUsuarioActivo(usuarioId));
 }
 
 // Solo se puede editar el nombre. El DNI, el email y el rol no se tocan desde acá.
@@ -117,7 +136,7 @@ async function actualizarNombre(usuarioId, nombre) {
     data: { nombre },
   });
 
-  return armarPerfil(usuario);
+   return armarPerfilConFoto(usuario);
 }
 
 // Pide la contraseña actual, guarda la nueva hasheada y no devuelve ningún dato de la clave.

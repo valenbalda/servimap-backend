@@ -470,7 +470,10 @@ const swaggerSpec = {
               { $ref: '#/components/schemas/Usuario' },
               {
                 type: 'object',
-                properties: { dni: { type: 'string', example: '12345678' } },
+                properties: {
+                  dni: { type: 'string', example: '12345678' },
+                  fotoPerfil: { type: 'string', nullable: true },
+                },
               },
             ],
           }),
@@ -504,7 +507,10 @@ const swaggerSpec = {
               { $ref: '#/components/schemas/Usuario' },
               {
                 type: 'object',
-                properties: { dni: { type: 'string', example: '12345678' } },
+                properties: {
+                  dni: { type: 'string', example: '12345678' },
+                  fotoPerfil: { type: 'string', nullable: true },
+                },
               },
             ],
           }),
@@ -546,6 +552,60 @@ const swaggerSpec = {
           ),
           401: respuestaError('Token no proporcionado, inválido o vencido'),
           404: respuestaError('Usuario no encontrado'),
+        },
+      },
+    },
+        '/api/auth/me/foto': {
+      put: {
+        tags: ['Auth'],
+        summary: 'Subir o reemplazar la foto de perfil (cliente o prestador)',
+        description:
+          'La imagen se envía cruda en el cuerpo del pedido (no como JSON ni como formulario), con el Content-Type de la imagen: image/jpeg, image/png o image/webp. Pesa hasta 2 MB. ' +
+          'Si ya había una foto subida a ServiMap, se reemplaza y la anterior se borra. ' +
+          'Cada subida genera una URL nueva. La foto de un prestador se ve en su ficha, en el listado y en el mapa (campo fotoPerfil); la de un cliente, en su perfil (GET /api/auth/me). ' +
+          'Desde el frontend: fetch(url, { method: "PUT", headers: { Authorization, "Content-Type": archivo.type }, body: archivo }).',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'image/jpeg': { schema: { type: 'string', format: 'binary' } },
+            'image/png': { schema: { type: 'string', format: 'binary' } },
+            'image/webp': { schema: { type: 'string', format: 'binary' } },
+          },
+        },
+        responses: {
+          200: respuestaJson('Foto guardada. Devuelve la URL pública.', {
+            type: 'object',
+            properties: {
+              fotoPerfil: {
+                type: 'string',
+                example: 'https://abc123.public.blob.vercel-storage.com/fotos-perfil/u1-x7Kp2.jpg',
+              },
+            },
+          }),
+          400: respuestaError(
+            'No se envió una imagen, el Content-Type no es JPG, PNG ni WebP, o el archivo no es una imagen válida'
+          ),
+          401: respuestaError('Token no proporcionado, inválido o vencido'),
+          403: respuestaError('Solo clientes y prestadores pueden tener foto de perfil'),
+          404: respuestaError('Usuario o perfil de prestador no encontrado'),
+          413: respuestaError('La imagen pesa más de 2 MB'),
+        },
+      },
+      delete: {
+        tags: ['Auth'],
+        summary: 'Eliminar la foto de perfil (cliente o prestador)',
+        description:
+          'Quita la foto de perfil y la borra del almacenamiento. Si la foto era una URL externa (cargada antes a mano por un prestador), solo se quita del perfil.',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: respuestaJson('Foto eliminada', {
+            type: 'object',
+            properties: { fotoPerfil: { type: 'string', nullable: true, example: null } },
+          }),
+          401: respuestaError('Token no proporcionado, inválido o vencido'),
+          403: respuestaError('Solo clientes y prestadores pueden tener foto de perfil'),
+          404: respuestaError('No tenés una foto de perfil, o el usuario o perfil de prestador no existe'),
         },
       },
     },
